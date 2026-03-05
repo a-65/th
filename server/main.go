@@ -32,7 +32,7 @@ func main() {
 	ensureCardsInDB()
 
 	// 3. Настраиваем обработчики
-	fs := http.FileServer(http.Dir("./static"))
+	fs := http.FileServer(http.Dir("../client"))
 	http.Handle("/", fs)
 
 	http.HandleFunc("/api/card", cardHandler)
