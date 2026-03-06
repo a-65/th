@@ -1,4 +1,4 @@
-module github/a-65/tarothub/tarot-fun
+module github/a-65/tarothub/th/server
 
 go 1.24.0
 
