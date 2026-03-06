@@ -32,7 +32,8 @@ func main() {
 	ensureCardsInDB()
 
 	// 3. Настраиваем обработчики
-	fs := http.FileServer(http.Dir("../client"))
+	staticPath := getEnv("STATIC_PATH", "../client")
+	fs := http.FileServer(http.Dir(staticPath))
 	http.Handle("/", fs)
 
 	http.HandleFunc("/api/card", cardHandler)
@@ -61,9 +62,24 @@ func main() {
 	server.Shutdown(context.Background())
 }
 
+// Вспомогательная функция где-нибудь в файле:
+func getEnv(key, defaultValue string) string {
+	if value := os.Getenv(key); value != "" {
+		return value
+	}
+	return defaultValue
+}
+
 // connectDB устанавливаем соудинение с PostgreSQL
 func connectDB() {
-	connString := "postgres://tarot_user:tarot_password@localhost:5432/tarotdb?sslmode=disable"
+	host := getEnv("DB_HOST", "localhost")
+	port := getEnv("DB_PORT", "5432")
+	user := getEnv("DB_USER", "th_user")
+	password := getEnv("DB_PASSWORD", "th_password")
+	dbname := getEnv("DB_NAME", "thdb")
+
+	connString := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
+		user, password, host, port, dbname)
 
 	var err error
 	db, err = pgx.Connect(context.Background(), connString)
