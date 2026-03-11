@@ -1,0 +1,25 @@
+# Зависимости
+node_modules/
+vendor/
+
+# Системные файлы
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+
+# Редакторы
+.vscode/
+.idea/
+*.swp
+
+# Среда
+.env
+.env.local
+.env.*.local
+
+# Сборка
+dist/
+build/
+*.exe
+*.dll
