@@ -1,0 +1,13 @@
+{
+  "name": "tarothub-client",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Клиентская часть TarotHub",
+  "scripts": {
+    "start": "echo 'Заглушка: здесь будет запуск React'",
+    "build": "echo 'Заглушка: здесь будет сборка'"
+  },
+  "keywords": ["tarot", "react"],
+  "author": "a-65",
+  "license": "MIT"
+}

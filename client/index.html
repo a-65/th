@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TarotHub</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            font-size: 3em;
+            margin-bottom: 0;
+        }
+        p {
+            font-size: 1.2em;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔮 TarotHub</h1>
+    <p>Добро пожаловать в экосистему таро</p>
+    
+    <div class="card">
+        <h2>Скоро здесь появится магия</h2>
+        <p>Мы создаем пространство для тарологов, художников и искателей</p>
+        <p>✨ Следите за обновлениями ✨</p>
+    </div>
+    
+    <script>
+        console.log('TarotHub client loaded!');
+        
+        // Простое приветствие
+        const now = new Date();
+        const hours = now.getHours();
+        let greeting;
+        
+        if (hours < 12) greeting = 'Доброе утро';
+        else if (hours < 18) greeting = 'Добрый день';
+        else greeting = 'Добрый вечер';
+        
+        console.log(`${greeting}, путешественник!`);
+    </script>
+</body>
+</html>
