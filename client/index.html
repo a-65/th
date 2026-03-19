@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TarotHub</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Экран приветствия -->
+    <div id="welcomeScreen">
+        <h1>Добро пожаловать в TarotHub!</h1>
+        <p>Здесь будет текст приветствия и истории колоды...</p>
+        <button id="start-button">Начать гадание</button>
+    </div>
+
+    <div id="main-content">
+        <h1>TarotHub</h1>
+        <h2>Тренируем интуицию</h2>
+        
+        <p>Тебе выпала карта: <span id="cardResult">—</span></p>
+        <div class="single-card-container">
+            <img id="singleCardImage" src="" alt="Одна карта" class="card-image" style="display: none;">
+        </div>
+        
+        <p>Прошлое: <span id="pastDisplay">—</span></p>
+        <p>Настоящее: <span id="presentDisplay">—</span></p>
+        <p>Будущее: <span id="futureDisplay">—</span></p>
+
+        <div class="three-cards-container">
+            <img id="pastImage" src="" alt="Карта прошлого" class="card-image" style="display: none;">
+            <img id="presentImage" src="" alt="Карта настоящего" class="card-image" style="display: none;">
+            <img id="futureImage" src="" alt="Карта будущего" class="card-image" style="display: none;">
+        </div>
+
+        <img src="../images/0.jpg" alt="Карта Таро" width="200">
+        
+        <div class="buttons">
+            <button onclick="randomCard()">Одна карта</button>
+            <button onclick="showThreeCards()">Расклад на три</button>
+            <button onclick="resetCards()">Сброс</button>
+            <button onclick="clearConsole()">Консоль</button>
+        </div>
+    </div>
+
+    <script src="js/data.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
