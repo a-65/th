@@ -38,6 +38,35 @@
             <button onclick="showThreeCards()">Расклад на три</button>
             <button onclick="resetCards()">Сброс</button>
             <button onclick="clearConsole()">Консоль</button>
+            <button onclick="showHeqtLeapSpread()">🔮 Прыжок Хекет (10 карт)</button>
+        </div>
+    </div>
+
+    <!-- Расклад "Прыжок Хекет" (изначально скрыт) -->
+    <div id="heqt-leap-container" style="display: none;">
+        <h2>✨ Расклад «Прыжок Хекет» ✨</h2>
+        
+        <!-- Первая часть (ситуация) -->
+        <div class="spread-part">
+            <h3>Часть 1: Анализ ситуации</h3>
+            <p id="partOneDescription" class="part-description"></p>
+            <div class="cards-grid" id="partOneCards">
+                <!-- Сюда будут добавляться карты динамически через JS -->
+            </div>
+        </div>
+        
+        <!-- Вторая часть (вопрошающий) -->
+        <div class="spread-part">
+            <h3>Часть 2: Характеристика вопрошающего</h3>
+            <p id="partTwoDescription" class="part-description"></p>
+            <div class="cards-grid" id="partTwoCards">
+                <!-- Сюда будут добавляться карты динамически -->
+            </div>
+        </div>
+        
+        <!-- Кнопка возврата в меню -->
+        <div class="buttons">
+            <button id="back-to-menu" onclick="backToMainMenu()">← Вернуться в меню</button>
         </div>
     </div>
 
