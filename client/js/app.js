@@ -226,6 +226,14 @@ function showHeqtLeapSpread() {
         behavior: 'smooth'
     });
     console.log('📜 Страница прокручена вверх');
+
+    // 8. Отображаем карты первой части
+    console.log('🎨 Отображаем первую часть расклада...');
+    displayCards(firstPartCards, PART_ONE_POSITIONS, partOneCards);
+
+    // 9. Отображаем карты второй части
+    console.log('🎨 Отображаем вторую часть расклада...');
+    displayCards(secondPartCards, PART_TWO_POSITIONS, partTwoCards);
 }
 
 // Функция возврата в главное меню
@@ -259,7 +267,92 @@ function backToMainMenu() {
     });
 }
 
+// Создаёт элемент карточки для одной карты
+function createCardElement(card, positionDescription) {
+  
+  // 1. Создаём главный контейнер карточки
+  const cardDiv = document.createElement('div');
+  cardDiv.className = 'card-position';
 
+  // 2. Верхний мини-контейнер: описание позиции в раскладе
+  const topContainer = document.createElement('div');
+  topContainer.className = 'card-position-top';
+  
+  const positionP = document.createElement('p');
+  positionP.textContent = positionDescription;
+  topContainer.appendChild(positionP);
+
+  // 3. Средний мини-контейнер: изображение карты
+  const middleContainer = document.createElement('div');
+  middleContainer.className = 'card-position-middle';
+  
+  const img = document.createElement('img');
+  img.src = `../images/${card.id}.jpg`;
+  img.alt = card.name;
+  img.className = 'card-image';
+
+  // Если карта перевёрнутая, добавляем класс для поворота
+  if (card.isReversed) {
+    img.classList.add('reversed');
+  }
+  middleContainer.appendChild(img);
+
+  // 4. Нижний мини-контейнер: описание значения карты
+  const bottomContainer = document.createElement('div');
+  bottomContainer.className = 'card-position-bottom';
+  
+  const descDiv = document.createElement('div');
+  descDiv.className = 'card-description';
+
+  // Выбираем правильное описание в зависимости от ориентации
+  const cardName = card.isReversed ? `${card.name} (перевернутая)` : card.name;
+  const cardValue = card.isReversed ? card.reversed : card.upright;
+  descDiv.textContent = `${cardName}: ${cardValue}`;
+
+  bottomContainer.appendChild(descDiv);
+
+  // 5. Собираем карточку вместе (добавляем три контейнера по порядку)
+  cardDiv.appendChild(topContainer);
+  cardDiv.appendChild(middleContainer);
+  cardDiv.appendChild(bottomContainer);
+
+  console.log('✅ Карточка создана:', card.name);
+  
+  return cardDiv;
+}
+
+// Отображает карты в указанном контейнере
+function displayCards(cardsArray, positionsArray, containerElement) {
+  console.log(`📋 Отображаем ${cardsArray.length} карт`);
+
+  // Проверяем, что массивы одинаковой длины
+  if (cardsArray.length !== positionsArray.length) {
+    console.error('Ошибка: массивы карт и позиций имеют разную длину');
+    return;
+  }
+
+  // Очищаем контейнер перед отображением новых карт
+  containerElement.innerHTML = '';
+
+  // Создаем и добавляем элементы карточек
+  for (let i = 0; i < cardsArray.length; i++) {
+    const card = cardsArray[i];
+    const positionText = positionsArray[i];
+
+    // Создаём элемент карточки
+    const cardElement = createCardElement(card, positionText);
+
+    // Добавляем карточку в контейнер
+    containerElement.appendChild(cardElement);
+    
+    console.log(`✅ Карта "${card.name}" отображена в позиции "${positionText}"`);
+  }
+
+  console.log('✅ Все карты отображены успешно');
+}
+
+
+// Массив объектов Карт таро
 const tarotDeck = [
   {
     id: 0,
