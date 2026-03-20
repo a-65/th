@@ -132,7 +132,13 @@ function getUniqueCardsFromRange(count, minId, maxId) {
         if (card) {
             // Создаём копию карты и добавляем флаг перевёрнутости
             let cardCopy = { ...card };
-            cardCopy.isReversed = Math.random() < 0.5;
+            const isReversed = Math.random() < 0.5;
+            cardCopy.isReversed = isReversed;
+
+            // Добавляем пометку к названию, если карта перевёрнутая (как в getRandomCard)
+            if (isReversed) {
+                cardCopy.name += " (перевёрнутая)";
+            }
             
             // Проверяем, нет ли уже такой карты (сравниваем по id)
             let isDuplicate = selectedCards.some(c => c.id === cardCopy.id);
@@ -153,6 +159,9 @@ function getUniqueCardsFromRange(count, minId, maxId) {
 }
 
 function showHeqtLeapSpread() {
+    // 0. Очищаем предыдущие картинки из простых раскладов
+    resetCards(); // Скрывает singleCardImage, pastImage, presentImage, futureImage
+
     // 1. Находим все нужные элементы
     const mainContent = document.getElementById('main-content');
     const heqtContainer = document.getElementById('heqt-leap-container');
@@ -182,18 +191,23 @@ function showHeqtLeapSpread() {
     console.log('✅ Старые карты очищены');
 
     // 4. Добавляем описания частей из data.js
-    if (typeof PART_ONE_DESCRIPTION !== 'undefined') {
-        partOneDescription.textContent = PART_ONE_DESCRIPTION;
-        console.log('✅ Добавлено описание первой части');
+
+
+    // Проверяем, что PART_ONE_DESCRIPTION и PART_TWO_DESCRIPTION определены и не пустые, прежде чем добавлять их в DOM. Если они не определены или пустые, выводим предупреждение в консоль и устанавливаем текст по умолчанию.
+    if (typeof PART_ONE_DESCRIPTION !== 'undefined' && PART_ONE_DESCRIPTION && PART_ONE_DESCRIPTION.trim() !== '') {
+        partOneDescription.innerHTML = PART_ONE_DESCRIPTION;
+        console.log('✅ Описание первой части добавлено');
     } else {
-        console.warn('⚠️ PART_ONE_DESCRIPTION не найдена');
+        console.warn('Предупреждение: PART_ONE_DESCRIPTION не определён или пустой. Устанавливаю текст по умолчанию.');
+        partOneDescription.innerHTML = 'Описание первой части недоступно.';
     }
 
-    if (typeof PART_TWO_DESCRIPTION !== 'undefined') {
-        partTwoDescription.textContent = PART_TWO_DESCRIPTION;
-        console.log('✅ Добавлено описание второй части');
+    if (typeof PART_TWO_DESCRIPTION !== 'undefined' && PART_TWO_DESCRIPTION && PART_TWO_DESCRIPTION.trim() !== '') {
+        partTwoDescription.innerHTML = PART_TWO_DESCRIPTION;
+        console.log('✅ Описание второй части добавлено');
     } else {
-        console.warn('⚠️ PART_TWO_DESCRIPTION не найдена');
+        console.warn('Предупреждение: PART_TWO_DESCRIPTION не определён или пустой. Устанавливаю текст по умолчанию.');
+        partTwoDescription.innerHTML = 'Описание второй части недоступно.';
     }
 
     // 5. Получаем карты для обеих частей
@@ -201,6 +215,19 @@ function showHeqtLeapSpread() {
 
     const firstPartCards = getUniqueCardsFromRange(5, 0, 21);   // Старшие Арканы
     const secondPartCards = getUniqueCardsFromRange(5, 22, 77); // Остальные
+
+    // Проверяем, что получили нужное количество карт
+    if (firstPartCards.length !== 5) {
+        console.error(`Ошибка: для первой части получено ${firstPartCards.length} карт вместо 5`);
+        alert('Ошибка при выборе карт для первой части. Пожалуйста, попробуйте снова.');
+        return;
+    }
+
+      if (secondPartCards.length !== 5) {
+        console.error(`Ошибка: для второй части получено ${secondPartCards.length} карт вместо 5`);
+        alert('Ошибка при выборе карт для второй части. Пожалуйста, попробуйте снова.');
+        return;
+    }
 
     console.log('✅ Первая часть (ситуация) — 5 карт:');
     console.log(firstPartCards);
@@ -229,11 +256,29 @@ function showHeqtLeapSpread() {
 
     // 8. Отображаем карты первой части
     console.log('🎨 Отображаем первую часть расклада...');
-    displayCards(firstPartCards, PART_ONE_POSITIONS, partOneCards);
+
+    // Проверяем, что PART_ONE_POSITIONS определён и имеет 5 описаний
+    let partOnePositionsToUse;
+    if (typeof PART_ONE_POSITIONS !== 'undefined' && Array.isArray(PART_ONE_POSITIONS) && PART_ONE_POSITIONS.length === 5) {
+        partOnePositionsToUse = PART_ONE_POSITIONS;
+    } else {
+        console.warn('Предупреждение: PART_ONE_POSITIONS не определён или имеет неправильную длину. Устанавливаю текст по умолчанию.');
+        partOnePositionsToUse = ['🔹 Позиция 1', '🔹 Позиция 2', '🔹 Позиция 3', '🔹 Позиция 4', '🔹 Позиция 5'];
+    }
+    displayCards(firstPartCards, partOnePositionsToUse, partOneCards);
 
     // 9. Отображаем карты второй части
     console.log('🎨 Отображаем вторую часть расклада...');
-    displayCards(secondPartCards, PART_TWO_POSITIONS, partTwoCards);
+
+    let partTwoPositionsToUse;
+    if (typeof PART_TWO_POSITIONS !== 'undefined' && Array.isArray(PART_TWO_POSITIONS) && PART_TWO_POSITIONS.length === 5) {
+        partTwoPositionsToUse = PART_TWO_POSITIONS;
+    } else {
+        console.warn('Предупреждение: PART_TWO_POSITIONS не определён или имеет неправильную длину. Устанавливаю текст по умолчанию.');
+        partTwoPositionsToUse = ['🔹 Позиция 1', '🔹 Позиция 2', '🔹 Позиция 3', '🔹 Позиция 4', '🔹 Позиция 5'];
+    }
+    displayCards(secondPartCards, partTwoPositionsToUse, partTwoCards);
+
 }
 
 // Функция возврата в главное меню
@@ -291,6 +336,13 @@ function createCardElement(card, positionDescription) {
   img.alt = card.name;
   img.className = 'card-image';
 
+  // Добавляем обработчик ошибки загрузки изображения
+  img.onerror = function() {
+    console.warn(`Изображение для карты ${card.id} (${card.name}) не найдено`);
+    this.src = '../images/book_thoth.jpg'; // путь к картинке-заглушке
+    this.alt = `Изображение отсутствует: ${card.name}`;
+};
+
   // Если карта перевёрнутая, добавляем класс для поворота
   if (card.isReversed) {
     img.classList.add('reversed');
@@ -305,9 +357,8 @@ function createCardElement(card, positionDescription) {
   descDiv.className = 'card-description';
 
   // Выбираем правильное описание в зависимости от ориентации
-  const cardName = card.isReversed ? `${card.name} (перевернутая)` : card.name;
   const cardValue = card.isReversed ? card.reversed : card.upright;
-  descDiv.textContent = `${cardName}: ${cardValue}`;
+  descDiv.textContent = `${card.name}: ${cardValue}`;
 
   bottomContainer.appendChild(descDiv);
 
