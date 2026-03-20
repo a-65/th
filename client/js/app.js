@@ -159,9 +159,6 @@ function getUniqueCardsFromRange(count, minId, maxId) {
 }
 
 function showHeqtLeapSpread() {
-    // 0. Очищаем предыдущие картинки из простых раскладов
-    resetCards(); // Скрывает singleCardImage, pastImage, presentImage, futureImage
-
     // 1. Находим все нужные элементы
     const mainContent = document.getElementById('main-content');
     const heqtContainer = document.getElementById('heqt-leap-container');
@@ -341,7 +338,7 @@ function createCardElement(card, positionDescription) {
     console.warn(`Изображение для карты ${card.id} (${card.name}) не найдено`);
     this.src = '../images/book_thoth.jpg'; // путь к картинке-заглушке
     this.alt = `Изображение отсутствует: ${card.name}`;
-};
+  };
 
   // Если карта перевёрнутая, добавляем класс для поворота
   if (card.isReversed) {
