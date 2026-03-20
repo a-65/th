@@ -8,108 +8,6 @@ if (typeof PART_ONE_POSITIONS !== 'undefined') {
     console.error('ОШИБКА: PART_ONE_POSITIONS не определена!');
 }
 
-function getRandomCard() {
-  // Получаем случайный индекс от 0 до 77
-  let cardIndex = Math.floor(Math.random() * tarotDeck.length);
-
-  // Берём карту из массива по этому индексу и создаём новый объект, чтобы не изменять оригинал
-  let card = { ...tarotDeck[cardIndex] };
-
-  // Выводим информацию о карте в консоль для отладки
-  console.log(card);
-
-  let isReversed = Math.random() < 0.5; // 50% шанс на перевёрнутую карту
-  card.isReversed = isReversed; // добавляем свойство isReversed к объекту карты
-
-  if (isReversed) {
-    card.name += " (перевёрнутая)"; // добавляем пометку к названию карты
-  }
-
-  return card; // возвращаем объект карты с информацией о том, перевёрнутая она или нет
-}
-
-function randomCard() {
-  let card = getRandomCard(); // теперь card — это объект
-  document.getElementById('cardResult').innerText = card.name; // берём name из объекта
-  // Показываем картинку
-  showCardImage(card, 'singleCardImage');
-
-  // Выводим в консоль для отладки
-  console.log('Твоя карта:', card.name);
-  console.log('Прямое значение:', card.upright);
-  console.log('Перевернутое значение:', card.reversed);
-  console.log('---');
-}
-
-function showCardImage(card, imageElementId) {
-  let imgElement = document.getElementById(imageElementId);
-
-  if (card) {
-    // Формируем путь к картинке: images/0.jpg, images/1.jpg и т.д.
-    imgElement.src = `../images/${card.id}.jpg`;
-    imgElement.style.display = 'block'; // показываем картинку
-
-    // Если карта перевёрнутая, добавляем класс для поворота
-    if (card.isReversed) {
-      imgElement.classList.add('reversed');
-    } else {
-      imgElement.classList.remove('reversed');
-    }
-  } else {
-    imgElement.style.display = 'none'; // прячем элемент
-  }
-}
-
-function showThreeCards() {
-  let threeCards = [];
-
-  while (threeCards.length < 3) {
-    let card = getRandomCard();
-    let isDuplicate = threeCards.some(existingCard => existingCard.id === card.id);
-
-    if (!isDuplicate) {
-      threeCards.push(card);
-    }
-  }
-
-  // Показываем названия
-  document.getElementById('pastDisplay').innerText = threeCards[0].name;
-  document.getElementById('presentDisplay').innerText = threeCards[1].name;
-  document.getElementById('futureDisplay').innerText = threeCards[2].name;
-
-  // Показываем картинки
-  showCardImage(threeCards[0], 'pastImage');
-  showCardImage(threeCards[1], 'presentImage');
-  showCardImage(threeCards[2], 'futureImage');
-
-  // Выводим в консоль для отладки
-  threeCards.forEach((card, index) => {
-    console.log(`${['Прошлое', 'Настоящее', 'Будущее'][index]}: ${card.name}`);
-    console.log('Прямое:', card.upright);
-    console.log('Перевернутое:', card.reversed);
-    console.log('---');
-  });
-}
-
-function resetCards() {
-  // Очищаем текст
-  document.getElementById('cardResult').innerText = '—';
-  document.getElementById('pastDisplay').innerText = '—';
-  document.getElementById('presentDisplay').innerText = '—';
-  document.getElementById('futureDisplay').innerText = '—';
-
-  // Прячем все картинки
-  showCardImage(null, 'singleCardImage');
-  showCardImage(null, 'pastImage');
-  showCardImage(null, 'presentImage');
-  showCardImage(null, 'futureImage');
-}
-
-function clearConsole() {
-  console.clear();
-  console.log('✨ Готов к новым раскладам');
-}
-
 /**
  * Получает массив уникальных карт из указанного диапазона
  * @param {number} count - сколько карт нужно получить
@@ -159,9 +57,6 @@ function getUniqueCardsFromRange(count, minId, maxId) {
 }
 
 function showHeqtLeapSpread() {
-    // 0. Очищаем предыдущие картинки из простых раскладов
-    resetCards(); // Скрывает singleCardImage, pastImage, presentImage, futureImage
-
     // 1. Находим все нужные элементы
     const mainContent = document.getElementById('main-content');
     const heqtContainer = document.getElementById('heqt-leap-container');
@@ -341,7 +236,7 @@ function createCardElement(card, positionDescription) {
     console.warn(`Изображение для карты ${card.id} (${card.name}) не найдено`);
     this.src = '../images/book_thoth.jpg'; // путь к картинке-заглушке
     this.alt = `Изображение отсутствует: ${card.name}`;
-};
+  };
 
   // Если карта перевёрнутая, добавляем класс для поворота
   if (card.isReversed) {
