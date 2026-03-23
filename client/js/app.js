@@ -1,3 +1,34 @@
+// ============================================
+// ЗАЩИТА ОТ ДВОЙНОГО НАЖАТИЯ
+// ============================================
+
+let isProcessing = false; // Флаг, блокирующий повторные нажатия
+
+function withLock(callback) {
+    return function(...args) {
+        if (isProcessing) return; // Если уже обрабатывается — игнорируем
+        isProcessing = true;
+        try {
+            callback.apply(this, args);
+        } finally {
+            setTimeout(() => { isProcessing = false; }, 500); // Разблокируем через 0.5 сек
+        }
+    };
+}
+
+// Оборачиваем функции, которые могут вызываться многократно
+const originalNextStep = window.nextStep;
+window.nextStep = withLock(originalNextStep);
+
+const originalStartApp = window.startApp;
+window.startApp = withLock(originalStartApp);
+
+const originalShowHeqtLeapSpread = window.showHeqtLeapSpread;
+window.showHeqtLeapSpread = withLock(originalShowHeqtLeapSpread);
+
+const originalBackToMainMenu = window.backToMainMenu;
+window.backToMainMenu = withLock(originalBackToMainMenu);
+
 
 // Проверяем, что данные из data.js загрузились
 console.log('Проверка данных:');
@@ -296,6 +327,312 @@ function displayCards(cardsArray, positionsArray, containerElement) {
 
   console.log('✅ Все карты отображены успешно');
 }
+
+// ============================================
+// ЭКРАН ПРИВЕТСТВИЯ (ПОШАГОВЫЙ)
+// ============================================
+
+let currentStep = 1;          // Текущий шаг (1, 2 или 3)
+const totalSteps = 3;         // Всего шагов в приветствии
+
+/**
+ * Обновляет внешний вид прогресс-бара
+ * Подсвечивает пройденные шаги
+ */
+function updateProgressBar() {
+    const steps = document.querySelectorAll('.progress-step');  // Находим все кружочки с цифрами
+    steps.forEach((step, index) => {
+        if (index + 1 <= currentStep) {
+            step.classList.add('active');    // Добавляем класс active для пройденных шагов
+        } else {
+            step.classList.remove('active'); // Убираем класс active для будущих шагов
+        }
+    });
+}
+
+/**
+ * Переход к следующему шагу приветствия
+ * Вызывается при нажатии на кнопку "Далее →" или "Правила расклада →"
+ */
+function nextStep() {
+    // 1. Находим текущий активный шаг и скрываем его
+    const currentStepElement = document.getElementById(`step-${getStepId(currentStep)}`);
+    if (currentStepElement) {
+        currentStepElement.classList.remove('active');
+    }
+    
+    // 2. Увеличиваем номер текущего шага
+    currentStep++;
+    
+    // 3. Если шаг существует — показываем его
+    if (currentStep <= totalSteps) {
+        const nextStepElement = document.getElementById(`step-${getStepId(currentStep)}`);
+        if (nextStepElement) {
+            nextStepElement.classList.add('active');
+            updateProgressBar();               // Обновляем прогресс-бар
+            
+            // Плавно прокручиваем страницу вверх (удобно для пользователя)
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }
+}
+
+/**
+ * Возвращает строковый идентификатор шага по его номеру
+ * @param {number} step - номер шага (1, 2 или 3)
+ * @returns {string} - идентификатор ('intro', 'history' или 'rules')
+ */
+function getStepId(step) {
+    const steps = {
+        1: 'intro',   // Шаг 1 — приветствие
+        2: 'history', // Шаг 2 — история колоды
+        3: 'rules'    // Шаг 3 — правила расклада
+    };
+    return steps[step];
+}
+
+/**
+ * Завершает приветствие и запускает основное приложение
+ * Вызывается при нажатии на кнопку "✨ К гаданию ✨"
+ */
+function startApp() {
+    // 1. Находим элементы экрана приветствия и главного меню
+    const welcomeScreen = document.getElementById('welcome-screen');
+    const mainContent = document.getElementById('main-content');
+    
+    // 2. Скрываем приветствие, показываем главное меню
+    if (welcomeScreen) welcomeScreen.style.display = 'none';
+    if (mainContent) mainContent.style.display = 'block';
+    
+    // 3. Сбрасываем прогресс для следующего возможного запуска (опционально)
+    currentStep = 1;
+    updateProgressBar();
+    
+    // 4. Плавно прокручиваем страницу вверх
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ============================================
+// ЗАПОЛНЕНИЕ КОНТЕНТА СТРАНИЦ
+// ============================================
+
+// Ожидаем полной загрузки DOM перед выполнением скрипта
+// Это гарантирует, что все элементы страницы уже существуют в момент обращения к ним
+document.addEventListener('DOMContentLoaded', () => {
+    
+    // ============================================
+    // СТРАНИЦА ПРИВЕТСТВИЯ
+    // ============================================
+    
+    // Заполняем страницу приветствия (INTRO_TEXT)
+    // INTRO_TEXT — это строка с вступительным текстом о колоде Таро
+    const welcomeContent = document.getElementById('welcome-content');
+    if (welcomeContent && typeof INTRO_TEXT !== 'undefined') {
+        // replace(/\n/g, '<br>') — заменяет все переносы строк в тексте на HTML-теги <br>
+        // Это нужно для корректного отображения многострочного текста в HTML
+        welcomeContent.innerHTML = INTRO_TEXT.replace(/\n/g, '<br>');
+    }
+    
+    // ============================================
+    // СТРАНИЦА ИСТОРИИ КОЛОДЫ
+    // ============================================
+    
+    // Заполняем страницу истории (HISTORY_TEXT — массив строк)
+    // HISTORY_TEXT содержит массив строк с историческими сведениями о колоде
+    const historyContent = document.getElementById('history-content');
+    if (historyContent && typeof HISTORY_TEXT !== 'undefined') {
+        // map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`) — оборачивает каждый элемент массива в тег <p>
+        // join('') — объединяет все элементы в одну строку без разделителей
+        historyContent.innerHTML = HISTORY_TEXT.map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
+    }
+    
+    // ============================================
+    // СТРАНИЦА ПРАВИЛ РАСКЛАДА
+    // ============================================
+    
+    // Заполняем страницу правил расклада (HEQET_TEXT — массив строк)
+    // HEQET_TEXT содержит массив строк с описанием расклада «Прыжок Хекет»
+    const rulesContent = document.getElementById('rules-content');
+    if (rulesContent && typeof HEQET_TEXT !== 'undefined') {
+        // Аналогично истории: каждый элемент массива оборачивается в <p>, переносы строк заменяются на <br>
+        rulesContent.innerHTML = HEQET_TEXT.map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
+    }
+    
+    // Выводим в консоль подтверждение успешного заполнения страниц
+    console.log('✅ Страницы заполнены контентом');
+
+    // Создаём кнопки навигации
+    createNavButtons();
+    
+    // Добавляем обработчик для кнопки нового расклада
+    const newSpreadBtn = document.getElementById('new-spread-btn');
+    if (newSpreadBtn) {
+        newSpreadBtn.addEventListener('click', () => {
+            console.log('🔄 Генерируем новый расклад');
+            loadSpread();  // Просто перезагружаем расклад
+        });
+    }
+    
+    console.log('✅ Все страницы готовы');
+});
+
+// ============================================
+// СТРАНИЦА РАСКЛАДА
+// ============================================
+
+/**
+ * Загружает расклад на страницу spread
+ */
+function loadSpread() {
+    console.log('🎴 Загружаем расклад "Прыжок Хекет"');
+    
+    // Находим контейнеры для карт
+    const partOneCards = document.getElementById('partOneCards');
+    const partTwoCards = document.getElementById('partTwoCards');
+    const partOneDescription = document.getElementById('partOneDescription');
+    const partTwoDescription = document.getElementById('partTwoDescription');
+    
+    if (!partOneCards || !partTwoCards) {
+        console.error('Ошибка: не найдены контейнеры для карт');
+        return;
+    }
+    
+    // Очищаем старые карты
+    partOneCards.innerHTML = '';
+    partTwoCards.innerHTML = '';
+    
+    // Добавляем описания частей
+    if (typeof PART_ONE_DESCRIPTION !== 'undefined') {
+        partOneDescription.textContent = PART_ONE_DESCRIPTION;
+    }
+    if (typeof PART_TWO_DESCRIPTION !== 'undefined') {
+        partTwoDescription.textContent = PART_TWO_DESCRIPTION;
+    }
+    
+    // Получаем карты для обеих частей
+    const firstPartCards = getUniqueCardsFromRange(5, 0, 21);   // Старшие Арканы
+    const secondPartCards = getUniqueCardsFromRange(5, 22, 77); // Остальные
+    
+    // Проверяем, что получили нужное количество карт
+    if (firstPartCards.length !== 5 || secondPartCards.length !== 5) {
+        console.error('Ошибка: не удалось получить 5 карт для каждой части');
+        return;
+    }
+    
+    // Получаем описания позиций
+    let partOnePositions = [];
+    let partTwoPositions = [];
+    
+    if (typeof PART_ONE_POSITIONS !== 'undefined' && PART_ONE_POSITIONS.length === 5) {
+        partOnePositions = PART_ONE_POSITIONS;
+    } else {
+        partOnePositions = ['🔹 Позиция 1', '🔹 Позиция 2', '🔹 Позиция 3', '🔹 Позиция 4', '🔹 Позиция 5'];
+    }
+    
+    if (typeof PART_TWO_POSITIONS !== 'undefined' && PART_TWO_POSITIONS.length === 5) {
+        partTwoPositions = PART_TWO_POSITIONS;
+    } else {
+        partTwoPositions = ['🔹 Позиция 1', '🔹 Позиция 2', '🔹 Позиция 3', '🔹 Позиция 4', '🔹 Позиция 5'];
+    }
+    
+    // Отображаем карты
+    displayCards(firstPartCards, partOnePositions, partOneCards);
+    displayCards(secondPartCards, partTwoPositions, partTwoCards);
+    
+    console.log('✅ Расклад загружен');
+}
+
+function switchToPage(pageId) {
+    // 1. Скрываем все страницы
+    const allPages = document.querySelectorAll('.page');
+    allPages.forEach(page => {
+        page.classList.remove('active-page');
+    });
+    
+    // 2. Показываем нужную страницу
+    const targetPage = document.getElementById(pageId);
+    if (targetPage) {
+        targetPage.classList.add('active-page');
+    }
+    
+    // 3. Если перешли на страницу расклада — загружаем карты
+    if (pageId === 'page-spread') {
+        loadSpread();
+    }
+    
+    // 4. Обновляем навигационные кнопки
+    createNavButtons();
+    
+    // 5. Прокручиваем страницу вверх
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    console.log(`📄 Перешли на страницу: ${pageId}`);
+}
+
+
+const pages = [
+    {
+        id: 'page-welcome',
+        buttonText: '✨ «Таро Гранд Эттейла»',
+        buttonId: 'nav-to-welcome'
+    },
+    {
+        id: 'page-history',
+        buttonText: '📜 История «Таро Гранд Эттейла»',
+        buttonId: 'nav-to-history'
+    },
+    {
+        id: 'page-rules',
+        buttonText: '🐸 Правила расклада «Прыжок Хекет»',
+        buttonId: 'nav-to-rules'
+    },
+    {
+        id: 'page-spread',                                    // Новая страница
+        buttonText: '🔮 Получить расклад «Прыжок Хекет»',       // Текст кнопки
+        buttonId: 'nav-to-spread'                             // ID кнопки
+    }
+];
+
+
+/**
+ * Создаёт кнопки навигации и добавляет их в DOM
+ */
+function createNavButtons() {
+    const navContainer = document.getElementById('nav-buttons');
+    if (!navContainer) {
+        console.error('Ошибка: контейнер nav-buttons не найден');
+        return;
+    }
+    
+    // Очищаем контейнер (на случай повторного вызова)
+    navContainer.innerHTML = '';
+    
+    // Получаем ID текущей активной страницы
+    const activePageId = getActivePageId();
+    
+    // Для каждой страницы создаём кнопку, если это не текущая страница
+    pages.forEach(page => {
+        if (page.id !== activePageId) {
+            const button = document.createElement('button');
+            button.textContent = page.buttonText;
+            button.className = 'nav-btn';
+            button.id = page.buttonId;
+            button.onclick = () => switchToPage(page.id);
+            navContainer.appendChild(button);
+        }
+    });
+    
+    console.log('✅ Навигационные кнопки созданы, активная страница:', activePageId);
+}
+
+/**
+ * Возвращает ID текущей активной страницы
+ */
+function getActivePageId() {
+    const activePage = document.querySelector('.page.active-page');
+    return activePage ? activePage.id : 'page-welcome';
+}
+
 
 
 // Массив объектов Карт таро

@@ -1,55 +1,88 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>TarotHub</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>TarotHub</title> <!-- Заголовок вкладки браузера -->
+    <link rel="stylesheet" href="css/style.css"> <!-- Подключаем внешний файл стилей -->
 </head>
 <body>
-    <!-- Экран приветствия -->
-    <div id="welcomeScreen">
-        <h1>Добро пожаловать в TarotHub!</h1>
-        <p>Здесь будет текст приветствия и истории колоды...</p>
-        <button id="start-button">Начать гадание</button>
-    </div>
 
-    <div id="main-content">
-        <h1>TarotHub</h1>
-        <h2>Таро Гранд Эттеила</h2>
+    <!-- ============================================
+     МНОГОСТРАНИЧНЫЙ ИНТЕРФЕЙС
+     ============================================ -->
+
+    <!-- Основной контейнер для всех страниц -->
+    <!-- Содержит все страницы и навигационные кнопки -->
+    <div id="app">
         
-        <div class="buttons">
-            <button onclick="showHeqtLeapSpread()">🔮 Прыжок Хекет</button>
+        <!-- Страница 1: Приветствие -->
+        <!-- Отображается по умолчанию (активная страница) -->
+        <div id="page-welcome" class="page active-page">
+            <h1>✨ Добро пожаловать в TarotHub ✨</h1>
+            <div class="page-content" id="welcome-content"></div>
         </div>
-    </div>
 
-    <!-- Расклад "Прыжок Хекет" (изначально скрыт) -->
-    <div id="heqt-leap-container" style="display: none;">
-        <h2>✨ Расклад «Прыжок Хекет» ✨</h2>
-        
-        <!-- Первая часть (ситуация) -->
-        <div class="spread-part">
-            <h3>Часть 1: Анализ ситуации</h3>
-            <p id="partOneDescription" class="part-description"></p>
-            <div class="cards-grid" id="partOneCards">
-                <!-- Сюда будут добавляться карты динамически через JS -->
+        <!-- Страница 2: История колоды -->
+        <!-- Содержит исторические сведения о колоде "Таро Гранд Эттейла" -->
+        <div id="page-history" class="page">
+            <h1>📜 История колоды «Таро Гранд Эттейла»</h1>
+            <!-- scrollable — добавляет прокрутку при превышении максимальной высоты -->
+            <div class="page-content scrollable" id="history-content"></div>
+        </div>
+
+        <!-- Страница 3: Описание расклада -->
+        <!-- Содержит правила и описание расклада "Прыжок Хекет" -->
+        <div id="page-rules" class="page">
+            <h1>🐸 Описание расклада «Прыжок Хекет»</h1>
+            <div class="page-content scrollable" id="rules-content"></div>
+        </div>
+
+        <!-- Страница 4: Расклад -->
+        <!-- Содержит сам расклад "Прыжок Хекет" (10 карт) и кнопку для нового расклада -->
+        <div id="page-spread" class="page">
+            <h1>🔮 Расклад «Прыжок Хекет»</h1>
+            
+            <!-- Контейнер для расклада -->
+            <!-- Вмещает обе части расклада: анализ ситуации и характеристику вопрошающего -->
+            <div id="spread-container">
+                
+                <!-- Первая часть (ситуация) -->
+                <!-- Анализирует ситуацию в контексте вопроса, выявляет причины и последствия -->
+                <div class="spread-part">
+                    <h3>Часть 1: Анализ ситуации</h3>
+                    <!-- Динамически заполняется из PART_ONE_DESCRIPTION -->
+                    <p id="partOneDescription" class="part-description"></p>
+                    <!-- Сетка для 5 карт Старших Арканов (ID 0-21) -->
+                    <!-- Карты добавляются динамически через JavaScript -->
+                    <div class="cards-grid" id="partOneCards"></div>
+                </div>
+                
+                <!-- Вторая часть (вопрошающий) -->
+                <!-- Характеризует самого Вопрошающего: эмоции, мысли, сильные и слабые стороны -->
+                <div class="spread-part">
+                    <h3>Часть 2: Характеристика вопрошающего</h3>
+                    <!-- Динамически заполняется из PART_TWO_DESCRIPTION -->
+                    <p id="partTwoDescription" class="part-description"></p>
+                    <!-- Сетка для 5 карт Средних и Младших Арканов (ID 22-77) -->
+                    <!-- Карты добавляются динамически через JavaScript -->
+                    <div class="cards-grid" id="partTwoCards"></div>
+                </div>
+            </div>
+            
+            <!-- Кнопка для нового расклада -->
+            <!-- При нажатии генерирует новый набор карт, не выходя из страницы расклада -->
+            <div class="new-spread-button-container">
+                <button id="new-spread-btn" class="new-spread-btn">🔄 Новый расклад «Прыжок Хекет»</button>
             </div>
         </div>
-        
-        <!-- Вторая часть (вопрошающий) -->
-        <div class="spread-part">
-            <h3>Часть 2: Характеристика вопрошающего</h3>
-            <p id="partTwoDescription" class="part-description"></p>
-            <div class="cards-grid" id="partTwoCards">
-                <!-- Сюда будут добавляться карты динамически -->
-            </div>
-        </div>
-        
-        <!-- Кнопка возврата в меню -->
-        <div class="buttons">
-            <button id="back-to-menu" onclick="backToMainMenu()">← Вернуться в меню</button>
-        </div>
-    </div>
 
-    <script src="js/data.js"></script>
-    <script src="js/app.js"></script>
+        <!-- Контейнер для навигационных кнопок -->
+        <!-- Кнопки будут созданы динамически через JavaScript -->
+        <div id="nav-buttons" class="nav-buttons"></div>
+        
+    </div> <!-- Конец контейнера #app -->
+
+    <!-- Подключаем скрипты: сначала данные, потом логику -->
+    <script src="js/data.js"></script>  <!-- Файл с текстовыми данными (INTRO_TEXT, HISTORY_TEXT, HEQET_TEXT и др.) -->
+    <script src="js/app.js"></script>   <!-- Файл с логикой приложения -->
 </body>
 </html>
