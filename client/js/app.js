@@ -1,3 +1,34 @@
+// ============================================
+// ЗАЩИТА ОТ ДВОЙНОГО НАЖАТИЯ
+// ============================================
+
+let isProcessing = false; // Флаг, блокирующий повторные нажатия
+
+function withLock(callback) {
+    return function(...args) {
+        if (isProcessing) return; // Если уже обрабатывается — игнорируем
+        isProcessing = true;
+        try {
+            callback.apply(this, args);
+        } finally {
+            setTimeout(() => { isProcessing = false; }, 500); // Разблокируем через 0.5 сек
+        }
+    };
+}
+
+// Оборачиваем функции, которые могут вызываться многократно
+const originalNextStep = window.nextStep;
+window.nextStep = withLock(originalNextStep);
+
+const originalStartApp = window.startApp;
+window.startApp = withLock(originalStartApp);
+
+const originalShowHeqtLeapSpread = window.showHeqtLeapSpread;
+window.showHeqtLeapSpread = withLock(originalShowHeqtLeapSpread);
+
+const originalBackToMainMenu = window.backToMainMenu;
+window.backToMainMenu = withLock(originalBackToMainMenu);
+
 
 // Проверяем, что данные из data.js загрузились
 console.log('Проверка данных:');

@@ -1,55 +1,110 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>TarotHub</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>TarotHub</title> <!-- Заголовок вкладки браузера -->
+    <link rel="stylesheet" href="css/style.css"> <!-- Подключаем внешний файл стилей -->
 </head>
 <body>
-    <!-- Экран приветствия -->
-    <div id="welcomeScreen">
-        <h1>Добро пожаловать в TarotHub!</h1>
-        <p>Здесь будет текст приветствия и истории колоды...</p>
-        <button id="start-button">Начать гадание</button>
-    </div>
-
-    <div id="main-content">
-        <h1>TarotHub</h1>
-        <h2>Таро Гранд Эттеила</h2>
+    <!-- 
+        ЭКРАН ПРИВЕТСТВИЯ (ПОШАГОВЫЙ)
+        Показывается первым при загрузке страницы
+    -->
+    <div id="welcome-screen" style="display: block;">
+        <!-- 
+            ПРОГРЕСС-БАР
+            Визуально показывает текущий шаг (1, 2 или 3)
+        -->
+        <div class="progress-bar" aria-label="Прогресс ознакомления">
+            <div class="progress-step active">1</div> <!-- Шаг 1 активен по умолчанию -->
+            <div class="progress-line"></div>      <!-- Линия между шагами 1 и 2 -->
+            <div class="progress-step">2</div>      <!-- Шаг 2 (неактивен) -->
+            <div class="progress-line"></div>      <!-- Линия между шагами 2 и 3 -->
+            <div class="progress-step">3</div>      <!-- Шаг 3 (неактивен) -->
+        </div>
         
-        <div class="buttons">
-            <button onclick="showHeqtLeapSpread()">🔮 Прыжок Хекет</button>
+        <!-- 
+            ШАГ 1: ПРИВЕТСТВИЕ
+            Содержит вступительный текст INTRO_TEXT из data.js
+        -->
+        <div id="step-intro" class="welcome-step active">
+            <h1>✨ Добро пожаловать в TarotHub ✨</h1> <!-- Главный заголовок -->
+            <div class="welcome-text" id="intro-text"></div> <!-- Сюда вставится текст из data.js -->
+            <button type="button" class="next-btn" onclick="nextStep()">Далее →</button> <!-- Кнопка перехода к истории -->
+        </div>
+        
+        <!-- 
+            ШАГ 2: ИСТОРИЯ КОЛОДЫ
+            Содержит массив HISTORY_TEXT из data.js
+        -->
+        <div id="step-history" class="welcome-step">
+            <h2>📜 История колоды «Таро Гранд Эттейла»</h2> <!-- Подзаголовок -->
+            <div class="welcome-text scrollable" id="history-text"></div> <!-- Прокручиваемый контейнер для длинного текста -->
+            <button type="button" class="next-btn" onclick="nextStep()">Правила расклада →</button> <!-- Кнопка перехода к правилам -->
+        </div>
+        
+        <!-- 
+            ШАГ 3: ПРАВИЛА РАСКЛАДА
+            Содержит массив HEQET_TEXT из data.js
+        -->
+        <div id="step-rules" class="welcome-step">
+            <h2>🐸 Расклад «Прыжок Хекет»</h2> <!-- Заголовок с эмодзи лягушки (символ богини Хекет) -->
+            <div class="welcome-text scrollable" id="rules-text"></div> <!-- Прокручиваемый контейнер для правил -->
+            <button type="button" class="next-btn" onclick="startApp()">✨ К гаданию ✨</button> <!-- Кнопка запуска приложения -->
         </div>
     </div>
 
-    <!-- Расклад "Прыжок Хекет" (изначально скрыт) -->
+    <!-- 
+        ГЛАВНОЕ МЕНЮ
+        Изначально скрыто, показывается после завершения приветствия
+    -->
+    <div id="main-content" style="display: none;">
+        <h1>TarotHub</h1> <!-- Название приложения -->
+        <h2>Таро Гранд Эттейла</h2> <!-- Название колоды (исправлено: Эттейла, а не Эттеила) -->
+        
+        <div class="buttons"> <!-- Контейнер для кнопок -->
+            <button type="button" onclick="showHeqtLeapSpread()">🔮 Прыжок Хекет</button> <!-- Единственная кнопка главного меню -->
+        </div>
+    </div>
+
+    <!-- 
+        РАСКЛАД "ПРЫЖОК ХЕКЕТ"
+        Изначально скрыт, показывается при нажатии на кнопку в главном меню
+    -->
     <div id="heqt-leap-container" style="display: none;">
-        <h2>✨ Расклад «Прыжок Хекет» ✨</h2>
+        <h2>✨ Расклад «Прыжок Хекет» ✨</h2> <!-- Заголовок расклада -->
         
-        <!-- Первая часть (ситуация) -->
+        <!-- 
+            ЧАСТЬ 1: АНАЛИЗ СИТУАЦИИ
+            Содержит 5 карт: Будущее, Настоящее, Прошлое, Содействие, Противодействие
+        -->
         <div class="spread-part">
-            <h3>Часть 1: Анализ ситуации</h3>
-            <p id="partOneDescription" class="part-description"></p>
-            <div class="cards-grid" id="partOneCards">
-                <!-- Сюда будут добавляться карты динамически через JS -->
+            <h3>Часть 1: Анализ ситуации</h3> <!-- Подзаголовок первой части -->
+            <p id="partOneDescription" class="part-description"></p> <!-- Описание первой части из data.js -->
+            <div class="cards-grid" id="partOneCards"> <!-- Сетка для карт первой части -->
+                <!-- Карты будут добавлены динамически через displayCards() -->
             </div>
         </div>
         
-        <!-- Вторая часть (вопрошающий) -->
+        <!-- 
+            ЧАСТЬ 2: ХАРАКТЕРИСТИКА ВОПРОШАЮЩЕГО
+            Содержит 5 карт: Дом Целей, Дом Мысли, Дом Бремени, Дом Силы, Дом Контроля
+        -->
         <div class="spread-part">
-            <h3>Часть 2: Характеристика вопрошающего</h3>
-            <p id="partTwoDescription" class="part-description"></p>
-            <div class="cards-grid" id="partTwoCards">
-                <!-- Сюда будут добавляться карты динамически -->
+            <h3>Часть 2: Характеристика вопрошающего</h3> <!-- Подзаголовок второй части -->
+            <p id="partTwoDescription" class="part-description"></p> <!-- Описание второй части из data.js -->
+            <div class="cards-grid" id="partTwoCards"> <!-- Сетка для карт второй части -->
+                <!-- Карты будут добавлены динамически через displayCards() -->
             </div>
         </div>
         
-        <!-- Кнопка возврата в меню -->
+        <!-- Кнопка возврата в главное меню -->
         <div class="buttons">
-            <button id="back-to-menu" onclick="backToMainMenu()">← Вернуться в меню</button>
+            <button type="button" id="back-to-menu" onclick="backToMainMenu()">← Вернуться в меню</button>
         </div>
     </div>
 
-    <script src="js/data.js"></script>
-    <script src="js/app.js"></script>
+    <!-- Подключаем скрипты: сначала данные, потом логику -->
+    <script src="js/data.js"></script>  <!-- Файл с текстовыми данными (INTRO_TEXT, HISTORY_TEXT, HEQET_TEXT и др.) -->
+    <script src="js/app.js"></script>   <!-- Файл с логикой приложения -->
 </body>
 </html>
