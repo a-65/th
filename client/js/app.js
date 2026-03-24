@@ -569,34 +569,35 @@ function switchToPage(pageId) {
     console.log(`📄 Перешли на страницу: ${pageId}`);
 }
 
-
 const pages = [
     {
         id: 'page-welcome',
         buttonText: '✨ «Таро Гранд Эттейла»',
+        buttonIcon: '🏠',              // Добавляем иконку
         buttonId: 'nav-to-welcome'
     },
     {
         id: 'page-history',
-        buttonText: '📜 История «Таро Гранд Эттейла»',
+        buttonText: 'История «Таро Гранд Эттейла»',
+        buttonIcon: '📖',              // Добавляем иконку
         buttonId: 'nav-to-history'
     },
     {
         id: 'page-rules',
-        buttonText: '🐸 Правила расклада «Прыжок Хекет»',
+        buttonText: 'Правила расклада «Прыжок Хекет»',
+        buttonIcon: '📋',              // Добавляем иконку
         buttonId: 'nav-to-rules'
     },
     {
-        id: 'page-spread',                                    // Новая страница
-        buttonText: '🔮 Получить расклад «Прыжок Хекет»',       // Текст кнопки
-        buttonId: 'nav-to-spread'                             // ID кнопки
+        id: 'page-spread',
+        buttonText: 'Получить расклад «Прыжок Хекет»',
+        buttonIcon: '🃟',              // Добавляем иконку
+        buttonId: 'nav-to-spread'
     }
 ];
 
 
-/**
- * Создаёт кнопки навигации и добавляет их в DOM
- */
+// Создаёт кнопки навигации и добавляет их в DOM
 function createNavButtons() {
     const navContainer = document.getElementById('nav-buttons');
     if (!navContainer) {
@@ -604,7 +605,7 @@ function createNavButtons() {
         return;
     }
     
-    // Очищаем контейнер (на случай повторного вызова)
+    // Очищаем контейнер
     navContainer.innerHTML = '';
     
     // Получаем ID текущей активной страницы
@@ -614,10 +615,13 @@ function createNavButtons() {
     pages.forEach(page => {
         if (page.id !== activePageId) {
             const button = document.createElement('button');
-            button.textContent = page.buttonText;
             button.className = 'nav-btn';
             button.id = page.buttonId;
             button.onclick = () => switchToPage(page.id);
+            
+            // Добавляем иконку и текст
+            button.innerHTML = `${page.buttonIcon} ${page.buttonText}`;
+            
             navContainer.appendChild(button);
         }
     });
