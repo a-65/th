@@ -57,20 +57,19 @@
         </div>
 
         <!-- ============================================
-             СТРАНИЦА 4: РАСКЛАД
-             Содержит форму ввода вопроса и сам расклад "Прыжок Хекет" (10 карт)
+             СТРАНИЦА 4: РАСКЛАД (АУТЕНТИЧНАЯ ВЕРСИЯ)
+             Содержит аутентичный расклад "Прыжок Хекет" с ручным выбором карт
              ============================================ -->
         <div id="page-spread" class="page">
             <h1>🔮 Расклад «Прыжок Хекет»</h1>
             
             <!-- ====================================
-                БЛОК ВВОДА ВОПРОСА
-                ==================================== -->
+                 БЛОК ВВОДА ВОПРОСА
+                 ==================================== -->
             <div id="question-container" class="question-container">
                 <label for="question-input" class="question-label">
                     <span class="label-icon">📝</span> О чём вы хотите спросить карты?
                 </label>
-                
                 <div class="input-wrapper">
                     <textarea 
                         id="question-input" 
@@ -84,15 +83,49 @@
                     <div class="input-corner corner-bl"></div>
                     <div class="input-corner corner-br"></div>
                 </div>
-                
                 <div class="question-buttons">
                     <button id="get-spread-btn" class="get-spread-btn" disabled>
                         <span class="btn-icon">🔮</span> Получить расклад
                     </button>
                 </div>
-                
-                <!-- Декоративный элемент — золотая линия внизу -->
                 <div class="question-decoration"></div>
+            </div>
+
+            <!-- ====================================
+                 ОСНОВНАЯ ОБЛАСТЬ РАСКЛАДА
+                 Левая часть — позиции, правая — колода
+                 ==================================== -->
+            <div class="spread-layout">
+                
+                <!-- ЛЕВАЯ ЧАСТЬ: ПОЗИЦИИ РАСКЛАДА -->
+                <div class="spread-positions">
+                    
+                    <!-- Часть 1: Анализ ситуации (изначально видима) -->
+                    <div id="part1-positions" class="spread-part-container">
+                        <h3>Часть 1: Анализ ситуации</h3>
+                        <div class="positions-grid" id="part1-grid">
+                            <!-- 5 пустых позиций будут созданы динамически через deck.js -->
+                        </div>
+                    </div>
+                    
+                    <!-- Часть 2: Характеристика вопрошающего (изначально скрыта) -->
+                    <div id="part2-positions" class="spread-part-container" style="display: none;">
+                        <h3>Часть 2: Характеристика вопрошающего</h3>
+                        <div class="positions-grid" id="part2-grid">
+                            <!-- 5 пустых позиций будут созданы динамически через deck.js -->
+                        </div>
+                    </div>
+                    
+                </div>
+                
+                <!-- ПРАВАЯ ЧАСТЬ: КОЛОДА ДЛЯ ВЫБОРА -->
+                <div class="deck-area">
+                    <!-- Контейнер для колоды (будет заполняться динамически через deck.js) -->
+                    <div id="deck-container" class="deck-container">
+                        <!-- Содержимое будет динамически создано deck.js -->
+                    </div>
+                </div>
+                
             </div>
             
             <!-- ====================================
@@ -103,33 +136,17 @@
             </div>
             
             <!-- ====================================
-                 БЛОК УПРАВЛЕНИЯ РАСКЛАДОМ (изначально скрыт)
+                 БЛОК УПРАВЛЕНИЯ (появляется после завершения расклада)
                  ==================================== -->
             <div id="spread-controls" class="spread-controls" style="display: none;">
                 <button id="new-question-btn" class="control-btn">
                     ✏️ Новый вопрос
                 </button>
+                <button id="back-to-menu-btn" class="control-btn">
+                    ← Вернуться в меню
+                </button>
             </div>
             
-            <!-- ====================================
-                 КОНТЕЙНЕР ДЛЯ РАСКЛАДА (изначально скрыт)
-                 ==================================== -->
-            <div id="spread-container" style="display: none;">
-                
-                <!-- Часть 1: Анализ ситуации -->
-                <div class="spread-part">
-                    <h3>Часть 1: Анализ ситуации</h3>
-                    <p id="partOneDescription" class="part-description"></p>
-                    <div class="cards-grid" id="partOneCards"></div>
-                </div>
-                
-                <!-- Часть 2: Характеристика вопрошающего -->
-                <div class="spread-part">
-                    <h3>Часть 2: Характеристика вопрошающего</h3>
-                    <p id="partTwoDescription" class="part-description"></p>
-                    <div class="cards-grid" id="partTwoCards"></div>
-                </div>
-            </div>
         </div>
 
         <!-- ============================================
@@ -145,19 +162,21 @@
          ПОДКЛЮЧЕНИЕ СКРИПТОВ
          Порядок важен: сначала данные, потом модули, потом логика
          ============================================ -->
-    <!-- Массив карт -->
+    <!-- Массив карт Таро (78 карт) -->
     <script src="js/data/tarotDeck.js"></script>
-    <!-- Текстовые данные -->
+    <!-- Текстовые данные (INTRO_TEXT, HISTORY_TEXT, HEQET_TEXT и др.) -->
     <script src="js/data.js"></script>
-    <!-- Вспомогательные функции -->
+    <!-- Вспомогательные функции (withLock, getActivePageId) -->
     <script src="js/modules/utils.js"></script>
-    <!-- Навигация -->
+    <!-- Управление навигацией между страницами -->
     <script src="js/modules/navigation.js"></script>
-    <!-- Логика расклада -->
+    <!-- Логика расклада (старая, временно сохранена для совместимости) -->
     <script src="js/modules/spread.js"></script>
-    <!-- Логика вопроса -->
+    <!-- Логика вопроса (ввод, сохранение, восстановление) -->
     <script src="js/modules/question.js"></script>
-    <!-- Точка входа -->
+    <!-- Логика аутентичного расклада (колоды, выбор карт, тасовка) -->
+    <script src="js/modules/deck.js"></script>
+    <!-- Точка входа приложения -->
     <script src="js/main.js"></script>
 </body>
 </html>
