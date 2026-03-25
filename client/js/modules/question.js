@@ -54,7 +54,6 @@ function initQuestionModule() {
     const newQuestionBtn = document.getElementById('new-question-btn');
     const questionDisplay = document.getElementById('question-display');
     const displayedQuestionSpan = document.getElementById('displayed-question');
-    const spreadContainer = document.getElementById('spread-container');
     const questionContainer = document.getElementById('question-container');
     const spreadControls = document.getElementById('spread-controls');
     
@@ -73,7 +72,6 @@ function initQuestionModule() {
         newQuestionBtn: newQuestionBtn,
         questionDisplay: questionDisplay,
         displayedQuestionSpan: displayedQuestionSpan,
-        spreadContainer: spreadContainer,
         questionContainer: questionContainer,
         spreadControls: spreadControls
     };
@@ -90,6 +88,18 @@ function initQuestionModule() {
             newQuestionBtn.addEventListener('click', onNewQuestion);
         }
         window._questionHandlersAttached = true;
+    }
+    
+    // Кнопка "Вернуться в меню" (если есть)
+    const backToMenuBtn = document.getElementById('back-to-menu-btn');
+    if (backToMenuBtn && !window._backToMenuHandlerAttached) {
+        backToMenuBtn.addEventListener('click', () => {
+            // Переключаемся на главную страницу через навигацию
+            if (typeof switchToPage === 'function') {
+                switchToPage('page-welcome');
+            }
+        });
+        window._backToMenuHandlerAttached = true;
     }
 
     isQuestionModuleInitialized = true;
@@ -128,21 +138,19 @@ function onGetSpread() {
         window.questionElements.displayedQuestionSpan.textContent = currentQuestion;
         window.questionElements.questionDisplay.style.display = 'block';
         window.questionElements.questionContainer.style.display = 'none';
-        window.questionElements.spreadContainer.style.display = 'block';
-        window.questionElements.spreadControls.style.display = 'flex';
     }
     
     hasSpread = true;
     
-    // Генерируем расклад
-    if (typeof loadSpread === 'function') {
-        loadSpread();
-        
-        // Сохраняем расклад в localStorage после генерации
-        setTimeout(() => {
-            saveSpreadToLocalStorage();
-        }, 100);
+    // Инициализируем модуль колод (запускаем выбор карт)
+    if (typeof window.initDeckModule === 'function') {
+        console.log('🃟 Запускаем инициализацию колод...');
+        window.initDeckModule();
+    } else {
+        console.error('Ошибка: модуль deck.js не загружен или initDeckModule не определён');
     }
+    
+    console.log('✅ Вопрос сохранён, запущен выбор карт');
 }
 
 /**
@@ -151,8 +159,15 @@ function onGetSpread() {
 function onNewQuestion() {
     console.log('✏️ Новый вопрос — возврат к форме');
     
+    // Подтверждение сброса
+    const confirmReset = confirm('Вы уверены, что хотите начать новый вопрос? Весь текущий прогресс будет потерян.');
+    if (!confirmReset) {
+        return;
+    }
+    
     // Сбрасываем флаг инициализации
     isQuestionModuleInitialized = false;
+    window._questionHandlersAttached = false;
     
     if (window.questionElements) {
         // Очищаем поле ввода
@@ -162,18 +177,35 @@ function onNewQuestion() {
         
         // Скрываем блок вопроса и расклад
         window.questionElements.questionDisplay.style.display = 'none';
-        window.questionElements.spreadContainer.style.display = 'none';
-        window.questionElements.spreadControls.style.display = 'none';
+        window.questionElements.spreadContainer?.style?.setProperty('display', 'none');
         
         // Показываем форму ввода
         window.questionElements.questionContainer.style.display = 'block';
         
-        // Очищаем сохранённый расклад
-        localStorage.removeItem('tarot_last_spread');
-        localStorage.removeItem('tarot_last_question');
+        // Скрываем кнопки управления
+        if (window.questionElements.spreadControls) {
+            window.questionElements.spreadControls.style.display = 'none';
+        }
     }
     
     hasSpread = false;
+    
+    // Очищаем сохранённые расклады
+    localStorage.removeItem('tarot_last_complete_spread');
+    localStorage.removeItem('tarot_last_question');
+    
+    // Сбрасываем интерфейс колоды (если была активна)
+    const deckContainer = document.getElementById('deck-container');
+    const part1Container = document.getElementById('part1-positions');
+    const part2Container = document.getElementById('part2-positions');
+    const spreadControls = document.getElementById('spread-controls');
+    
+    if (deckContainer) deckContainer.style.display = 'flex';
+    if (part1Container) part1Container.style.display = 'block';
+    if (part2Container) part2Container.style.display = 'none';
+    if (spreadControls) spreadControls.style.display = 'none';
+    
+    console.log('✅ Возврат к форме ввода вопроса');
 }
 
 // ============================================
@@ -185,7 +217,7 @@ function onNewQuestion() {
  */
 function loadSavedQuestion() {
     const saved = localStorage.getItem('tarot_last_question');
-    const savedSpread = localStorage.getItem('tarot_last_spread');
+    const savedSpread = localStorage.getItem('tarot_last_complete_spread');
     
     if (saved && window.questionElements) {
         window.questionElements.input.value = saved;
@@ -201,43 +233,20 @@ function loadSavedQuestion() {
                     window.questionElements.displayedQuestionSpan.textContent = spreadData.question;
                     window.questionElements.questionDisplay.style.display = 'block';
                     window.questionElements.questionContainer.style.display = 'none';
-                    window.questionElements.spreadContainer.style.display = 'block';
-                    window.questionElements.spreadControls.style.display = 'flex';
                     
-                    // Восстанавливаем карты
-                    const partOneCards = document.getElementById('partOneCards');
-                    const partTwoCards = document.getElementById('partTwoCards');
-                    if (partOneCards && partTwoCards && spreadData.partOneHTML && spreadData.partTwoHTML) {
-                        partOneCards.innerHTML = spreadData.partOneHTML;
-                        partTwoCards.innerHTML = spreadData.partTwoHTML;
+                    // Показываем кнопки управления
+                    if (window.questionElements.spreadControls) {
+                        window.questionElements.spreadControls.style.display = 'flex';
                     }
                     
+                    // Здесь будет восстановление карт (пока заглушка)
+                    console.log('💾 Восстановлен сохранённый расклад (карты будут восстановлены в deck.js)');
+                    
                     hasSpread = true;
-                    console.log('💾 Восстановлен сохранённый расклад');
                 }
             } catch (e) {
                 console.warn('Ошибка восстановления расклада:', e);
             }
         }
     }
-}
-
-/**
- * Сохраняет текущий расклад в localStorage
- */
-function saveSpreadToLocalStorage() {
-    const partOneCards = document.getElementById('partOneCards');
-    const partTwoCards = document.getElementById('partTwoCards');
-    
-    if (!partOneCards || !partTwoCards) return;
-    
-    const spreadData = {
-        question: currentQuestion,
-        timestamp: Date.now(),
-        partOneHTML: partOneCards.innerHTML,
-        partTwoHTML: partTwoCards.innerHTML
-    };
-    
-    localStorage.setItem('tarot_last_spread', JSON.stringify(spreadData));
-    console.log('💾 Расклад сохранён в localStorage');
 }
