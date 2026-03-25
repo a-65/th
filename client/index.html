@@ -92,62 +92,66 @@
             </div>
 
             <!-- ====================================
-                 ОСНОВНАЯ ОБЛАСТЬ РАСКЛАДА
-                 Левая часть — позиции, правая — колода
+                 ОБЛАСТЬ РАСКЛАДА (СКРЫТА ДО ВВОДА ВОПРОСА)
                  ==================================== -->
-            <div class="spread-layout">
+            <div id="spread-area" class="hidden">
                 
-                <!-- ЛЕВАЯ ЧАСТЬ: ПОЗИЦИИ РАСКЛАДА -->
-                <div class="spread-positions">
+                <!-- Основная область расклада: позиции (слева) + колода (справа) -->
+                <div class="spread-layout">
                     
-                    <!-- Часть 1: Анализ ситуации (изначально видима) -->
-                    <div id="part1-positions" class="spread-part-container">
-                        <h3>Часть 1: Анализ ситуации</h3>
-                        <div class="positions-grid" id="part1-grid">
-                            <!-- 5 пустых позиций будут созданы динамически через deck.js -->
+                    <!-- ЛЕВАЯ ЧАСТЬ: ПОЗИЦИИ РАСКЛАДА -->
+                    <div class="spread-positions">
+                        
+                        <!-- Часть 1: Анализ ситуации (изначально видима) -->
+                        <div id="part1-positions" class="spread-part-container">
+                            <h3>Часть 1: Анализ ситуации</h3>
+                            <div class="positions-grid" id="part1-grid">
+                                <!-- 5 пустых позиций будут созданы динамически через deck.js -->
+                            </div>
                         </div>
+                        
+                        <!-- Часть 2: Характеристика вопрошающего (изначально скрыта) -->
+                        <div id="part2-positions" class="spread-part-container" style="display: none;">
+                            <h3>Часть 2: Характеристика вопрошающего</h3>
+                            <div class="positions-grid" id="part2-grid">
+                                <!-- 5 пустых позиций будут созданы динамически через deck.js -->
+                            </div>
+                        </div>
+                        
                     </div>
                     
-                    <!-- Часть 2: Характеристика вопрошающего (изначально скрыта) -->
-                    <div id="part2-positions" class="spread-part-container" style="display: none;">
-                        <h3>Часть 2: Характеристика вопрошающего</h3>
-                        <div class="positions-grid" id="part2-grid">
-                            <!-- 5 пустых позиций будут созданы динамически через deck.js -->
+                    <!-- ПРАВАЯ ЧАСТЬ: КОЛОДА ДЛЯ ВЫБОРА -->
+                    <div class="deck-area">
+                        <!-- Контейнер для колоды (будет заполняться динамически через deck.js) -->
+                        <div id="deck-container" class="deck-container">
+                            <!-- Содержимое будет динамически создано deck.js -->
                         </div>
                     </div>
                     
                 </div>
                 
-                <!-- ПРАВАЯ ЧАСТЬ: КОЛОДА ДЛЯ ВЫБОРА -->
-                <div class="deck-area">
-                    <!-- Контейнер для колоды (будет заполняться динамически через deck.js) -->
-                    <div id="deck-container" class="deck-container">
-                        <!-- Содержимое будет динамически создано deck.js -->
-                    </div>
+                <!-- ====================================
+                     БЛОК ОТОБРАЖЕНИЯ ВОПРОСА (скрыт до ввода вопроса)
+                     ==================================== -->
+                <div id="question-display" class="question-display hidden">
+                    <p>📝 <strong>Ваш вопрос:</strong> <span id="displayed-question"></span></p>
                 </div>
                 
-            </div>
+                <!-- ====================================
+                     БЛОК УПРАВЛЕНИЯ (появляется после завершения расклада)
+                     ==================================== -->
+                <div id="spread-controls" class="spread-controls hidden">
+                    <button id="new-question-btn" class="control-btn">
+                        ✏️ Новый вопрос
+                    </button>
+                    <button id="back-to-menu-btn" class="control-btn">
+                        ← Вернуться в меню
+                    </button>
+                </div>
+                
+            </div> <!-- Конец spread-area -->
             
-            <!-- ====================================
-                 БЛОК ОТОБРАЖЕНИЯ ВОПРОСА (изначально скрыт)
-                 ==================================== -->
-            <div id="question-display" class="question-display" style="display: none;">
-                <p>📝 <strong>Ваш вопрос:</strong> <span id="displayed-question"></span></p>
-            </div>
-            
-            <!-- ====================================
-                 БЛОК УПРАВЛЕНИЯ (появляется после завершения расклада)
-                 ==================================== -->
-            <div id="spread-controls" class="spread-controls" style="display: none;">
-                <button id="new-question-btn" class="control-btn">
-                    ✏️ Новый вопрос
-                </button>
-                <button id="back-to-menu-btn" class="control-btn">
-                    ← Вернуться в меню
-                </button>
-            </div>
-            
-        </div>
+        </div> <!-- Конец page-spread -->
 
         <!-- ============================================
              НАВИГАЦИЯ
