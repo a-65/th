@@ -141,6 +141,12 @@ function onGetSpread() {
     }
     
     hasSpread = true;
+
+    // Показываем область расклада
+    const spreadArea = document.getElementById('spread-area');
+    if (spreadArea) {
+        spreadArea.classList.remove('hidden');
+    }
     
     // Инициализируем модуль колод (запускаем выбор карт)
     if (typeof window.initDeckModule === 'function') {
@@ -193,6 +199,12 @@ function onNewQuestion() {
     // Очищаем сохранённые расклады
     localStorage.removeItem('tarot_last_complete_spread');
     localStorage.removeItem('tarot_last_question');
+
+    // Скрываем область расклада
+    const spreadArea = document.getElementById('spread-area');
+    if (spreadArea) {
+        spreadArea.classList.add('hidden');
+    }
     
     // Сбрасываем интерфейс колоды (если была активна)
     const deckContainer = document.getElementById('deck-container');
