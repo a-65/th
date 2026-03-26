@@ -79,7 +79,7 @@ function initQuestionModule() {
     // Загружаем сохранённый вопрос из localStorage
     loadSavedQuestion();
     
-    // Навешиваем обработчики (только если они ещё не навешены)
+    // Навешиваем обработчики
     if (!window._questionHandlersAttached) {
         questionInput.addEventListener('input', onQuestionInput);
         getSpreadBtn.addEventListener('click', onGetSpread);
@@ -190,19 +190,25 @@ function onNewQuestion() {
         updateGetButtonState();
     }
     
-    // Скрываем блок отображения вопроса (добавляем класс hidden)
+    // Скрываем блок отображения вопроса
     if (window.questionElements?.questionDisplay) {
         window.questionElements.questionDisplay.classList.add('hidden');
+        console.log('✅ questionDisplay скрыт');
     }
     
-    // Показываем контейнер ввода вопроса
-    if (window.questionElements?.questionContainer) {
-        window.questionElements.questionContainer.style.display = 'block';
+    // Показываем контейнер ввода вопроса (напрямую через getElementById)
+    const questionContainer = document.getElementById('question-container');
+    if (questionContainer) {
+        questionContainer.style.display = 'block';
+        console.log('✅ questionContainer показан');
+    } else {
+        console.warn('❌ questionContainer не найден');
     }
     
     // Скрываем кнопки управления
     if (window.questionElements?.spreadControls) {
         window.questionElements.spreadControls.classList.add('hidden');
+        console.log('✅ spreadControls скрыты');
     }
     
     hasSpread = false;
@@ -210,23 +216,58 @@ function onNewQuestion() {
     // Очищаем сохранённые расклады
     localStorage.removeItem('tarot_last_complete_spread');
     localStorage.removeItem('tarot_last_question');
+    console.log('✅ localStorage очищен');
     
     // Скрываем область расклада
     const spreadArea = document.getElementById('spread-area');
     if (spreadArea) {
         spreadArea.classList.add('hidden');
+        console.log('✅ spreadArea скрыта');
     }
     
-    // Сбрасываем интерфейс колоды (если была активна)
+    // Очищаем интерфейс колоды и позиций
     const deckContainer = document.getElementById('deck-container');
     const part1Container = document.getElementById('part1-positions');
     const part2Container = document.getElementById('part2-positions');
     const spreadControls = document.getElementById('spread-controls');
+    const part1Grid = document.getElementById('part1-grid');
+    const part2Grid = document.getElementById('part2-grid');
     
+    // Очищаем сетки позиций
+    if (part1Grid && window.createEmptySlot && window.getPart1PositionTitle) {
+        part1Grid.innerHTML = '';
+        for (let i = 0; i < 5; i++) {
+            const emptySlot = window.createEmptySlot(window.getPart1PositionTitle(i));
+            part1Grid.appendChild(emptySlot);
+        }
+        console.log('✅ part1Grid очищен');
+    }
+    
+    if (part2Grid && window.createEmptySlot && window.getPart2PositionTitle) {
+        part2Grid.innerHTML = '';
+        for (let i = 0; i < 5; i++) {
+            const emptySlot = window.createEmptySlot(window.getPart2PositionTitle(i));
+            part2Grid.appendChild(emptySlot);
+        }
+        console.log('✅ part2Grid очищен');
+    }
+    
+    // Сбрасываем отображение контейнеров
     if (deckContainer) deckContainer.style.display = 'flex';
     if (part1Container) part1Container.style.display = 'block';
     if (part2Container) part2Container.style.display = 'none';
     if (spreadControls) spreadControls.style.display = 'none';
+    
+    // Очищаем контейнер колоды
+    if (deckContainer) {
+        deckContainer.innerHTML = '';
+        console.log('✅ deckContainer очищен');
+    }
+    
+    // Сбрасываем выбранные карты
+    selectedCardsPart1 = [];
+    selectedCardsPart2 = [];
+    currentDeckCards = [];
     
     console.log('✅ Возврат к форме ввода вопроса');
 }
@@ -257,9 +298,9 @@ function loadSavedQuestion() {
                     window.questionElements.questionDisplay.classList.remove('hidden');
                     window.questionElements.questionContainer.style.display = 'none';
                     
-                    // Показываем кнопки управления
+                    // Показываем кнопки управления (убираем класс hidden)
                     if (window.questionElements.spreadControls) {
-                        window.questionElements.spreadControls.style.display = 'flex';
+                        window.questionElements.spreadControls.classList.remove('hidden');
                     }
                     
                     // Здесь будет восстановление карт (пока заглушка)

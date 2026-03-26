@@ -269,8 +269,16 @@ function updateStats() {
  */
 function showPart1() {
     currentPart = 'part1';
-    currentDeckCards = [...majorDeck];
-    renderDeck(currentDeckCards);
+    
+    // Копируем колоду Старших Арканов
+    currentDeckCards = majorDeck.map(card => ({
+        ...card,
+        isReversed: false,
+        isSelected: false
+    }));
+    
+    // Сразу тасуем колоду (случайный порядок + перевёрнутость)
+    shuffleDeck(true); // true = первый показ (без блокировки кнопки)
     
     const titleElement = document.getElementById('deck-title');
     if (titleElement) {
@@ -283,7 +291,7 @@ function showPart1() {
     if (part1Container) part1Container.style.display = 'block';
     if (part2Container) part2Container.style.display = 'none';
     
-    console.log('🃟 Показана первая часть расклада');
+    console.log('🃟 Показана первая часть расклада, колода перетасована');
 }
 
 /**
@@ -291,8 +299,16 @@ function showPart1() {
  */
 function showPart2() {
     currentPart = 'part2';
-    currentDeckCards = [...minorDeck];
-    renderDeck(currentDeckCards);
+    
+    // Копируем колоду остальных карт
+    currentDeckCards = minorDeck.map(card => ({
+        ...card,
+        isReversed: false,
+        isSelected: false
+    }));
+    
+    // Сразу тасуем колоду (случайный порядок + перевёрнутость)
+    shuffleDeck(true); // true = первый показ (без блокировки кнопки)
     
     const titleElement = document.getElementById('deck-title');
     if (titleElement) {
@@ -305,13 +321,14 @@ function showPart2() {
     if (part1Container) part1Container.style.display = 'none';
     if (part2Container) part2Container.style.display = 'block';
     
-    console.log('🃟 Показана вторая часть расклада');
+    console.log('🃟 Показана вторая часть расклада, колода перетасована');
 }
 
 /**
  * Тасует текущую колоду
+ * @param {boolean} isInitial - true при первом показе (не блокирует кнопку)
  */
-function shuffleDeck() {
+function shuffleDeck(isInitial = false) {
     if (isShuffling) {
         console.warn('Тасовка уже выполняется');
         return;
@@ -320,8 +337,10 @@ function shuffleDeck() {
     console.log('🃟 Тасуем колоду...');
     isShuffling = true;
     
-    // Блокируем кнопку
-    if (shuffleBtn) shuffleBtn.disabled = true;
+    // Блокируем кнопку только если это не первый показ
+    if (!isInitial && shuffleBtn) {
+        shuffleBtn.disabled = true;
+    }
     
     // Добавляем анимацию
     const cardsContainer = document.getElementById('deck-cards');
@@ -332,7 +351,7 @@ function shuffleDeck() {
     // Воспроизводим звук (если есть)
     playShuffleSound();
     
-    // Выполняем тасовку через setTimeout (имитация длительности)
+    // Выполняем тасовку
     setTimeout(() => {
         // Случайным образом определяем перевёрнутость каждой карты (50% шанс)
         currentDeckCards = currentDeckCards.map(card => ({
@@ -355,7 +374,9 @@ function shuffleDeck() {
         }
         
         // Разблокируем кнопку
-        if (shuffleBtn) shuffleBtn.disabled = false;
+        if (!isInitial && shuffleBtn) {
+            shuffleBtn.disabled = false;
+        }
         isShuffling = false;
         
         console.log('🃟 Колода перетасована');
@@ -392,6 +413,12 @@ function selectCard(index) {
     if (selectedCount >= 5) {
         console.warn('Уже выбрано 5 карт для этой части');
         return;
+    }
+
+    // Если это первая карта в текущей части — блокируем кнопку тасовки
+    if (selectedCount === 0 && shuffleBtn) {
+        shuffleBtn.disabled = true;
+        console.log('🔒 Кнопка тасовки заблокирована (первая карта выбрана)');
     }
     
     console.log(`🃟 Выбрана карта: ${card.name} (${card.isReversed ? 'перевёрнутая' : 'прямая'})`);
@@ -587,8 +614,13 @@ function saveCompleteSpread() {
 }
 
 // ============================================
-// ЭКСПОРТ ФУНКЦИЙ ДЛЯ ДРУГИХ МОДУЛЕЙ
+// ЭКСПОРТ ВСПОМОГАТЕЛЬНЫХ ФУНКЦИЙ
 // ============================================
 
 // Экспортируем функцию инициализации в глобальную область
 window.initDeckModule = initDeckModule;
+
+// Экспортируем функции для использования в question.js
+window.createEmptySlot = createEmptySlot;
+window.getPart1PositionTitle = getPart1PositionTitle;
+window.getPart2PositionTitle = getPart2PositionTitle;
