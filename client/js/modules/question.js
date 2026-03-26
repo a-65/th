@@ -184,7 +184,7 @@ function onNewQuestion() {
         console.log('✅ questionDisplay скрыт');
     }
     
-    // Показываем контейнер ввода вопроса (напрямую через getElementById)
+    // Показываем контейнер ввода вопроса
     const questionContainer = document.getElementById('question-container');
     if (questionContainer) {
         questionContainer.style.display = 'block';
@@ -193,10 +193,10 @@ function onNewQuestion() {
         console.warn('❌ questionContainer не найден');
     }
     
-    // Скрываем кнопки управления
+    // Скрываем кнопки управления (через класс hidden)
     if (window.questionElements?.spreadControls) {
         window.questionElements.spreadControls.classList.add('hidden');
-        console.log('✅ spreadControls скрыты');
+        console.log('✅ spreadControls скрыты (через класс hidden)');
     }
     
     hasSpread = false;
@@ -205,12 +205,6 @@ function onNewQuestion() {
     localStorage.removeItem('tarot_last_complete_spread');
     localStorage.removeItem('tarot_last_question');
     console.log('✅ localStorage очищен');
-
-    // Скрываем кнопки управления через класс hidden (не через style.display)
-    if (window.questionElements?.spreadControls) {
-        window.questionElements.spreadControls.classList.add('hidden');
-        console.log('✅ spreadControls скрыты (через класс hidden)');
-    }
     
     // Скрываем область расклада
     const spreadArea = document.getElementById('spread-area');
@@ -219,15 +213,14 @@ function onNewQuestion() {
         console.log('✅ spreadArea скрыта');
     }
     
-    // Очищаем интерфейс колоды и позиций
+    // Получаем ссылки на элементы
     const deckContainer = document.getElementById('deck-container');
     const part1Container = document.getElementById('part1-positions');
     const part2Container = document.getElementById('part2-positions');
-    const spreadControls = document.getElementById('spread-controls');
     const part1Grid = document.getElementById('part1-grid');
     const part2Grid = document.getElementById('part2-grid');
     
-    // Очищаем сетки позиций
+    // Очищаем сетки позиций (создаём пустые слоты)
     if (part1Grid && window.createEmptySlot && window.getPart1PositionTitle) {
         part1Grid.innerHTML = '';
         for (let i = 0; i < 5; i++) {
@@ -257,18 +250,7 @@ function onNewQuestion() {
         console.log('✅ deckContainer очищен');
     }
     
-    // Сбрасываем выбранные карты
-    selectedCardsPart1 = [];
-    selectedCardsPart2 = [];
-    currentDeckCards = [];
-    
-    // Очищаем контейнер колоды
-    if (deckContainer) {
-        deckContainer.innerHTML = '';
-        console.log('✅ deckContainer очищен');
-    }
-    
-    // Сбрасываем выбранные карты
+    // Сбрасываем выбранные карты (один раз)
     selectedCardsPart1 = [];
     selectedCardsPart2 = [];
     currentDeckCards = [];
