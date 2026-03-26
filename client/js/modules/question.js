@@ -262,6 +262,17 @@ function onNewQuestion() {
     selectedCardsPart2 = [];
     currentDeckCards = [];
     
+    // Очищаем контейнер колоды
+    if (deckContainer) {
+        deckContainer.innerHTML = '';
+        console.log('✅ deckContainer очищен');
+    }
+    
+    // Сбрасываем выбранные карты
+    selectedCardsPart1 = [];
+    selectedCardsPart2 = [];
+    currentDeckCards = [];
+    
     console.log('✅ Возврат к форме ввода вопроса');
 }
 
