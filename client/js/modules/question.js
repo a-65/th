@@ -89,18 +89,6 @@ function initQuestionModule() {
         }
         window._questionHandlersAttached = true;
     }
-    
-    // Кнопка "Вернуться в меню" (если есть)
-    const backToMenuBtn = document.getElementById('back-to-menu-btn');
-    if (backToMenuBtn && !window._backToMenuHandlerAttached) {
-        backToMenuBtn.addEventListener('click', () => {
-            // Переключаемся на главную страницу через навигацию
-            if (typeof switchToPage === 'function') {
-                switchToPage('page-welcome');
-            }
-        });
-        window._backToMenuHandlerAttached = true;
-    }
 
     isQuestionModuleInitialized = true;
     return true;
@@ -217,6 +205,12 @@ function onNewQuestion() {
     localStorage.removeItem('tarot_last_complete_spread');
     localStorage.removeItem('tarot_last_question');
     console.log('✅ localStorage очищен');
+
+    // Скрываем кнопки управления через класс hidden (не через style.display)
+    if (window.questionElements?.spreadControls) {
+        window.questionElements.spreadControls.classList.add('hidden');
+        console.log('✅ spreadControls скрыты (через класс hidden)');
+    }
     
     // Скрываем область расклада
     const spreadArea = document.getElementById('spread-area');
@@ -256,7 +250,17 @@ function onNewQuestion() {
     if (deckContainer) deckContainer.style.display = 'flex';
     if (part1Container) part1Container.style.display = 'block';
     if (part2Container) part2Container.style.display = 'none';
-    if (spreadControls) spreadControls.style.display = 'none';
+    
+    // Очищаем контейнер колоды
+    if (deckContainer) {
+        deckContainer.innerHTML = '';
+        console.log('✅ deckContainer очищен');
+    }
+    
+    // Сбрасываем выбранные карты
+    selectedCardsPart1 = [];
+    selectedCardsPart2 = [];
+    currentDeckCards = [];
     
     // Очищаем контейнер колоды
     if (deckContainer) {
@@ -301,9 +305,10 @@ function loadSavedQuestion() {
                     // Показываем кнопки управления (убираем класс hidden)
                     if (window.questionElements.spreadControls) {
                         window.questionElements.spreadControls.classList.remove('hidden');
+                        console.log('✅ Кнопки управления показаны (при восстановлении)');
                     }
                     
-                    // Здесь будет восстановление карт (пока заглушка)
+                    // Восстанавливаем карты (будет в deck.js)
                     console.log('💾 Восстановлен сохранённый расклад (карты будут восстановлены в deck.js)');
                     
                     hasSpread = true;
