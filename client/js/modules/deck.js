@@ -500,20 +500,33 @@ function addCardToPosition(card, positionIndex, part) {
  * @returns {HTMLElement}
  */
 function createCardElementForSpread(card, part, positionIndex) {
-    // Получаем название позиции
-    const positionTitle = part === 'part1' 
-        ? getPart1PositionTitle(positionIndex)
-        : getPart2PositionTitle(positionIndex);
+    // Получаем ПОЛНОЕ описание позиции из глобальных массивов
+    let positionDescription = '';
+    
+    if (part === 'part1') {
+        if (typeof PART_ONE_POSITIONS !== 'undefined' && PART_ONE_POSITIONS[positionIndex]) {
+            positionDescription = PART_ONE_POSITIONS[positionIndex];
+        } else {
+            // fallback на случай отсутствия данных
+            positionDescription = getPart1PositionTitle(positionIndex);
+        }
+    } else {
+        if (typeof PART_TWO_POSITIONS !== 'undefined' && PART_TWO_POSITIONS[positionIndex]) {
+            positionDescription = PART_TWO_POSITIONS[positionIndex];
+        } else {
+            positionDescription = getPart2PositionTitle(positionIndex);
+        }
+    }
     
     // 1. Создаём главный контейнер карточки
     const cardDiv = document.createElement('div');
     cardDiv.className = 'card-position';
     
-    // 2. Верхний мини-контейнер: описание позиции в раскладе
+    // 2. Верхний мини-контейнер: ПОЛНОЕ описание позиции в раскладе
     const topContainer = document.createElement('div');
     topContainer.className = 'card-position-top';
     const positionP = document.createElement('p');
-    positionP.textContent = positionTitle;
+    positionP.textContent = positionDescription;
     topContainer.appendChild(positionP);
     
     // 3. Средний мини-контейнер: изображение карты
