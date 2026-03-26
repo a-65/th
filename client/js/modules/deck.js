@@ -75,6 +75,20 @@ function initDeckModule() {
     
     // Создаём пустые позиции в раскладе
     createEmptyPositions();
+
+    // Заполняем описания частей
+    const partOneDescription = document.getElementById('partOneDescription');
+    const partTwoDescription = document.getElementById('partTwoDescription');
+    
+    if (partOneDescription && typeof PART_ONE_DESCRIPTION !== 'undefined') {
+        partOneDescription.textContent = PART_ONE_DESCRIPTION;
+        console.log('✅ Добавлено описание первой части');
+    }
+    
+    if (partTwoDescription && typeof PART_TWO_DESCRIPTION !== 'undefined') {
+        partTwoDescription.textContent = PART_TWO_DESCRIPTION;
+        console.log('✅ Добавлено описание второй части');
+    }
     
     // Отображаем первую колоду
     showPart1();
@@ -605,6 +619,11 @@ function onSpreadComplete() {
 function saveCompleteSpread() {
     const currentQuestion = localStorage.getItem('tarot_last_question') || '';
     
+    console.log('💾 Сохраняем расклад...');
+    console.log('  Вопрос:', currentQuestion);
+    console.log('  Карты part1:', selectedCardsPart1.length);
+    console.log('  Карты part2:', selectedCardsPart2.length);
+    
     const spreadData = {
         question: currentQuestion,
         timestamp: Date.now(),
@@ -628,6 +647,7 @@ function saveCompleteSpread() {
     localStorage.setItem('tarot_last_question', currentQuestion);
     
     console.log('💾 Расклад сохранён в localStorage');
+    console.log('  Сохранённые данные:', localStorage.getItem('tarot_last_complete_spread')?.substring(0, 100) + '...');
 }
 
 /**
@@ -661,11 +681,27 @@ function restoreSavedSpread() {
         restoreCardsToPositions(selectedCardsPart1, 'part1');
         restoreCardsToPositions(selectedCardsPart2, 'part2');
         
-        // Показываем обе части расклада
-        const part1Container = document.getElementById('part1-positions');
-        const part2Container = document.getElementById('part2-positions');
-        if (part1Container) part1Container.style.display = 'block';
-        if (part2Container) part2Container.style.display = 'block';
+        // Добавляем описания частей
+        const partOneDescription = document.getElementById('partOneDescription');
+        const partTwoDescription = document.getElementById('partTwoDescription');
+        
+        if (partOneDescription && typeof PART_ONE_DESCRIPTION !== 'undefined') {
+            partOneDescription.textContent = PART_ONE_DESCRIPTION;
+            console.log('✅ Добавлено описание первой части (при восстановлении)');
+        }
+        
+        if (partTwoDescription && typeof PART_TWO_DESCRIPTION !== 'undefined') {
+            partTwoDescription.textContent = PART_TWO_DESCRIPTION;
+            console.log('✅ Добавлено описание второй части (при восстановлении)');
+        }
+        
+        // ========== ДОБАВЛЯЕМ ПОКАЗ ОБЛАСТИ РАСКЛАДА ==========
+        const spreadArea = document.getElementById('spread-area');
+        if (spreadArea) {
+            spreadArea.classList.remove('hidden');
+            console.log('✅ spreadArea показана при восстановлении');
+        }
+        // ======================================================
         
         // Скрываем колоду
         if (deckContainer) {
@@ -724,3 +760,38 @@ window.createEmptySlot = createEmptySlot;
 window.getPart1PositionTitle = getPart1PositionTitle;
 window.getPart2PositionTitle = getPart2PositionTitle;
 window.initDeckModule = initDeckModule;
+
+
+// ============================================
+// ВОССТАНОВЛЕНИЕ РАСКЛАДА ПРИ ЗАГРУЗКЕ СТРАНИЦЫ
+// ============================================
+
+/**
+ * Восстанавливает расклад из localStorage (вызывается при загрузке страницы)
+ * @returns {boolean} - успешно ли восстановлен расклад
+ */
+function restoreSpreadFromStorage() {
+    console.log('🃟 Восстанавливаем расклад из storage...');
+    
+    // 1. Находим DOM-элементы
+    deckContainer = document.getElementById('deck-container');
+    part1Grid = document.getElementById('part1-grid');
+    part2Grid = document.getElementById('part2-grid');
+    
+    // 2. Проверяем, что все элементы найдены
+    if (!deckContainer || !part1Grid || !part2Grid) {
+        console.error('Ошибка: не найдены элементы для колод');
+        return false;
+    }
+    
+    // 3. Восстанавливаем расклад (используем существующую функцию)
+    if (restoreSavedSpread()) {
+        console.log('✅ Расклад восстановлен при загрузке страницы');
+        return true;
+    }
+    
+    return false;
+}
+
+// Экспортируем функцию для использования из question.js
+window.restoreSpreadFromStorage = restoreSpreadFromStorage;

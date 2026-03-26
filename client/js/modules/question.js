@@ -265,6 +265,9 @@ function onNewQuestion() {
 /**
  * Загружает сохранённый вопрос из localStorage
  */
+/**
+ * Загружает сохранённый вопрос из localStorage
+ */
 function loadSavedQuestion() {
     const saved = localStorage.getItem('tarot_last_question');
     const savedSpread = localStorage.getItem('tarot_last_complete_spread');
@@ -274,24 +277,32 @@ function loadSavedQuestion() {
         currentQuestion = saved;
         updateGetButtonState();
         
-        // Если есть сохранённый расклад — показываем его
         if (savedSpread) {
             try {
                 const spreadData = JSON.parse(savedSpread);
                 if (spreadData.question === saved) {
-                    // Восстанавливаем вопрос в блоке отображения
+                    // 1. Показываем вопрос
                     window.questionElements.displayedQuestionSpan.textContent = spreadData.question;
                     window.questionElements.questionDisplay.classList.remove('hidden');
                     window.questionElements.questionContainer.style.display = 'none';
                     
-                    // Показываем кнопки управления (убираем класс hidden)
+                    // 2. Показываем кнопки управления
                     if (window.questionElements.spreadControls) {
                         window.questionElements.spreadControls.classList.remove('hidden');
-                        console.log('✅ Кнопки управления показаны (при восстановлении)');
+                        console.log('✅ Кнопки управления показаны');
                     }
                     
-                    // Восстанавливаем карты (будет в deck.js)
-                    console.log('💾 Восстановлен сохранённый расклад (карты будут восстановлены в deck.js)');
+                    // 3. Показываем область расклада
+                    const spreadArea = document.getElementById('spread-area');
+                    if (spreadArea) {
+                        spreadArea.classList.remove('hidden');
+                        console.log('✅ spreadArea показана');
+                    }
+                    
+                    // 4. Восстанавливаем карты
+                    if (typeof window.restoreSpreadFromStorage === 'function') {
+                        window.restoreSpreadFromStorage();
+                    }
                     
                     hasSpread = true;
                 }
