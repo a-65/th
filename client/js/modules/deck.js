@@ -479,28 +479,30 @@ function addCardToPosition(card, positionIndex, part) {
 }
 
 /**
- * Создаёт элемент карты для расклада
+ * Создаёт элемент карты для расклада (трёхчастная структура)
  * @param {Object} card - объект карты
  * @param {string} part - 'part1' или 'part2'
- * @param {number} positionIndex - индекс позиции
+ * @param {number} positionIndex - индекс позиции (0-4)
  * @returns {HTMLElement}
  */
 function createCardElementForSpread(card, part, positionIndex) {
+    // Получаем название позиции
     const positionTitle = part === 'part1' 
         ? getPart1PositionTitle(positionIndex)
         : getPart2PositionTitle(positionIndex);
     
+    // 1. Создаём главный контейнер карточки
     const cardDiv = document.createElement('div');
     cardDiv.className = 'card-position';
     
-    // Верхняя часть: описание позиции
+    // 2. Верхний мини-контейнер: описание позиции в раскладе
     const topContainer = document.createElement('div');
     topContainer.className = 'card-position-top';
     const positionP = document.createElement('p');
     positionP.textContent = positionTitle;
     topContainer.appendChild(positionP);
     
-    // Средняя часть: изображение карты
+    // 3. Средний мини-контейнер: изображение карты
     const middleContainer = document.createElement('div');
     middleContainer.className = 'card-position-middle';
     const img = document.createElement('img');
@@ -508,26 +510,31 @@ function createCardElementForSpread(card, part, positionIndex) {
     img.alt = card.name;
     img.className = 'card-image';
     
+    // Добавляем обработчик ошибки загрузки изображения
+    img.onerror = function() {
+        console.warn(`Изображение для карты ${card.id} (${card.name}) не найдено`);
+        this.src = '../images/book_thoth.jpg';
+        this.alt = `Изображение отсутствует: ${card.name}`;
+    };
+    
+    // Если карта перевёрнутая, добавляем класс для поворота
     if (card.isReversed) {
         img.classList.add('reversed');
     }
-    
-    // Добавляем тултип при наведении (через атрибут title)
-    const description = card.isReversed ? card.reversed : card.upright;
-    img.title = `${card.name}\n\n${description}`;
-    
     middleContainer.appendChild(img);
     
-    // Нижняя часть: описание значения карты
+    // 4. Нижний мини-контейнер: описание значения карты
     const bottomContainer = document.createElement('div');
     bottomContainer.className = 'card-position-bottom';
     const descDiv = document.createElement('div');
     descDiv.className = 'card-description';
+    
+    // Выбираем правильное описание в зависимости от ориентации
     const cardValue = card.isReversed ? card.reversed : card.upright;
     descDiv.textContent = `${card.name}: ${cardValue}`;
     bottomContainer.appendChild(descDiv);
     
-    // Собираем карточку
+    // 5. Собираем карточку вместе
     cardDiv.appendChild(topContainer);
     cardDiv.appendChild(middleContainer);
     cardDiv.appendChild(bottomContainer);
