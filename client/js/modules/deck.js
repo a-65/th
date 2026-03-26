@@ -56,6 +56,15 @@ function initDeckModule() {
         return false;
     }
     
+    // ПРОВЕРКА: если есть сохранённый расклад — восстанавливаем его
+    if (restoreSavedSpread()) {
+        console.log('✅ Модуль колод: восстановлен сохранённый расклад');
+        return true;
+    }
+    
+    // Если нет сохранённого расклада — создаём новый
+    console.log('🃟 Создаём новый расклад...');
+    
     // Сбрасываем выбранные карты
     selectedCardsPart1 = [];
     selectedCardsPart2 = [];
@@ -564,10 +573,11 @@ function onSpreadComplete() {
         deckControls.style.display = 'none';
     }
     
-    // Показываем кнопки управления (Новый вопрос, Вернуться в меню)
+    // Показываем кнопки управления (убираем класс hidden)
     const spreadControls = document.getElementById('spread-controls');
     if (spreadControls) {
-        spreadControls.style.display = 'flex';
+        spreadControls.classList.remove('hidden');   // ← только это
+        console.log('✅ Кнопки управления показаны');
     }
     
     // Прокручиваем страницу к началу расклада
@@ -613,6 +623,88 @@ function saveCompleteSpread() {
     console.log('💾 Расклад сохранён в localStorage');
 }
 
+/**
+ * Восстанавливает сохранённый расклад из localStorage
+ * @returns {boolean} - успешно ли восстановлен расклад
+ */
+function restoreSavedSpread() {
+    const savedSpread = localStorage.getItem('tarot_last_complete_spread');
+    if (!savedSpread) return false;
+    
+    try {
+        const spreadData = JSON.parse(savedSpread);
+        if (!spreadData.part1 || !spreadData.part2) return false;
+        
+        console.log('🔄 Восстанавливаем сохранённый расклад...');
+        
+        // Восстанавливаем выбранные карты
+        selectedCardsPart1 = spreadData.part1.map(card => ({
+            ...card,
+            isReversed: card.isReversed || false,
+            isSelected: true
+        }));
+        
+        selectedCardsPart2 = spreadData.part2.map(card => ({
+            ...card,
+            isReversed: card.isReversed || false,
+            isSelected: true
+        }));
+        
+        // Отображаем карты в позициях
+        restoreCardsToPositions(selectedCardsPart1, 'part1');
+        restoreCardsToPositions(selectedCardsPart2, 'part2');
+        
+        // Показываем обе части расклада
+        const part1Container = document.getElementById('part1-positions');
+        const part2Container = document.getElementById('part2-positions');
+        if (part1Container) part1Container.style.display = 'block';
+        if (part2Container) part2Container.style.display = 'block';
+        
+        // Скрываем колоду
+        if (deckContainer) {
+            deckContainer.style.display = 'none';
+        }
+        
+        // Показываем кнопку управления
+        const spreadControls = document.getElementById('spread-controls');
+        if (spreadControls) {
+            spreadControls.classList.remove('hidden');
+            console.log('✅ Кнопки управления показаны (при восстановлении)');
+        }
+        
+        console.log('✅ Расклад восстановлен');
+        return true;
+        
+    } catch (e) {
+        console.warn('Ошибка восстановления расклада:', e);
+        return false;
+    }
+}
+
+/**
+ * Восстанавливает карты в позиции расклада
+ * @param {Array} cards - массив карт
+ * @param {string} part - 'part1' или 'part2'
+ */
+function restoreCardsToPositions(cards, part) {
+    const gridId = part === 'part1' ? 'part1-grid' : 'part2-grid';
+    const grid = document.getElementById(gridId);
+    if (!grid) return;
+    
+    // Очищаем сетку
+    grid.innerHTML = '';
+    
+    // Для каждой карты создаём элемент и добавляем в сетку
+    cards.forEach((card, index) => {
+        const positionTitle = part === 'part1' 
+            ? getPart1PositionTitle(index)
+            : getPart2PositionTitle(index);
+        
+        const cardElement = createCardElementForSpread(card, part, index);
+        grid.appendChild(cardElement);
+    });
+}
+
 // ============================================
 // ЭКСПОРТ ВСПОМОГАТЕЛЬНЫХ ФУНКЦИЙ
 // ============================================
@@ -620,7 +712,8 @@ function saveCompleteSpread() {
 // Экспортируем функцию инициализации в глобальную область
 window.initDeckModule = initDeckModule;
 
-// Экспортируем функции для использования в question.js
+// Экспортируем функции для использования в других модулях
 window.createEmptySlot = createEmptySlot;
 window.getPart1PositionTitle = getPart1PositionTitle;
 window.getPart2PositionTitle = getPart2PositionTitle;
+window.initDeckModule = initDeckModule;
