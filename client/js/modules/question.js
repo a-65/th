@@ -149,6 +149,12 @@ function onGetSpread() {
     }
     
     hasSpread = true;
+
+    // Показываем область расклада
+    const spreadArea = document.getElementById('spread-area');
+    if (spreadArea) {
+        spreadArea.classList.remove('hidden');
+    }
     
     // Показываем область расклада (убираем класс hidden)
     const spreadArea = document.getElementById('spread-area');
