@@ -106,25 +106,24 @@
                 <!-- Основная область расклада: позиции (слева) + колода (справа) -->
                 <div class="spread-layout">
                     
-                    <!-- ЛЕВАЯ ЧАСТЬ: ПОЗИЦИИ РАСКЛАДА -->
+                    <!-- ЛЕВАЯ ЧАСТЬ: позиции расклада (сетка карт) -->
                     <div class="spread-positions">
-                        
-                        <!-- Часть 1: Анализ ситуации (изначально видима) -->
-                        <div id="part1-positions" class="spread-part-container">
-                            <h3>Часть 1: Анализ ситуации</h3>
-                            <div class="positions-grid" id="part1-grid">
-                                <!-- 5 пустых позиций будут созданы динамически через deck.js -->
+                        <div id="spread-container">
+                            
+                            <!-- Первая часть (ситуация) -->
+                            <div class="spread-part">
+                                <h3>Часть 1: Анализ ситуации</h3>
+                                <p id="partOneDescription" class="part-description"></p>
+                                <div class="cards-grid" id="part1-grid"></div>
+                            </div>
+                            
+                            <!-- Вторая часть (вопрошающий) -->
+                            <div class="spread-part">
+                                <h3>Часть 2: Характеристика вопрошающего</h3>
+                                <p id="partTwoDescription" class="part-description"></p>
+                                <div class="cards-grid" id="part2-grid"></div>
                             </div>
                         </div>
-                        
-                        <!-- Часть 2: Характеристика вопрошающего (изначально скрыта) -->
-                        <div id="part2-positions" class="spread-part-container" style="display: none;">
-                            <h3>Часть 2: Характеристика вопрошающего</h3>
-                            <div class="positions-grid" id="part2-grid">
-                                <!-- 5 пустых позиций будут созданы динамически через deck.js -->
-                            </div>
-                        </div>
-                        
                     </div>
                     
                     <!-- ПРАВАЯ ЧАСТЬ: КОЛОДА ДЛЯ ВЫБОРА -->
