@@ -133,16 +133,30 @@ function onGetSpread() {
     // Сохраняем вопрос
     saveQuestion(currentQuestion);
     
-    // Показываем вопрос в блоке отображения
-    if (window.questionElements) {
+    // Обновляем текст вопроса в блоке отображения
+    if (window.questionElements?.displayedQuestionSpan) {
         window.questionElements.displayedQuestionSpan.textContent = currentQuestion;
-        window.questionElements.questionDisplay.style.display = 'block';
+    }
+    
+    // Показываем блок отображения вопроса (убираем класс hidden)
+    if (window.questionElements?.questionDisplay) {
+        window.questionElements.questionDisplay.classList.remove('hidden');
+    }
+    
+    // Скрываем контейнер ввода вопроса
+    if (window.questionElements?.questionContainer) {
         window.questionElements.questionContainer.style.display = 'none';
     }
     
     hasSpread = true;
 
     // Показываем область расклада
+    const spreadArea = document.getElementById('spread-area');
+    if (spreadArea) {
+        spreadArea.classList.remove('hidden');
+    }
+    
+    // Показываем область расклада (убираем класс hidden)
     const spreadArea = document.getElementById('spread-area');
     if (spreadArea) {
         spreadArea.classList.remove('hidden');
@@ -175,23 +189,26 @@ function onNewQuestion() {
     isQuestionModuleInitialized = false;
     window._questionHandlersAttached = false;
     
-    if (window.questionElements) {
-        // Очищаем поле ввода
+    // Очищаем поле ввода и сбрасываем состояние
+    if (window.questionElements?.input) {
         window.questionElements.input.value = '';
         currentQuestion = '';
         updateGetButtonState();
-        
-        // Скрываем блок вопроса и расклад
-        window.questionElements.questionDisplay.style.display = 'none';
-        window.questionElements.spreadContainer?.style?.setProperty('display', 'none');
-        
-        // Показываем форму ввода
+    }
+    
+    // Скрываем блок отображения вопроса (добавляем класс hidden)
+    if (window.questionElements?.questionDisplay) {
+        window.questionElements.questionDisplay.classList.add('hidden');
+    }
+    
+    // Показываем контейнер ввода вопроса
+    if (window.questionElements?.questionContainer) {
         window.questionElements.questionContainer.style.display = 'block';
-        
-        // Скрываем кнопки управления
-        if (window.questionElements.spreadControls) {
-            window.questionElements.spreadControls.style.display = 'none';
-        }
+    }
+    
+    // Скрываем кнопки управления
+    if (window.questionElements?.spreadControls) {
+        window.questionElements.spreadControls.classList.add('hidden');
     }
     
     hasSpread = false;
@@ -199,7 +216,7 @@ function onNewQuestion() {
     // Очищаем сохранённые расклады
     localStorage.removeItem('tarot_last_complete_spread');
     localStorage.removeItem('tarot_last_question');
-
+    
     // Скрываем область расклада
     const spreadArea = document.getElementById('spread-area');
     if (spreadArea) {
