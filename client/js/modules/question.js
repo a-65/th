@@ -149,12 +149,6 @@ function onGetSpread() {
     }
     
     hasSpread = true;
-
-    // Показываем область расклада
-    const spreadArea = document.getElementById('spread-area');
-    if (spreadArea) {
-        spreadArea.classList.remove('hidden');
-    }
     
     // Показываем область расклада (убираем класс hidden)
     const spreadArea = document.getElementById('spread-area');
@@ -260,7 +254,7 @@ function loadSavedQuestion() {
                 if (spreadData.question === saved) {
                     // Восстанавливаем вопрос в блоке отображения
                     window.questionElements.displayedQuestionSpan.textContent = spreadData.question;
-                    window.questionElements.questionDisplay.style.display = 'block';
+                    window.questionElements.questionDisplay.classList.remove('hidden');
                     window.questionElements.questionContainer.style.display = 'none';
                     
                     // Показываем кнопки управления
@@ -279,3 +273,10 @@ function loadSavedQuestion() {
         }
     }
 }
+
+// ============================================
+// ЭКСПОРТ ФУНКЦИЙ ДЛЯ ДРУГИХ МОДУЛЕЙ
+// ============================================
+
+// Экспортируем функцию инициализации для navigation.js
+window.initQuestionModule = initQuestionModule;

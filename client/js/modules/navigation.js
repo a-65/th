@@ -102,9 +102,9 @@ function switchToPage(pageId) {
     if (pageId === 'page-spread') {
         // Ждём следующего кадра анимации, чтобы DOM точно отрисовался
         requestAnimationFrame(() => {
-            if (typeof initQuestionModule === 'function') {
+            if (typeof window.initQuestionModule === 'function') {
                 console.log('🔄 Инициализация модуля вопроса на странице расклада');
-                initQuestionModule();
+                window.initQuestionModule();
             } else {
                 console.warn('Функция initQuestionModule не найдена');
             }
