@@ -131,7 +131,15 @@ function switchToPage(pageId) {
                 console.log('📝 Отображаем вопрос на странице выбора карт');
                 window.displayQuestionOnSelectPage();
             } else {
-                console.warn('Функция displayQuestionOnSelectPage не найдена');
+                console.warn('Функция displayQuestionOnSelectPage не найдена'); // Это не критично, просто вопрос не отобразится, но навигация будет работать.
+            }
+
+            // Инициализируем колоду
+            if (typeof window.initDeckModule === 'function') {
+                console.log('🃟 Инициализируем колоду на странице выбора карт');
+                window.initDeckModule();
+            } else {
+                console.warn('Функция initDeckModule не найдена'); // Это не критично, просто колода не инициализируется, но навигация будет работать.
             }
         });
     }

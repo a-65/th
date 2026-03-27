@@ -90,53 +90,62 @@
             </div>
         </div>
 
-        <!-- ============================================
-             СТРАНИЦА 5: ВЫБОР КАРТ
-             Пользователь выбирает карты из колоды (часть 1 → часть 2)
-             ============================================ -->
-        <div id="page-select" class="page">
-            <h1>🔮 Расклад «Прыжок Хекет»</h1>
+<!-- ============================================
+    СТРАНИЦА 5: ВЫБОР КАРТ
+    ============================================ -->
+<div id="page-select" class="page">
+    <h1>🔮 Расклад «Прыжок Хекет»</h1>
+    
+    <!-- Блок отображения вопроса (с кнопкой уточнения) -->
+    <div id="select-question-display" class="question-display">
+        <p>📝 <strong>Ваш вопрос:</strong> <span id="select-displayed-question"></span></p>
+        <button id="refine-question-btn" class="refine-btn">
+            ✏️ Уточнить вопрос
+        </button>
+    </div>
+    
+    <!-- Основная область расклада -->
+    <div class="spread-layout">
+        
+        <!-- ЛЕВАЯ ЧАСТЬ: позиции расклада -->
+        <div class="spread-positions">
             
-            <!-- Блок отображения вопроса (с кнопкой уточнения) -->
-            <div id="select-question-display" class="question-display">
-                <p>📝 <strong>Ваш вопрос:</strong> <span id="select-displayed-question"></span></p>
-                <button id="refine-question-btn" class="refine-btn">
-                    ✏️ Уточнить вопрос
-                </button>
+            <!-- Часть 1: Анализ ситуации -->
+            <div id="part1-positions" class="spread-part-container">
+                <h3>Часть 1: Анализ ситуации</h3>
+                <p id="partOneDescription" class="part-description"></p>
+                <div class="cards-grid" id="select-part1-grid"></div>
             </div>
             
-            <!-- Основная область расклада (двухколоночный макет) -->
-            <div class="spread-layout">
-                
-                <!-- ЛЕВАЯ ЧАСТЬ: позиции расклада (обе части видны с пустыми слотами) -->
-                <div class="spread-positions">
-                    
-                    <!-- Часть 1: Анализ ситуации -->
-                    <div id="part1-positions" class="spread-part-container">
-                        <h3>Часть 1: Анализ ситуации</h3>
-                        <p id="partOneDescription" class="part-description"></p>
-                        <div class="cards-grid" id="select-part1-grid"></div>
-                    </div>
-                    
-                    <!-- Часть 2: Характеристика вопрошающего -->
-                    <div id="part2-positions" class="spread-part-container">
-                        <h3>Часть 2: Характеристика вопрошающего</h3>
-                        <p id="partTwoDescription" class="part-description"></p>
-                        <div class="cards-grid" id="select-part2-grid"></div>
-                    </div>
-                    
-                </div>
-                
-                <!-- ПРАВАЯ ЧАСТЬ: КОЛОДА ДЛЯ ВЫБОРА КАРТ -->
-                <div class="deck-area">
-                    <div id="deck-container" class="deck-container">
-                        <!-- Содержимое будет динамически создано deck.js -->
-                    </div>
-                </div>
-                
+            <!-- Часть 2: Характеристика вопрошающего -->
+            <div id="part2-positions" class="spread-part-container">
+                <h3>Часть 2: Характеристика вопрошающего</h3>
+                <p id="partTwoDescription" class="part-description"></p>
+                <div class="cards-grid" id="select-part2-grid"></div>
             </div>
             
         </div>
+        
+        <!-- ПРАВАЯ ЧАСТЬ: КОЛОДА ДЛЯ ВЫБОРА -->
+        <div class="deck-area">
+            <div class="deck-wrapper">
+                <div id="deck-container" class="deck-container">
+                    <div class="deck-title" id="deck-title">🃟 Старшие Арканы</div>
+                    <div class="deck-cards" id="deck-cards"></div>
+                    <div class="deck-footer">
+                        <div class="deck-stats" id="deck-stats">
+                            <p>📊 Осталось: <span id="remaining-count">22</span> карт</p>
+                            <p>✅ Выбрано: <span id="selected-count">0</span> из 5</p>
+                        </div>
+                        <button class="shuffle-btn" id="shuffle-btn">🔄 Перетасовать колоду</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    
+</div>
 
         <!-- ============================================
              СТРАНИЦА 6: ГОТОВЫЙ РАСКЛАД

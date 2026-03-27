@@ -59,6 +59,11 @@ function initDeckModule() {
     // Проверка: если есть сохранённый расклад — восстанавливаем его
     if (restoreSavedSpread()) {
         console.log('✅ Модуль колод: восстановлен сохранённый расклад');
+        // Выравниваем высоту колоды после восстановления
+        setTimeout(() => {
+            alignDeckHeight();
+            requestAnimationFrame(() => alignDeckHeight());
+        }, 100);
         return true;
     }
     
@@ -75,6 +80,12 @@ function initDeckModule() {
     
     // Создаём пустые позиции в раскладе
     createEmptyPositions();
+    
+    // Показываем обе части расклада
+    const part1Container = document.getElementById('part1-positions');
+    const part2Container = document.getElementById('part2-positions');
+    if (part1Container) part1Container.style.display = 'block';
+    if (part2Container) part2Container.style.display = 'block';
     
     // Заполняем описания частей
     const partOneDescription = document.getElementById('partOneDescription');
@@ -98,6 +109,12 @@ function initDeckModule() {
     
     isSpreadStarted = true;
     console.log('✅ Модуль колод инициализирован, можно начинать выбор');
+    
+    // Выравниваем высоту колоды после отрисовки
+    setTimeout(() => {
+        alignDeckHeight();
+        requestAnimationFrame(() => alignDeckHeight());
+    }, 100);
     
     return true;
 }
@@ -216,7 +233,11 @@ function addDeckControls() {
     cardsDiv.id = 'deck-cards';
     controlsDiv.appendChild(cardsDiv);
     
-    // Индикатор
+    // Футер (обёртка для статистики и кнопки)
+    const footerDiv = document.createElement('div');
+    footerDiv.className = 'deck-footer';
+    
+    // Индикатор (статистика)
     const statsDiv = document.createElement('div');
     statsDiv.className = 'deck-stats';
     statsDiv.id = 'deck-stats';
@@ -224,7 +245,7 @@ function addDeckControls() {
         <p>📊 Осталось: <span id="remaining-count">22</span> карт</p>
         <p>✅ Выбрано: <span id="selected-count">0</span> из 5</p>
     `;
-    controlsDiv.appendChild(statsDiv);
+    footerDiv.appendChild(statsDiv);
     
     // Кнопка тасовки
     const shuffleButton = document.createElement('button');
@@ -232,7 +253,9 @@ function addDeckControls() {
     shuffleButton.id = 'shuffle-btn';
     shuffleButton.textContent = '🔄 Перетасовать колоду';
     shuffleButton.onclick = () => shuffleDeck();
-    controlsDiv.appendChild(shuffleButton);
+    footerDiv.appendChild(shuffleButton);
+    
+    controlsDiv.appendChild(footerDiv);
     
     // Очищаем и добавляем
     if (deckContainer) {
@@ -308,12 +331,6 @@ function showPart1() {
         titleElement.textContent = '🃟 Старшие Арканы (22 карты)';
     }
     
-    // Показываем сетку первой части, скрываем вторую
-    const part1Container = document.getElementById('part1-positions');
-    const part2Container = document.getElementById('part2-positions');
-    if (part1Container) part1Container.style.display = 'block';
-    if (part2Container) part2Container.style.display = 'none';
-    
     console.log('🃟 Показана первая часть расклада, колода перетасована');
 }
 
@@ -337,12 +354,6 @@ function showPart2() {
     if (titleElement) {
         titleElement.textContent = '🃟 Остальные карты (56 карт)';
     }
-    
-    // Показываем сетку второй части, скрываем первую
-    const part1Container = document.getElementById('part1-positions');
-    const part2Container = document.getElementById('part2-positions');
-    if (part1Container) part1Container.style.display = 'none';
-    if (part2Container) part2Container.style.display = 'block';
     
     console.log('🃟 Показана вторая часть расклада, колода перетасована');
 }
@@ -506,7 +517,6 @@ function createCardElementForSpread(card, part, positionIndex) {
         if (typeof PART_ONE_POSITIONS !== 'undefined' && PART_ONE_POSITIONS[positionIndex]) {
             positionDescription = PART_ONE_POSITIONS[positionIndex];
         } else {
-            // fallback на случай отсутствия данных
             positionDescription = getPart1PositionTitle(positionIndex);
         }
     } else {
@@ -574,7 +584,6 @@ function createCardElementForSpread(card, part, positionIndex) {
 function onPartComplete() {
     if (currentPart === 'part1') {
         console.log('✅ Первая часть завершена! Переход ко второй части...');
-        // Показываем вторую часть
         showPart2();
     } else {
         console.log('✅ Весь расклад завершён!');
@@ -646,26 +655,15 @@ function saveCompleteSpread() {
 function resetDeckModule() {
     console.log('🃟 Сброс состояния колод...');
     
-    // Сбрасываем выбранные карты
     selectedCardsPart1 = [];
     selectedCardsPart2 = [];
     currentDeckCards = [];
     currentPart = 'part1';
     
-    // Очищаем сетки позиций
-    if (part1Grid) {
-        part1Grid.innerHTML = '';
-    }
-    if (part2Grid) {
-        part2Grid.innerHTML = '';
-    }
+    if (part1Grid) part1Grid.innerHTML = '';
+    if (part2Grid) part2Grid.innerHTML = '';
+    if (deckContainer) deckContainer.innerHTML = '';
     
-    // Очищаем контейнер колоды
-    if (deckContainer) {
-        deckContainer.innerHTML = '';
-    }
-    
-    // Сбрасываем флаги
     isShuffling = false;
     isSpreadStarted = false;
     
@@ -690,7 +688,6 @@ function restoreSavedSpread() {
         
         console.log('🔄 Восстанавливаем сохранённый расклад...');
         
-        // Восстанавливаем выбранные карты
         selectedCardsPart1 = spreadData.part1.map(card => ({
             ...card,
             isReversed: card.isReversed || false,
@@ -703,7 +700,6 @@ function restoreSavedSpread() {
             isSelected: true
         }));
         
-        // Отображаем карты в позициях
         restoreCardsToPositions(selectedCardsPart1, 'part1');
         restoreCardsToPositions(selectedCardsPart2, 'part2');
         
@@ -740,10 +736,8 @@ function restoreCardsToPositions(cards, part) {
     const grid = document.getElementById(gridId);
     if (!grid) return;
     
-    // Очищаем сетку
     grid.innerHTML = '';
     
-    // Для каждой карты создаём элемент и добавляем в сетку
     cards.forEach((card, index) => {
         const cardElement = createCardElementForSpread(card, part, index);
         grid.appendChild(cardElement);
@@ -757,16 +751,13 @@ function restoreCardsToPositions(cards, part) {
 function restoreSpreadFromStorage() {
     console.log('🃟 Восстанавливаем расклад из storage...');
     
-    // Находим DOM-элементы для страницы результата (page-result)
     const resultPart1Grid = document.getElementById('result-part1-grid');
     const resultPart2Grid = document.getElementById('result-part2-grid');
     
-    // Если мы на странице результата — восстанавливаем карты туда
     if (resultPart1Grid && resultPart2Grid) {
         part1Grid = resultPart1Grid;
         part2Grid = resultPart2Grid;
         
-        // Восстанавливаем карты
         if (restoreSavedSpread()) {
             console.log('✅ Расклад восстановлен на странице результата');
             return true;
@@ -777,19 +768,34 @@ function restoreSpreadFromStorage() {
 }
 
 // ============================================
+// ВЫРАВНИВАНИЕ ВЫСОТЫ КОЛОДЫ
+// ============================================
+
+/**
+ * Выравнивает высоту колоды по высоте левой части
+ */
+function alignDeckHeight() {
+    const spreadPositions = document.querySelector('.spread-positions');
+    const deckContainerElem = document.querySelector('.deck-container');
+    
+    if (spreadPositions && deckContainerElem) {
+        const positionsHeight = spreadPositions.offsetHeight;
+        deckContainerElem.style.height = positionsHeight + 'px';
+        console.log(`📐 Высота колоды установлена: ${positionsHeight}px (равна высоте левой части)`);
+        
+        // Принудительно пересчитываем layout
+        deckContainerElem.offsetHeight;
+    }
+}
+
+// ============================================
 // ЭКСПОРТ ФУНКЦИЙ ДЛЯ ДРУГИХ МОДУЛЕЙ
 // ============================================
 
-// Экспортируем функцию инициализации
 window.initDeckModule = initDeckModule;
-
-// Экспортируем вспомогательные функции
 window.createEmptySlot = createEmptySlot;
 window.getPart1PositionTitle = getPart1PositionTitle;
 window.getPart2PositionTitle = getPart2PositionTitle;
-
-// Экспортируем функцию восстановления
 window.restoreSpreadFromStorage = restoreSpreadFromStorage;
-
-// Экспортируем функцию сброса состояния
 window.resetDeckModule = resetDeckModule;
+window.alignDeckHeight = alignDeckHeight;
