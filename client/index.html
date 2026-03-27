@@ -57,15 +57,13 @@
         </div>
 
         <!-- ============================================
-            СТРАНИЦА 4: РАСКЛАД (АУТЕНТИЧНАЯ ВЕРСИЯ)
-            Содержит аутентичный расклад "Прыжок Хекет" с ручным выбором карт
-            ============================================ -->
-        <div id="page-spread" class="page">
+             СТРАНИЦА 4: ВВОД ВОПРОСА
+             Пользователь вводит вопрос и нажимает «Получить расклад»
+             ============================================ -->
+        <div id="page-question" class="page">
             <h1>🔮 Расклад «Прыжок Хекет»</h1>
             
-            <!-- ====================================
-                 БЛОК ВВОДА ВОПРОСА
-                 ==================================== -->
+            <!-- Блок ввода вопроса -->
             <div id="question-container" class="question-container">
                 <label for="question-input" class="question-label">
                     <span class="label-icon">📝</span> О чём вы хотите спросить карты?
@@ -90,64 +88,94 @@
                 </div>
                 <div class="question-decoration"></div>
             </div>
+        </div>
 
-            <!-- ====================================
-                БЛОК ОТОБРАЖЕНИЯ ВОПРОСА (изначально скрыт)
-                ==================================== -->
-            <div id="question-display" class="question-display hidden">
-                <p>📝 <strong>Ваш вопрос:</strong> <span id="displayed-question"></span></p>
+        <!-- ============================================
+             СТРАНИЦА 5: ВЫБОР КАРТ
+             Пользователь выбирает карты из колоды (часть 1 → часть 2)
+             ============================================ -->
+        <div id="page-select" class="page">
+            <h1>🔮 Расклад «Прыжок Хекет»</h1>
+            
+            <!-- Блок отображения вопроса (с кнопкой уточнения) -->
+            <div id="select-question-display" class="question-display">
+                <p>📝 <strong>Ваш вопрос:</strong> <span id="select-displayed-question"></span></p>
+                <button id="refine-question-btn" class="refine-btn">
+                    ✏️ Уточнить вопрос
+                </button>
             </div>
-
-            <!-- ====================================
-                ОБЛАСТЬ РАСКЛАДА (СКРЫТА ДО ВВОДА ВОПРОСА)
-                ==================================== -->
-            <div id="spread-area" class="hidden">
+            
+            <!-- Основная область расклада (двухколоночный макет) -->
+            <div class="spread-layout">
                 
-                <!-- Основная область расклада: позиции (слева) + колода (справа) -->
-                <div class="spread-layout">
+                <!-- ЛЕВАЯ ЧАСТЬ: позиции расклада (обе части видны с пустыми слотами) -->
+                <div class="spread-positions">
                     
-                    <!-- ЛЕВАЯ ЧАСТЬ: позиции расклада (сетка карт) -->
-                    <div class="spread-positions">
-                        <div id="spread-container">
-                            
-                            <!-- Первая часть (ситуация) -->
-                            <div class="spread-part">
-                                <h3>Часть 1: Анализ ситуации</h3>
-                                <p id="partOneDescription" class="part-description"></p>
-                                <div class="cards-grid" id="part1-grid"></div>
-                            </div>
-                            
-                            <!-- Вторая часть (вопрошающий) -->
-                            <div class="spread-part">
-                                <h3>Часть 2: Характеристика вопрошающего</h3>
-                                <p id="partTwoDescription" class="part-description"></p>
-                                <div class="cards-grid" id="part2-grid"></div>
-                            </div>
-                        </div>
+                    <!-- Часть 1: Анализ ситуации -->
+                    <div id="part1-positions" class="spread-part-container">
+                        <h3>Часть 1: Анализ ситуации</h3>
+                        <p id="partOneDescription" class="part-description"></p>
+                        <div class="cards-grid" id="select-part1-grid"></div>
                     </div>
                     
-                    <!-- ПРАВАЯ ЧАСТЬ: КОЛОДА ДЛЯ ВЫБОРА -->
-                    <div class="deck-area">
-                        <!-- Контейнер для колоды (будет заполняться динамически через deck.js) -->
-                        <div id="deck-container" class="deck-container">
-                            <!-- Содержимое будет динамически создано deck.js -->
-                        </div>
+                    <!-- Часть 2: Характеристика вопрошающего -->
+                    <div id="part2-positions" class="spread-part-container">
+                        <h3>Часть 2: Характеристика вопрошающего</h3>
+                        <p id="partTwoDescription" class="part-description"></p>
+                        <div class="cards-grid" id="select-part2-grid"></div>
                     </div>
                     
                 </div>
                 
-            </div> <!-- Конец spread-area -->
+                <!-- ПРАВАЯ ЧАСТЬ: КОЛОДА ДЛЯ ВЫБОРА КАРТ -->
+                <div class="deck-area">
+                    <div id="deck-container" class="deck-container">
+                        <!-- Содержимое будет динамически создано deck.js -->
+                    </div>
+                </div>
+                
+            </div>
+            
+        </div>
 
-            <!-- ====================================
-                БЛОК УПРАВЛЕНИЯ (появляется после завершения расклада)
-                ==================================== -->
-            <div id="spread-controls" class="spread-controls hidden">
-                <button id="new-question-btn" class="control-btn">
+        <!-- ============================================
+             СТРАНИЦА 6: ГОТОВЫЙ РАСКЛАД
+             Отображает полный расклад из 10 карт после завершения выбора
+             ============================================ -->
+        <div id="page-result" class="page">
+            <h1>🔮 Расклад «Прыжок Хекет»</h1>
+            
+            <!-- Блок отображения вопроса (без кнопки уточнения) -->
+            <div id="result-question-display" class="question-display">
+                <p>📝 <strong>Ваш вопрос:</strong> <span id="result-displayed-question"></span></p>
+            </div>
+            
+            <!-- Основная область расклада (две части с картами) -->
+            <div class="spread-layout-result">
+                
+                <!-- Часть 1: Анализ ситуации -->
+                <div class="spread-part">
+                    <h3>Часть 1: Анализ ситуации</h3>
+                    <p id="result-partOneDescription" class="part-description"></p>
+                    <div class="cards-grid" id="result-part1-grid"></div>
+                </div>
+                
+                <!-- Часть 2: Характеристика вопрошающего -->
+                <div class="spread-part">
+                    <h3>Часть 2: Характеристика вопрошающего</h3>
+                    <p id="result-partTwoDescription" class="part-description"></p>
+                    <div class="cards-grid" id="result-part2-grid"></div>
+                </div>
+                
+            </div>
+            
+            <!-- Кнопки управления -->
+            <div class="result-controls">
+                <button id="new-question-from-result-btn" class="control-btn">
                     ✏️ Новый вопрос
                 </button>
             </div>
-            
-        </div> <!-- Конец page-spread -->
+        </div>
 
         <!-- ============================================
              НАВИГАЦИЯ

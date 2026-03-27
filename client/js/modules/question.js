@@ -1,12 +1,11 @@
 // ============================================
-// modules/question.js — ЛОГИКА ВОПРОСА ПОЛЬЗОВАТЕЛЯ
+// modules/question.js — ЛОГИКА ВВОДА ВОПРОСА
 // ============================================
 
 /**
  * Состояние модуля вопроса
  */
 let currentQuestion = '';           // Текущий вопрос
-let hasSpread = false;              // Был ли уже сделан расклад
 let isQuestionModuleInitialized = false; // Флаг инициализации
 
 // ============================================
@@ -18,7 +17,7 @@ let isQuestionModuleInitialized = false; // Флаг инициализации
  * Активна только если есть текст вопроса
  */
 function updateGetButtonState() {
-    const btn = window.questionElements?.getBtn;
+    const btn = document.getElementById('get-spread-btn');
     if (btn) {
         btn.disabled = !currentQuestion || currentQuestion.trim() === '';
     }
@@ -40,6 +39,9 @@ function saveQuestion(question) {
 // ИНИЦИАЛИЗАЦИЯ
 // ============================================
 
+/**
+ * Инициализирует модуль ввода вопроса на странице page-question
+ */
 function initQuestionModule() {
     // Если уже инициализирован — выходим
     if (isQuestionModuleInitialized) {
@@ -51,30 +53,14 @@ function initQuestionModule() {
     
     const questionInput = document.getElementById('question-input');
     const getSpreadBtn = document.getElementById('get-spread-btn');
-    const newQuestionBtn = document.getElementById('new-question-btn');
-    const questionDisplay = document.getElementById('question-display');
-    const displayedQuestionSpan = document.getElementById('displayed-question');
-    const questionContainer = document.getElementById('question-container');
-    const spreadControls = document.getElementById('spread-controls');
     
-    // Если элементы не найдены — страница расклада ещё не активна, выходим
+    // Если элементы не найдены — страница ввода вопроса не активна
     if (!questionInput || !getSpreadBtn) {
-        console.log('📝 Модуль вопроса: элементы не найдены (страница расклада не активна)');
+        console.log('📝 Модуль вопроса: элементы не найдены (страница ввода вопроса не активна)');
         return false;
     }
     
     console.log('📝 Модуль вопроса: элементы найдены, инициализация');
-    
-    // Сохраняем ссылки на элементы для других функций
-    window.questionElements = {
-        input: questionInput,
-        getBtn: getSpreadBtn,
-        newQuestionBtn: newQuestionBtn,
-        questionDisplay: questionDisplay,
-        displayedQuestionSpan: displayedQuestionSpan,
-        questionContainer: questionContainer,
-        spreadControls: spreadControls
-    };
     
     // Загружаем сохранённый вопрос из localStorage
     loadSavedQuestion();
@@ -83,13 +69,9 @@ function initQuestionModule() {
     if (!window._questionHandlersAttached) {
         questionInput.addEventListener('input', onQuestionInput);
         getSpreadBtn.addEventListener('click', onGetSpread);
-        
-        if (newQuestionBtn) {
-            newQuestionBtn.addEventListener('click', onNewQuestion);
-        }
         window._questionHandlersAttached = true;
     }
-
+    
     isQuestionModuleInitialized = true;
     return true;
 }
@@ -121,141 +103,12 @@ function onGetSpread() {
     // Сохраняем вопрос
     saveQuestion(currentQuestion);
     
-    // Обновляем текст вопроса в блоке отображения
-    if (window.questionElements?.displayedQuestionSpan) {
-        window.questionElements.displayedQuestionSpan.textContent = currentQuestion;
-    }
-    
-    // Показываем блок отображения вопроса (убираем класс hidden)
-    if (window.questionElements?.questionDisplay) {
-        window.questionElements.questionDisplay.classList.remove('hidden');
-    }
-    
-    // Скрываем контейнер ввода вопроса
-    if (window.questionElements?.questionContainer) {
-        window.questionElements.questionContainer.style.display = 'none';
-    }
-    
-    hasSpread = true;
-    
-    // Показываем область расклада (убираем класс hidden)
-    const spreadArea = document.getElementById('spread-area');
-    if (spreadArea) {
-        spreadArea.classList.remove('hidden');
-    }
-    
-    // Инициализируем модуль колод (запускаем выбор карт)
-    if (typeof window.initDeckModule === 'function') {
-        console.log('🃟 Запускаем инициализацию колод...');
-        window.initDeckModule();
+    // Переходим на страницу выбора карт
+    if (typeof window.goToSelectPage === 'function') {
+        window.goToSelectPage(currentQuestion);
     } else {
-        console.error('Ошибка: модуль deck.js не загружен или initDeckModule не определён');
+        console.error('Ошибка: функция goToSelectPage не найдена');
     }
-    
-    console.log('✅ Вопрос сохранён, запущен выбор карт');
-}
-
-/**
- * Обработчик нажатия на кнопку «Новый вопрос»
- */
-function onNewQuestion() {
-    console.log('✏️ Новый вопрос — возврат к форме');
-    
-    // Подтверждение сброса
-    const confirmReset = confirm('Вы уверены, что хотите начать новый вопрос? Весь текущий прогресс будет потерян.');
-    if (!confirmReset) {
-        return;
-    }
-    
-    // Сбрасываем флаг инициализации
-    isQuestionModuleInitialized = false;
-    window._questionHandlersAttached = false;
-    
-    // Очищаем поле ввода и сбрасываем состояние
-    if (window.questionElements?.input) {
-        window.questionElements.input.value = '';
-        currentQuestion = '';
-        updateGetButtonState();
-    }
-    
-    // Скрываем блок отображения вопроса
-    if (window.questionElements?.questionDisplay) {
-        window.questionElements.questionDisplay.classList.add('hidden');
-        console.log('✅ questionDisplay скрыт');
-    }
-    
-    // Показываем контейнер ввода вопроса
-    const questionContainer = document.getElementById('question-container');
-    if (questionContainer) {
-        questionContainer.style.display = 'block';
-        console.log('✅ questionContainer показан');
-    } else {
-        console.warn('❌ questionContainer не найден');
-    }
-    
-    // Скрываем кнопки управления (через класс hidden)
-    if (window.questionElements?.spreadControls) {
-        window.questionElements.spreadControls.classList.add('hidden');
-        console.log('✅ spreadControls скрыты (через класс hidden)');
-    }
-    
-    hasSpread = false;
-    
-    // Очищаем сохранённые расклады
-    localStorage.removeItem('tarot_last_complete_spread');
-    localStorage.removeItem('tarot_last_question');
-    console.log('✅ localStorage очищен');
-    
-    // Скрываем область расклада
-    const spreadArea = document.getElementById('spread-area');
-    if (spreadArea) {
-        spreadArea.classList.add('hidden');
-        console.log('✅ spreadArea скрыта');
-    }
-    
-    // Получаем ссылки на элементы
-    const deckContainer = document.getElementById('deck-container');
-    const part1Container = document.getElementById('part1-positions');
-    const part2Container = document.getElementById('part2-positions');
-    const part1Grid = document.getElementById('part1-grid');
-    const part2Grid = document.getElementById('part2-grid');
-    
-    // Очищаем сетки позиций (создаём пустые слоты)
-    if (part1Grid && window.createEmptySlot && window.getPart1PositionTitle) {
-        part1Grid.innerHTML = '';
-        for (let i = 0; i < 5; i++) {
-            const emptySlot = window.createEmptySlot(window.getPart1PositionTitle(i));
-            part1Grid.appendChild(emptySlot);
-        }
-        console.log('✅ part1Grid очищен');
-    }
-    
-    if (part2Grid && window.createEmptySlot && window.getPart2PositionTitle) {
-        part2Grid.innerHTML = '';
-        for (let i = 0; i < 5; i++) {
-            const emptySlot = window.createEmptySlot(window.getPart2PositionTitle(i));
-            part2Grid.appendChild(emptySlot);
-        }
-        console.log('✅ part2Grid очищен');
-    }
-    
-    // Сбрасываем отображение контейнеров
-    if (deckContainer) deckContainer.style.display = 'flex';
-    if (part1Container) part1Container.style.display = 'block';
-    if (part2Container) part2Container.style.display = 'none';
-    
-    // Очищаем контейнер колоды
-    if (deckContainer) {
-        deckContainer.innerHTML = '';
-        console.log('✅ deckContainer очищен');
-    }
-    
-    // Сбрасываем выбранные карты (один раз)
-    selectedCardsPart1 = [];
-    selectedCardsPart2 = [];
-    currentDeckCards = [];
-    
-    console.log('✅ Возврат к форме ввода вопроса');
 }
 
 // ============================================
@@ -265,51 +118,47 @@ function onNewQuestion() {
 /**
  * Загружает сохранённый вопрос из localStorage
  */
-/**
- * Загружает сохранённый вопрос из localStorage
- */
 function loadSavedQuestion() {
     const saved = localStorage.getItem('tarot_last_question');
-    const savedSpread = localStorage.getItem('tarot_last_complete_spread');
     
-    if (saved && window.questionElements) {
-        window.questionElements.input.value = saved;
-        currentQuestion = saved;
-        updateGetButtonState();
-        
-        if (savedSpread) {
-            try {
-                const spreadData = JSON.parse(savedSpread);
-                if (spreadData.question === saved) {
-                    // 1. Показываем вопрос
-                    window.questionElements.displayedQuestionSpan.textContent = spreadData.question;
-                    window.questionElements.questionDisplay.classList.remove('hidden');
-                    window.questionElements.questionContainer.style.display = 'none';
-                    
-                    // 2. Показываем кнопки управления
-                    if (window.questionElements.spreadControls) {
-                        window.questionElements.spreadControls.classList.remove('hidden');
-                        console.log('✅ Кнопки управления показаны');
-                    }
-                    
-                    // 3. Показываем область расклада
-                    const spreadArea = document.getElementById('spread-area');
-                    if (spreadArea) {
-                        spreadArea.classList.remove('hidden');
-                        console.log('✅ spreadArea показана');
-                    }
-                    
-                    // 4. Восстанавливаем карты
-                    if (typeof window.restoreSpreadFromStorage === 'function') {
-                        window.restoreSpreadFromStorage();
-                    }
-                    
-                    hasSpread = true;
-                }
-            } catch (e) {
-                console.warn('Ошибка восстановления расклада:', e);
-            }
+    if (saved && saved.trim()) {
+        const questionInput = document.getElementById('question-input');
+        if (questionInput) {
+            questionInput.value = saved;
+            currentQuestion = saved;
+            updateGetButtonState();
+            console.log('💾 Восстановлен сохранённый вопрос:', saved);
         }
+    }
+}
+
+// ============================================
+// ОТОБРАЖЕНИЕ ВОПРОСА НА СТРАНИЦЕ ВЫБОРА КАРТ
+// ============================================
+
+/**
+ * Отображает вопрос на странице выбора карт
+ * Вызывается при переходе на page-select
+ */
+function displayQuestionOnSelectPage() {
+    const savedQuestion = localStorage.getItem('tarot_last_question');
+    const questionSpan = document.getElementById('select-displayed-question');
+    const refineBtn = document.getElementById('refine-question-btn');
+    
+    if (savedQuestion && questionSpan) {
+        questionSpan.textContent = savedQuestion;
+        console.log('📝 Вопрос отображён на странице выбора карт:', savedQuestion);
+    }
+    
+    // Навешиваем обработчик на кнопку "Уточнить вопрос"
+    if (refineBtn && !window._refineHandlerAttached) {
+        refineBtn.addEventListener('click', () => {
+            console.log('✏️ Уточнить вопрос — возврат к форме');
+            if (typeof window.goBackToQuestion === 'function') {
+                window.goBackToQuestion();
+            }
+        });
+        window._refineHandlerAttached = true;
     }
 }
 
@@ -319,3 +168,6 @@ function loadSavedQuestion() {
 
 // Экспортируем функцию инициализации для navigation.js
 window.initQuestionModule = initQuestionModule;
+
+// Экспортируем функцию отображения вопроса для navigation.js
+window.displayQuestionOnSelectPage = displayQuestionOnSelectPage;

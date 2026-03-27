@@ -3,14 +3,9 @@
 // ============================================
 
 /**
- * Список страниц приложения
- * Каждая страница содержит:
- *   - id: идентификатор DOM-элемента страницы
- *   - buttonText: текст на кнопке
- *   - buttonIcon: иконка для кнопки
- *   - buttonId: идентификатор кнопки (для отладки)
+ * Список всех страниц приложения
  */
-const pages = [
+const allPages = [
     {
         id: 'page-welcome',
         buttonText: '«Таро Гранд Эттейла»',
@@ -30,16 +25,20 @@ const pages = [
         buttonId: 'nav-to-rules'
     },
     {
-        id: 'page-spread',
+        id: 'page-question',
         buttonText: 'Получить расклад «Прыжок Хекет»',
         buttonIcon: '🔮',
-        buttonId: 'nav-to-spread'
+        buttonId: 'nav-to-question'
     }
 ];
 
 /**
+ * Список страниц, на которых НЕ нужно показывать кнопку «Получить расклад»
+ */
+const pagesWithoutGetSpread = ['page-select', 'page-result'];
+
+/**
  * Создаёт кнопки навигации и добавляет их в DOM
- * Кнопка текущей страницы не отображается
  */
 function createNavButtons() {
     const navContainer = document.getElementById('nav-buttons');
@@ -48,25 +47,39 @@ function createNavButtons() {
         return;
     }
     
-    // Очищаем контейнер перед созданием новых кнопок
+    // Очищаем контейнер
     navContainer.innerHTML = '';
     
     // Получаем ID текущей активной страницы
     const activePageId = getActivePageId();
     
-    // Создаём кнопки для всех страниц, кроме текущей
-    pages.forEach(page => {
-        if (page.id !== activePageId) {
-            const button = document.createElement('button');
-            button.className = 'nav-btn';
-            button.id = page.buttonId;
-            button.onclick = () => switchToPage(page.id);
-            button.innerHTML = `${page.buttonIcon} ${page.buttonText}`;
-            navContainer.appendChild(button);
+    // Определяем, нужно ли скрывать кнопку «Получить расклад»
+    const hideGetSpread = pagesWithoutGetSpread.includes(activePageId);
+    
+    // Создаём кнопки для всех страниц
+    allPages.forEach(page => {
+        // Пропускаем кнопку текущей страницы
+        if (page.id === activePageId) {
+            return;
         }
+        
+        // На промежуточных страницах пропускаем кнопку «Получить расклад»
+        if (hideGetSpread && page.id === 'page-question') {
+            return;
+        }
+        
+        const button = document.createElement('button');
+        button.className = 'nav-btn';
+        button.id = page.buttonId;
+        button.onclick = () => switchToPage(page.id);
+        button.innerHTML = `${page.buttonIcon} ${page.buttonText}`;
+        navContainer.appendChild(button);
     });
     
     console.log('✅ Навигационные кнопки созданы, активная страница:', activePageId);
+    if (hideGetSpread) {
+        console.log('🔘 Кнопка "Получить расклад" скрыта (промежуточная страница)');
+    }
 }
 
 /**
@@ -86,8 +99,8 @@ function switchToPage(pageId) {
     console.log(`🔄 Переключение на страницу: ${pageId}`);
     
     // 1. Скрываем все страницы
-    const allPages = document.querySelectorAll('.page');
-    allPages.forEach(page => page.classList.remove('active-page'));
+    const allPagesElements = document.querySelectorAll('.page');
+    allPagesElements.forEach(page => page.classList.remove('active-page'));
     
     // 2. Показываем нужную страницу
     const targetPage = document.getElementById(pageId);
@@ -98,29 +111,96 @@ function switchToPage(pageId) {
         return;
     }
     
-    // 3. Если перешли на страницу расклада — инициализируем модуль вопроса
-    if (pageId === 'page-spread') {
-        // Ждём следующего кадра анимации, чтобы DOM точно отрисовался
+    // 3. Специфическая инициализация в зависимости от страницы
+    if (pageId === 'page-question') {
+        // Страница ввода вопроса — инициализируем модуль вопроса
         requestAnimationFrame(() => {
             if (typeof window.initQuestionModule === 'function') {
-                console.log('🔄 Инициализация модуля вопроса на странице расклада');
+                console.log('🔄 Инициализация модуля вопроса на странице ввода вопроса');
                 window.initQuestionModule();
             } else {
                 console.warn('Функция initQuestionModule не найдена');
             }
         });
-        
-        // ВРЕМЕННО: старый loadSpread() отключён — расклад теперь запускается через deck.js
-        // if (typeof loadSpread === 'function') {
-        //     loadSpread();
-        // }
     }
     
-    // 4. Обновляем навигационные кнопки (они зависят от текущей страницы)
+    if (pageId === 'page-select') {
+        // Страница выбора карт — отображаем вопрос
+        requestAnimationFrame(() => {
+            if (typeof window.displayQuestionOnSelectPage === 'function') {
+                console.log('📝 Отображаем вопрос на странице выбора карт');
+                window.displayQuestionOnSelectPage();
+            } else {
+                console.warn('Функция displayQuestionOnSelectPage не найдена');
+            }
+        });
+    }
+    
+    // 4. Создаём навигационные кнопки (учитывая текущую страницу)
     createNavButtons();
     
-    // 5. Прокручиваем страницу вверх для удобства пользователя
+    // 5. Прокручиваем страницу вверх
     window.scrollTo({ top: 0, behavior: 'smooth' });
     
     console.log(`✅ Переключение на страницу "${pageId}" завершено`);
 }
+
+// ============================================
+// НАВИГАЦИЯ МЕЖДУ СТРАНИЦАМИ РАСКЛАДА
+// ============================================
+
+/**
+ * Переход на страницу выбора карт
+ * @param {string} question - текст вопроса пользователя
+ */
+function goToSelectPage(question) {
+    // Сохраняем вопрос в localStorage
+    if (question && question.trim()) {
+        localStorage.setItem('tarot_last_question', question.trim());
+    }
+    
+    // Переключаемся на страницу выбора карт
+    switchToPage('page-select');
+}
+
+/**
+ * Переход на страницу готового расклада
+ * @param {Object} spreadData - данные расклада (part1, part2)
+ */
+function goToResultPage(spreadData) {
+    // Сохраняем расклад в localStorage
+    if (spreadData) {
+        localStorage.setItem('tarot_last_complete_spread', JSON.stringify(spreadData));
+    }
+    
+    // Переключаемся на страницу результата
+    switchToPage('page-result');
+}
+
+/**
+ * Возврат к вводу вопроса (уточнение вопроса)
+ * Сбрасывает текущий прогресс выбора карт
+ */
+function goBackToQuestion() {
+    console.log('✏️ Уточнить вопрос — возврат к форме');
+    
+    // Очищаем сохранённый расклад (промежуточный)
+    localStorage.removeItem('tarot_last_complete_spread');
+    
+    // Сбрасываем состояние модуля колод
+    if (typeof window.resetDeckModule === 'function') {
+        window.resetDeckModule();
+    }
+    
+    // Переключаемся на страницу ввода вопроса
+    switchToPage('page-question');
+}
+
+// ============================================
+// ЭКСПОРТ ФУНКЦИЙ ДЛЯ ДРУГИХ МОДУЛЕЙ
+// ============================================
+
+// Экспортируем функции навигации
+window.goToSelectPage = goToSelectPage;
+window.goToResultPage = goToResultPage;
+window.goBackToQuestion = goBackToQuestion;
