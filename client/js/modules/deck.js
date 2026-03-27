@@ -5,7 +5,7 @@
 /**
  * Состояние расклада
  */
-let currentPart = 'part1';           // 'part1' или 'part2'
+let currentPart = 'part1';           // 'part1' или 'part2' — текущая активная часть
 let selectedCardsPart1 = [];          // Выбранные карты для первой части (максимум 5)
 let selectedCardsPart2 = [];          // Выбранные карты для второй части (максимум 5)
 
@@ -46,17 +46,17 @@ let isSpreadStarted = false;     // Начат ли выбор карт
 function initDeckModule() {
     console.log('🃟 Инициализация модуля колод');
     
-    // Находим DOM-элементы
+    // Находим DOM-элементы для страницы выбора карт (page-select)
     deckContainer = document.getElementById('deck-container');
-    part1Grid = document.getElementById('part1-grid');
-    part2Grid = document.getElementById('part2-grid');
+    part1Grid = document.getElementById('select-part1-grid');
+    part2Grid = document.getElementById('select-part2-grid');
     
     if (!deckContainer || !part1Grid || !part2Grid) {
         console.error('Ошибка: не найдены элементы для колод');
         return false;
     }
     
-    // ПРОВЕРКА: если есть сохранённый расклад — восстанавливаем его
+    // Проверка: если есть сохранённый расклад — восстанавливаем его
     if (restoreSavedSpread()) {
         console.log('✅ Модуль колод: восстановлен сохранённый расклад');
         return true;
@@ -75,7 +75,7 @@ function initDeckModule() {
     
     // Создаём пустые позиции в раскладе
     createEmptyPositions();
-
+    
     // Заполняем описания частей
     const partOneDescription = document.getElementById('partOneDescription');
     const partTwoDescription = document.getElementById('partTwoDescription');
@@ -410,7 +410,6 @@ function shuffleDeck(isInitial = false) {
  * Воспроизводит звук тасовки
  */
 function playShuffleSound() {
-    // Временно заглушка — звук добавим позже
     // TODO: добавить звук shuffle.mp3
     console.log('🔊 Звук тасовки (пока заглушка)');
 }
@@ -478,7 +477,7 @@ function selectCard(index) {
  * @param {string} part - 'part1' или 'part2'
  */
 function addCardToPosition(card, positionIndex, part) {
-    const gridId = part === 'part1' ? 'part1-grid' : 'part2-grid';
+    const gridId = part === 'part1' ? 'select-part1-grid' : 'select-part2-grid';
     const grid = document.getElementById(gridId);
     if (!grid) return;
     
@@ -585,45 +584,24 @@ function onPartComplete() {
 
 /**
  * Обработчик завершения всего расклада
+ * Переход на страницу готового расклада (page-result)
  */
 function onSpreadComplete() {
-    console.log('🎉 Расклад завершён! Показываем полный расклад...');
-    
-    // Показываем обе части расклада
-    const part1Container = document.getElementById('part1-positions');
-    const part2Container = document.getElementById('part2-positions');
-    
-    if (part1Container) part1Container.style.display = 'block';
-    if (part2Container) part2Container.style.display = 'block';
-    
-    // Скрываем колоду
-    if (deckContainer) {
-        deckContainer.style.display = 'none';
-    }
-    
-    // Скрываем блок управления колодой
-    const deckControls = document.querySelector('.deck-controls');
-    if (deckControls) {
-        deckControls.style.display = 'none';
-    }
-    
-    // Показываем кнопки управления (убираем класс hidden)
-    const spreadControls = document.getElementById('spread-controls');
-    if (spreadControls) {
-        spreadControls.classList.remove('hidden');   // ← только это
-        console.log('✅ Кнопки управления показаны');
-    }
-    
-    // Прокручиваем страницу к началу расклада
-    const spreadLayout = document.querySelector('.spread-layout');
-    if (spreadLayout) {
-        spreadLayout.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+    console.log('🎉 Расклад завершён! Переход на страницу результата...');
     
     // Сохраняем расклад в localStorage
     saveCompleteSpread();
     
-    console.log('🎉 Полный расклад отображён, обе части видны');
+    // Переходим на страницу результата
+    if (typeof window.goToResultPage === 'function') {
+        const spreadData = {
+            part1: selectedCardsPart1,
+            part2: selectedCardsPart2
+        };
+        window.goToResultPage(spreadData);
+    } else {
+        console.error('Ошибка: функция goToResultPage не найдена');
+    }
 }
 
 /**
@@ -660,8 +638,43 @@ function saveCompleteSpread() {
     localStorage.setItem('tarot_last_question', currentQuestion);
     
     console.log('💾 Расклад сохранён в localStorage');
-    console.log('  Сохранённые данные:', localStorage.getItem('tarot_last_complete_spread')?.substring(0, 100) + '...');
 }
+
+/**
+ * Сбрасывает состояние модуля колод (очищает выбор карт)
+ */
+function resetDeckModule() {
+    console.log('🃟 Сброс состояния колод...');
+    
+    // Сбрасываем выбранные карты
+    selectedCardsPart1 = [];
+    selectedCardsPart2 = [];
+    currentDeckCards = [];
+    currentPart = 'part1';
+    
+    // Очищаем сетки позиций
+    if (part1Grid) {
+        part1Grid.innerHTML = '';
+    }
+    if (part2Grid) {
+        part2Grid.innerHTML = '';
+    }
+    
+    // Очищаем контейнер колоды
+    if (deckContainer) {
+        deckContainer.innerHTML = '';
+    }
+    
+    // Сбрасываем флаги
+    isShuffling = false;
+    isSpreadStarted = false;
+    
+    console.log('✅ Состояние колод сброшено');
+}
+
+// ============================================
+// ВОССТАНОВЛЕНИЕ РАСКЛАДА ПРИ ЗАГРУЗКЕ СТРАНИЦЫ
+// ============================================
 
 /**
  * Восстанавливает сохранённый расклад из localStorage
@@ -708,26 +721,6 @@ function restoreSavedSpread() {
             console.log('✅ Добавлено описание второй части (при восстановлении)');
         }
         
-        // ========== ДОБАВЛЯЕМ ПОКАЗ ОБЛАСТИ РАСКЛАДА ==========
-        const spreadArea = document.getElementById('spread-area');
-        if (spreadArea) {
-            spreadArea.classList.remove('hidden');
-            console.log('✅ spreadArea показана при восстановлении');
-        }
-        // ======================================================
-        
-        // Скрываем колоду
-        if (deckContainer) {
-            deckContainer.style.display = 'none';
-        }
-        
-        // Показываем кнопку управления
-        const spreadControls = document.getElementById('spread-controls');
-        if (spreadControls) {
-            spreadControls.classList.remove('hidden');
-            console.log('✅ Кнопки управления показаны (при восстановлении)');
-        }
-        
         console.log('✅ Расклад восстановлен');
         return true;
         
@@ -743,7 +736,7 @@ function restoreSavedSpread() {
  * @param {string} part - 'part1' или 'part2'
  */
 function restoreCardsToPositions(cards, part) {
-    const gridId = part === 'part1' ? 'part1-grid' : 'part2-grid';
+    const gridId = part === 'part1' ? 'select-part1-grid' : 'select-part2-grid';
     const grid = document.getElementById(gridId);
     if (!grid) return;
     
@@ -752,32 +745,10 @@ function restoreCardsToPositions(cards, part) {
     
     // Для каждой карты создаём элемент и добавляем в сетку
     cards.forEach((card, index) => {
-        const positionTitle = part === 'part1' 
-            ? getPart1PositionTitle(index)
-            : getPart2PositionTitle(index);
-        
         const cardElement = createCardElementForSpread(card, part, index);
         grid.appendChild(cardElement);
     });
 }
-
-// ============================================
-// ЭКСПОРТ ВСПОМОГАТЕЛЬНЫХ ФУНКЦИЙ
-// ============================================
-
-// Экспортируем функцию инициализации в глобальную область
-window.initDeckModule = initDeckModule;
-
-// Экспортируем функции для использования в других модулях
-window.createEmptySlot = createEmptySlot;
-window.getPart1PositionTitle = getPart1PositionTitle;
-window.getPart2PositionTitle = getPart2PositionTitle;
-window.initDeckModule = initDeckModule;
-
-
-// ============================================
-// ВОССТАНОВЛЕНИЕ РАСКЛАДА ПРИ ЗАГРУЗКЕ СТРАНИЦЫ
-// ============================================
 
 /**
  * Восстанавливает расклад из localStorage (вызывается при загрузке страницы)
@@ -786,25 +757,39 @@ window.initDeckModule = initDeckModule;
 function restoreSpreadFromStorage() {
     console.log('🃟 Восстанавливаем расклад из storage...');
     
-    // 1. Находим DOM-элементы
-    deckContainer = document.getElementById('deck-container');
-    part1Grid = document.getElementById('part1-grid');
-    part2Grid = document.getElementById('part2-grid');
+    // Находим DOM-элементы для страницы результата (page-result)
+    const resultPart1Grid = document.getElementById('result-part1-grid');
+    const resultPart2Grid = document.getElementById('result-part2-grid');
     
-    // 2. Проверяем, что все элементы найдены
-    if (!deckContainer || !part1Grid || !part2Grid) {
-        console.error('Ошибка: не найдены элементы для колод');
-        return false;
-    }
-    
-    // 3. Восстанавливаем расклад (используем существующую функцию)
-    if (restoreSavedSpread()) {
-        console.log('✅ Расклад восстановлен при загрузке страницы');
-        return true;
+    // Если мы на странице результата — восстанавливаем карты туда
+    if (resultPart1Grid && resultPart2Grid) {
+        part1Grid = resultPart1Grid;
+        part2Grid = resultPart2Grid;
+        
+        // Восстанавливаем карты
+        if (restoreSavedSpread()) {
+            console.log('✅ Расклад восстановлен на странице результата');
+            return true;
+        }
     }
     
     return false;
 }
 
-// Экспортируем функцию для использования из question.js
+// ============================================
+// ЭКСПОРТ ФУНКЦИЙ ДЛЯ ДРУГИХ МОДУЛЕЙ
+// ============================================
+
+// Экспортируем функцию инициализации
+window.initDeckModule = initDeckModule;
+
+// Экспортируем вспомогательные функции
+window.createEmptySlot = createEmptySlot;
+window.getPart1PositionTitle = getPart1PositionTitle;
+window.getPart2PositionTitle = getPart2PositionTitle;
+
+// Экспортируем функцию восстановления
 window.restoreSpreadFromStorage = restoreSpreadFromStorage;
+
+// Экспортируем функцию сброса состояния
+window.resetDeckModule = resetDeckModule;
