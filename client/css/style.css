@@ -812,20 +812,22 @@ button:focus-visible {
     /* Двухколоночный макет меняется на вертикальный:
        колода внизу (для удобного выбора большим пальцем),
        расклад сверху */
+     /* Адаптация аутентичного расклада */
     .spread-layout {
         flex-direction: column-reverse; /* колода внизу, расклад сверху */
-        gap: 20px; /* Уменьшаем расстояние между блоками */
+        gap: 20px;
     }
     
     /* Область колоды — на всю ширину */
     .deck-area {
-        max-width: 100%; /* Убираем ограничение ширины */
-        order: 2; /* Колода снизу (после расклада) */
+        max-width: 100%;        /* Колода на всю ширину */
+        order: 2;               /* Колода снизу */
     }
     
     /* Область позиций расклада — сверху */
     .spread-positions {
-        order: 1; /* Расклад сверху (перед колодой) */
+        order: 1;               /* Расклад сверху */
+        min-width: auto;        /* Убираем минимальную ширину */
     }
     
     /* Карты в колоде располагаются горизонтально для удобного скролла */
@@ -856,219 +858,268 @@ button:focus-visible {
    9. АУТЕНТИЧНЫЙ РАСКЛАД "ПРЫЖОК ХЕКЕТ"
    ============================================ */
 
-/* Двухколоночный макет: позиции слева, колода справа */
+/* ============================================
+   9.1. ДВУХКОЛОНОЧНЫЙ МАКЕТ
+   ============================================ */
+
 .spread-layout {
-    display: flex; /* Включаем flexbox для двухколоночного макета */
-    flex-direction: row; /* Горизонтальное расположение на десктопе */
-    gap: 40px; /* Расстояние между колонками */
-    margin: 30px 0; /* Отступы сверху и снизу */
-    flex-wrap: wrap; /* Перенос на мобильных */
-    width: 100%; /* Занимает всю ширину родителя */
-    box-sizing: border-box; /* Включаем padding в расчёт ширины */
+    display: flex;
+    flex-direction: row;
+    gap: 40px;
+    margin: 30px 0;
+    flex-wrap: wrap;
+    width: 100%;
+    box-sizing: border-box;
+    align-items: flex-start; /* выравниваем по верху, не растягиваем */
 }
 
-/* Левая часть — позиции расклада (5 карт) */
+/* Левая колонка */
 .spread-positions {
-    flex: 3; /* Занимает 3 части из 4 (больше места для карт) */
-    min-width: 500px; /* Минимальная ширина для удобного отображения */
-    width: 100%; /* Занимает всю доступную ширину */
+    display: flex;
+    flex-direction: column;
+    flex: 3;
+    min-width: 500px;
+    width: 100%;
+    gap: 20px;
+    /* высота определяется содержимым */
 }
 
-/* Правая часть — колода для выбора */
+#part2-positions {
+    flex: 1;
+}
+
+/* Правая колонка — контейнер для колоды */
 .deck-area {
-    flex: 1; /* Занимает 1 часть из 4 */
-    min-width: 200px; /* Минимальная ширина колоды */
-    max-width: 280px; /* Ограничиваем максимальную ширину колоды */
+    flex: 1;
+    min-width: 200px;
+    max-width: 280px;
+    display: flex;
+    flex-direction: column;
+    /* height задаётся через JavaScript */
 }
 
-/* Контейнер колоды */
+/* ============================================
+   9.2. КОНТЕЙНЕР КОЛОДЫ
+   ============================================ */
+
 .deck-container {
-    background: rgba(46, 26, 71, 0.5); /* Полупрозрачный тёмный фон */
-    backdrop-filter: blur(8px); /* Эффект стекла */
-    border-radius: 24px; /* Скруглённые углы */
-    padding: 20px; /* Внутренние отступы */
-    border: 1px solid rgba(212, 175, 55, 0.3); /* Тонкая золотая граница */
-    text-align: center; /* Центрирование содержимого */
+    background: rgba(46, 26, 71, 0.5);
+    backdrop-filter: blur(8px);
+    border-radius: 24px;
+    padding: 20px;
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Важно: контейнер не растягивается */
 }
 
-/* Заголовок колоды (Старшие Арканы / Остальные) */
 .deck-title {
-    font-family: 'Playfair Display', Georgia, serif; /* Элегантный шрифт */
-    font-size: 1.1rem; /* Размер шрифта */
-    color: #D4AF37; /* Золотой цвет */
-    margin-bottom: 15px; /* Отступ снизу */
-    text-align: center; /* Центрирование текста */
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.1rem;
+    color: #D4AF37;
+    margin-bottom: 15px;
+    text-align: center;
+    flex-shrink: 0;
 }
 
-/* Сетка карт в колоде — одна колонка для вертикального скролла */
+/* ============================================
+   9.3. КАРТЫ КОЛОДЫ
+   ============================================ */
+
 .deck-cards {
-    display: flex; /* Включаем flexbox */
-    flex-direction: column; /* Вертикальный список */
-    gap: 12px; /* Расстояние между картами */
-    max-height: 600px; /* Максимальная высота для прокрутки */
-    overflow-y: auto; /* Вертикальная прокрутка */
-    padding: 5px; /* Внутренние отступы */
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow-y: auto;
+    padding: 5px;
+    flex: 1;
+    min-height: 0; /* обязательно */
+    margin-bottom: 0;
 }
 
-/* Карта в колоде (рубашка) */
 .deck-card {
-    width: 120px; /* Ширина рубашки */
-    height: 180px; /* Высота рубашки (пропорция карты Таро) */
-    margin: 0 auto; /* Центрирование внутри колонки */
-    background: linear-gradient(135deg, #2E1A47 0%, #1A0B2E 100%); /* Тёмный градиент */
-    border: 2px solid #D4AF37; /* Золотая рамка */
-    border-radius: 12px; /* Скруглённые углы */
-    cursor: pointer; /* Курсор-указатель при наведении */
-    transition: all 0.2s ease; /* Плавная анимация */
-    position: relative; /* Для позиционирования псевдоэлементов */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); /* Тень для объёма */
+    width: 120px;
+    height: 180px;
+    margin: 0 auto;
+    background: linear-gradient(135deg, #2E1A47 0%, #1A0B2E 100%);
+    border: 2px solid #D4AF37;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    flex-shrink: 0;
 }
 
-/* Эффект при наведении на карту в колоде */
 .deck-card:hover {
-    transform: scale(1.02); /* Лёгкое увеличение */
-    border-color: #E5B83C; /* Более яркая золотая рамка */
-    box-shadow: 0 8px 20px rgba(212, 175, 55, 0.3); /* Увеличенная тень с золотым свечением */
+    transform: scale(1.02);
+    border-color: #E5B83C;
+    box-shadow: 0 8px 20px rgba(212, 175, 55, 0.3);
 }
 
-/* Индикаторы состояния колоды (осталось/выбрано) */
+/* ============================================
+   9.4. НИЖНЯЯ ЧАСТЬ КОЛОДЫ
+   ============================================ */
+
+.deck-footer {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    margin-top: 15px;
+}
+
 .deck-stats {
-    margin-top: 15px; /* Отступ сверху */
-    padding: 10px; /* Внутренние отступы */
-    background: rgba(26, 11, 46, 0.6); /* Полупрозрачный тёмный фон */
-    border-radius: 12px; /* Скруглённые углы */
-    font-size: 0.9rem; /* Размер шрифта */
+    margin-bottom: 15px;
+    padding: 10px;
+    background: rgba(26, 11, 46, 0.6);
+    border-radius: 12px;
+    font-size: 0.9rem;
+    flex-shrink: 0;
 }
 
 .deck-stats p {
-    margin: 5px 0; /* Отступы сверху и снизу */
-    color: #C5B4E3; /* Лавандовый цвет текста */
+    margin: 5px 0;
+    color: #C5B4E3;
 }
 
 .deck-stats span {
-    color: #D4AF37; /* Золотой цвет для чисел */
-    font-weight: bold; /* Жирное начертание */
-    background: transparent; /* Прозрачный фон */
-    padding: 0; /* Убираем внутренние отступы */
+    color: #D4AF37;
+    font-weight: bold;
+    background: transparent;
+    padding: 0;
 }
 
-/* Кнопка тасовки колоды */
 .shuffle-btn {
-    background: linear-gradient(135deg, #2E1A47 0%, #1A0B2E 100%); /* Тёмный градиент */
-    color: #D4AF37; /* Золотой текст */
-    border: 1px solid rgba(212, 175, 55, 0.5); /* Золотая граница с прозрачностью */
-    padding: 8px 20px; /* Внутренние отступы */
-    font-size: 0.9rem; /* Размер шрифта */
-    font-weight: 600; /* Полужирное начертание */
-    border-radius: 40px; /* Скруглённые края (капсула) */
-    cursor: pointer; /* Курсор-указатель */
-    transition: all 0.3s ease; /* Плавная анимация */
-    margin-top: 15px; /* Отступ сверху */
-    width: 100%; /* Ширина 100% от родителя */
+    background: linear-gradient(135deg, #2E1A47 0%, #1A0B2E 100%);
+    color: #D4AF37;
+    border: 1px solid rgba(212, 175, 55, 0.5);
+    padding: 8px 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: 40px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    flex-shrink: 0;
 }
 
 .shuffle-btn:hover:not(:disabled) {
-    transform: translateY(-2px); /* Лёгкий подъём */
-    border-color: #D4AF37; /* Яркая золотая граница */
-    box-shadow: 0 6px 16px rgba(212, 175, 55, 0.3); /* Золотое свечение */
-    background: linear-gradient(135deg, #3A1F5A 0%, #2A0B3E 100%); /* Более светлый градиент */
+    transform: translateY(-2px);
+    border-color: #D4AF37;
+    box-shadow: 0 6px 16px rgba(212, 175, 55, 0.3);
+    background: linear-gradient(135deg, #3A1F5A 0%, #2A0B3E 100%);
 }
 
 .shuffle-btn:disabled {
-    opacity: 0.5; /* Полупрозрачная */
-    cursor: not-allowed; /* Курсор "недоступно" */
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
-/* Каждая часть расклада (ситуация и вопрошающий) */
+/* ============================================
+   9.5. СТИЛИ ДЛЯ ЧАСТЕЙ РАСКЛАДА
+   ============================================ */
+
 .spread-part {
-    margin-bottom: 40px; /* Отступ между частями */
-    padding: 20px; /* Внутренние отступы */
-    background: rgba(46, 26, 71, 0.5); /* Полупрозрачный тёмный фон */
-    border-radius: 24px; /* Скруглённые углы */
-    backdrop-filter: blur(8px); /* Эффект стекла */
-    border: 1px solid rgba(212, 175, 55, 0.3); /* Тонкая золотая граница */
-    overflow-x: auto; /* Горизонтальная прокрутка при необходимости */
+    margin-bottom: 40px;
+    padding: 20px;
+    background: rgba(46, 26, 71, 0.5);
+    border-radius: 24px;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    overflow-x: auto;
 }
 
-/* Заголовок внутри каждой части расклада */
 .spread-part h3 {
-    color: #D4AF37; /* Золотой цвет */
-    border-bottom: 2px solid #D4AF37; /* Золотая нижняя граница */
-    padding-bottom: 10px; /* Отступ от текста до границы */
-    margin-top: 0; /* Убирает верхний отступ */
-    font-family: 'Playfair Display', Georgia, serif; /* Элегантный шрифт */
-    font-size: 1.4rem; /* Увеличенный размер */
+    color: #D4AF37;
+    border-bottom: 2px solid #D4AF37;
+    padding-bottom: 10px;
+    margin-top: 0;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.4rem;
 }
 
-/* Описание части расклада (текст над картами) */
 .part-description {
-    font-style: italic; /* Курсив для выделения */
-    color: #C5B4E3; /* Лавандовый цвет */
-    margin: 20px 0; /* Отступы сверху и снизу */
-    padding: 15px; /* Внутренние отступы */
-    background: rgba(26, 11, 46, 0.6); /* Полупрозрачный тёмный фон */
-    border-radius: 16px; /* Скруглённые углы */
-    border-left: 4px solid #D4AF37; /* Золотая левая граница (акцент) */
-    text-align: left; /* Выравнивание по левому краю */
+    font-style: italic;
+    color: #C5B4E3;
+    margin: 20px 0;
+    padding: 15px;
+    background: rgba(26, 11, 46, 0.6);
+    border-radius: 16px;
+    border-left: 4px solid #D4AF37;
+    text-align: left;
 }
 
-/* Сетка для карточек */
+/* ============================================
+   9.6. СЕТКА КАРТОЧЕК
+   ============================================ */
+
 .cards-grid,
 .positions-grid {
     display: grid;
-    grid-template-columns: repeat(5, minmax(140px, 1fr)); /* 5 колонок, каждая не уже 140px */
-    gap: 20px; /* Расстояние между карточками 20px */
-    margin: 20px 0; /* Отступы сверху и снизу */
-    align-items: stretch; /* Растягивает карточки по высоте ячейки */
-    min-width: 0; /* Позволяет сетке сжиматься */
+    grid-template-columns: repeat(5, minmax(140px, 1fr));
+    gap: 20px;
+    margin: 20px 0;
+    align-items: stretch;
+    min-width: 0;
 }
 
-/* Пустая позиция (ожидает карту) */
+/* ============================================
+   9.7. ПУСТАЯ ПОЗИЦИЯ
+   ============================================ */
+
 .empty-position {
-    background: rgba(46, 26, 71, 0.3); /* Полупрозрачный тёмный фон */
-    border: 2px dashed rgba(212, 175, 55, 0.3); /* Пунктирная золотая граница */
-    border-radius: 16px; /* Скруглённые углы */
-    min-height: 300px; /* Минимальная высота */
-    display: flex; /* Flexbox для центрирования */
-    flex-direction: column; /* Вертикальное расположение */
-    align-items: center; /* Центрирование по горизонтали */
-    justify-content: center; /* Центрирование по вертикали */
-    text-align: center; /* Центрирование текста */
-    padding: 20px; /* Внутренние отступы */
-    transition: all 0.3s ease; /* Плавная анимация */
+    background: rgba(46, 26, 71, 0.3);
+    border: 2px dashed rgba(212, 175, 55, 0.3);
+    border-radius: 16px;
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px;
+    transition: all 0.3s ease;
 }
 
-/* Символ рубашки для пустой позиции */
 .empty-position::before {
-    content: "🃟"; /* Символ карты */
-    font-size: 3rem; /* Крупный размер */
-    opacity: 0.3; /* Полупрозрачный */
-    margin-bottom: 10px; /* Отступ снизу */
+    content: "🃟";
+    font-size: 3rem;
+    opacity: 0.3;
+    margin-bottom: 10px;
 }
 
 .empty-position p {
-    font-size: 0.8rem; /* Мелкий шрифт */
-    color: rgba(212, 175, 55, 0.5); /* Полупрозрачный золотой */
-    margin: 0; /* Убираем отступы */
+    font-size: 0.8rem;
+    color: rgba(212, 175, 55, 0.5);
+    margin: 0;
 }
 
-/* Анимация для тасовки (мерцание карт) */
+/* ============================================
+   9.8. АНИМАЦИИ
+   ============================================ */
+
 @keyframes shuffleFlash {
-    0% { opacity: 0.3; transform: scale(0.98); } /* Начало: полупрозрачная, чуть уменьшена */
-    100% { opacity: 1; transform: scale(1); } /* Конец: полностью видимая, нормальный размер */
+    0% {
+        opacity: 0.3;
+        transform: scale(0.98);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 .shuffling .deck-card {
-    animation: shuffleFlash 0.1s ease-in-out infinite alternate; /* Мерцание с частотой 0.1 секунды */
+    animation: shuffleFlash 0.1s ease-in-out infinite alternate;
 }
 
-/* Анимация для вылетающей карты (при выборе) */
 .flying-card {
-    position: fixed; /* Фиксированное позиционирование относительно окна */
-    z-index: 1000; /* Поверх всех элементов */
-    pointer-events: none; /* Карта не мешает кликам */
-    transition: all 0.5s cubic-bezier(0.34, 1.2, 0.64, 1); /* Плавная анимация с эффектом "вылета" */
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); /* Глубокая тень */
+    position: fixed;
+    z-index: 1000;
+    pointer-events: none;
+    transition: all 0.5s cubic-bezier(0.34, 1.2, 0.64, 1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
 /* ============================================
