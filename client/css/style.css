@@ -912,6 +912,7 @@ button:focus-visible {
     display: flex;
     flex-direction: column;
     overflow: hidden; /* Важно: контейнер не растягивается */
+    height: auto; /* должно быть auto, но JS устанавливает фиксированную высоту */
 }
 
 .deck-title {

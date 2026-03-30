@@ -332,6 +332,12 @@ function showPart1() {
     }
     
     console.log('🃟 Показана первая часть расклада, колода перетасована');
+    
+    // Выравниваем высоту колоды после отрисовки
+    setTimeout(() => {
+        alignDeckHeight();
+        requestAnimationFrame(() => alignDeckHeight());
+    }, 150);
 }
 
 /**
@@ -355,7 +361,25 @@ function showPart2() {
         titleElement.textContent = '🃟 Остальные карты (56 карт)';
     }
     
+    // Обновляем индикатор
+    updateStats();
+    
+    // Сбрасываем состояние кнопки тасовки (активируем)
+    if (shuffleBtn) {
+        shuffleBtn.disabled = false;
+        console.log('🔓 Кнопка тасовки активирована для второй колоды');
+    }
+    
+    // Сбрасываем флаг тасовки (на случай, если остался)
+    isShuffling = false;
+    
     console.log('🃟 Показана вторая часть расклада, колода перетасована');
+    
+    // Выравниваем высоту колоды после отрисовки
+    setTimeout(() => {
+        alignDeckHeight();
+        requestAnimationFrame(() => alignDeckHeight());
+    }, 150);
 }
 
 /**
@@ -780,11 +804,36 @@ function alignDeckHeight() {
     
     if (spreadPositions && deckContainerElem) {
         const positionsHeight = spreadPositions.offsetHeight;
-        deckContainerElem.style.height = positionsHeight + 'px';
-        console.log(`📐 Высота колоды установлена: ${positionsHeight}px (равна высоте левой части)`);
         
-        // Принудительно пересчитываем layout
-        deckContainerElem.offsetHeight;
+        // Устанавливаем высоту контейнера колоды
+        deckContainerElem.style.height = positionsHeight + 'px';
+        
+        // Находим элементы внутри
+        const deckTitle = deckContainerElem.querySelector('.deck-title');
+        const deckStats = deckContainerElem.querySelector('.deck-stats');
+        const shuffleBtnElem = deckContainerElem.querySelector('.shuffle-btn');
+        const deckCards = deckContainerElem.querySelector('.deck-cards');
+        
+        if (deckCards) {
+            // Вычисляем высоту, которую занимают другие элементы
+            let otherHeight = 0;
+            if (deckTitle) otherHeight += deckTitle.offsetHeight;
+            if (deckStats) otherHeight += deckStats.offsetHeight;
+            if (shuffleBtnElem) otherHeight += shuffleBtnElem.offsetHeight;
+            
+            // Добавляем отступы и margin (увеличиваем запас, чтобы кнопка была у нижнего края)
+            // padding-top + padding-bottom + margin-top + gap + запас
+            otherHeight += 95; // Увеличиваем до 95 для точного выравнивания
+            
+            // Устанавливаем максимальную высоту для контейнера карт
+            const cardsMaxHeight = positionsHeight - otherHeight;
+            deckCards.style.maxHeight = Math.max(cardsMaxHeight, 200) + 'px'; // минимум 200px
+            deckCards.style.overflowY = 'auto';
+            
+            console.log(`📐 Высота колоды: ${positionsHeight}px`);
+            console.log(`📐 Высота контейнера карт: ${deckCards.style.maxHeight}`);
+            console.log(`📐 Высота других элементов: ${otherHeight}px`);
+        }
     }
 }
 
