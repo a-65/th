@@ -8,6 +8,7 @@
 let currentPart = 'part1';           // 'part1' или 'part2' — текущая активная часть
 let selectedCardsPart1 = [];          // Выбранные карты для первой части (максимум 5)
 let selectedCardsPart2 = [];          // Выбранные карты для второй части (максимум 5)
+let shuffleAudio = null;
 
 /**
  * Колоды
@@ -45,6 +46,11 @@ let isSpreadStarted = false;     // Начат ли выбор карт
  */
 function initDeckModule() {
     console.log('🃟 Инициализация модуля колод');
+
+    // Инициализируем звук тасовки (один раз)
+    if (!shuffleAudio) {
+        initShuffleSound();
+    }
     
     // Находим DOM-элементы для страницы выбора карт (page-select)
     deckContainer = document.getElementById('deck-container');
@@ -438,15 +444,48 @@ function shuffleDeck(isInitial = false) {
         isShuffling = false;
         
         console.log('🃟 Колода перетасована');
-    }, 1000);
+    }, 3000);
+}
+
+// ============================================
+// ЗВУКОВЫЕ ЭФФЕКТЫ
+// ============================================
+
+/**
+ * Инициализирует звук тасовки (предзагрузка)
+ */
+function initShuffleSound() {
+    try {
+        shuffleAudio = new Audio('/client/sounds/shuffle.mp3');
+        shuffleAudio.volume = 0.5;
+        shuffleAudio.load();
+        console.log('🔊 Звук тасовки предзагружен');
+    } catch (error) {
+        console.warn('⚠️ Ошибка при загрузке звука:', error);
+    }
 }
 
 /**
  * Воспроизводит звук тасовки
  */
 function playShuffleSound() {
-    // TODO: добавить звук shuffle.mp3
-    console.log('🔊 Звук тасовки (пока заглушка)');
+    if (shuffleAudio) {
+        try {
+            // Перематываем на начало (для повторных воспроизведений)
+            shuffleAudio.currentTime = 0;
+            shuffleAudio.play().catch(error => {
+                console.log('🔇 Воспроизведение звука заблокировано:', error);
+            });
+            console.log('🔊 Звук тасовки воспроизведён');
+        } catch (error) {
+            console.warn('⚠️ Ошибка при воспроизведении звука:', error);
+        }
+    } else {
+        // fallback на случай, если звук не инициализирован
+        const audio = new Audio('/client/sounds/shuffle.mp3');
+        audio.volume = 0.5;
+        audio.play().catch(e => console.log('🔇', e));
+    }
 }
 
 /**
@@ -907,6 +946,10 @@ function restoreResultSpread() {
         return false;
     }
 }
+
+
+
+
 
 // ============================================
 // ЭКСПОРТ ФУНКЦИЙ ДЛЯ ДРУГИХ МОДУЛЕЙ
