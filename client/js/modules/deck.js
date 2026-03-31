@@ -536,6 +536,11 @@ function selectCard(index) {
     
     // Обновляем отображение колоды
     renderDeck(currentDeckCards);
+
+    // Обновляем высоту колоды
+    requestAnimationFrame(() => {
+        alignDeckHeight();
+    });
     
     // Проверяем, завершена ли текущая часть
     const newSelectedCount = currentPart === 'part1' ? selectedCardsPart1.length : selectedCardsPart2.length;
@@ -560,9 +565,16 @@ function addCardToPosition(card, positionIndex, part) {
     
     // Заменяем пустую позицию на карточку
     const children = grid.children;
+
     if (children[positionIndex]) {
         grid.replaceChild(cardElement, children[positionIndex]);
     }
+
+    // Обновляем высоту колоды после добавления карты
+    requestAnimationFrame(() => {
+        alignDeckHeight();
+        requestAnimationFrame(() => alignDeckHeight());
+    });
 }
 
 /**
@@ -648,6 +660,11 @@ function onPartComplete() {
     if (currentPart === 'part1') {
         console.log('✅ Первая часть завершена! Переход ко второй части...');
         showPart2();
+        // После переключения на вторую колоду обновляем высоту
+        setTimeout(() => {
+            alignDeckHeight();
+            requestAnimationFrame(() => alignDeckHeight());
+        }, 100);
     } else {
         console.log('✅ Весь расклад завершён!');
         onSpreadComplete();
@@ -801,6 +818,12 @@ function restoreCardsToPositions(cards, part) {
         const cardElement = createCardElementForSpread(card, part, index);
         grid.appendChild(cardElement);
     });
+
+    // Обновляем высоту колоды после изменения
+    setTimeout(() => {
+        alignDeckHeight();
+        requestAnimationFrame(() => alignDeckHeight());
+    }, 50);
 }
 
 /**
