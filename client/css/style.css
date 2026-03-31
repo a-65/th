@@ -1057,16 +1057,15 @@ button:focus-visible {
     width: 260px;
     height: 100vh;
     background: rgba(10, 10, 26, 0.95);
-    backdrop-filter: blur(15px);
     border-right: 1px solid rgba(212, 175, 55, 0.5);
     padding: 100px 0 20px 0;
     margin: 0;
-    z-index: 1002;
+    z-index: 2000;  /* Увеличиваем */
     transition: left 0.3s ease-out;
     display: flex;
     flex-direction: column;
     gap: 0;
-    justify-content: flex-start; /* Кнопки прижимаются к верху */
+    justify-content: flex-start;
     box-shadow: 2px 0 15px rgba(0, 0, 0, 0.3);
 }
 
@@ -1074,8 +1073,33 @@ button:focus-visible {
     left: 0;
 }
 
-/* Кнопки внутри панели */
+.nav-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(212, 175, 55, 0.2);
+    border: 1px solid rgba(212, 175, 55, 0.5);
+    color: #D4AF37;
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.nav-close:hover {
+    background: rgba(212, 175, 55, 0.4);
+    transform: scale(1.05);
+}
+
+/* Кнопки внутри панели — гарантируем, что они кликабельны */
 .nav-buttons .nav-btn {
+    position: relative;
+    z-index: 2001;  /* Выше, чем панель */
     background: transparent;
     color: #C5B4E3;
     border: none;
@@ -1091,6 +1115,8 @@ button:focus-visible {
     gap: 12px;
     transition: all 0.2s ease;
     box-shadow: none;
+    cursor: pointer;
+    pointer-events: auto;  /* Явно разрешаем клики */
 }
 
 .nav-buttons .nav-btn:hover {
@@ -1114,10 +1140,11 @@ button:focus-visible {
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
+    z-index: 1500;
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s ease, visibility 0.3s ease;
+    pointer-events: none;  /* ← добавляем: оверлей не перехватывает клики */
 }
 
 .nav-overlay.active {
