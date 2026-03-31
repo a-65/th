@@ -69,8 +69,7 @@ function initNavPanel() {
     if (!overlay) {
         overlay = document.createElement('div');
         overlay.className = 'nav-overlay';
-        // Вставляем в начало body, чтобы панель была выше
-        document.body.insertBefore(overlay, document.body.firstChild);
+        document.body.appendChild(overlay);
     }
     
     /**
@@ -79,7 +78,7 @@ function initNavPanel() {
     function openNav() {
         navButtons.classList.add('open');
         overlay.classList.add('active');
-        document.body.style.overflow = 'hidden';
+        document.body.style.overflow = 'hidden'; // блокируем прокрутку
     }
     
     /**
@@ -88,7 +87,7 @@ function initNavPanel() {
     function closeNav() {
         navButtons.classList.remove('open');
         overlay.classList.remove('active');
-        document.body.style.overflow = '';
+        document.body.style.overflow = ''; // восстанавливаем прокрутку
     }
     
     // Обработчик клика по кнопке
@@ -99,6 +98,7 @@ function initNavPanel() {
     
     // Обработчик клика по кнопкам в панели
     navButtons.addEventListener('click', (event) => {
+        // Проверяем, что клик был по кнопке или её дочернему элементу
         const btn = event.target.closest('.nav-btn');
         if (btn) {
             closeNav();
@@ -111,8 +111,6 @@ function initNavPanel() {
             closeNav();
         }
     });
-
-    
     
     console.log('✅ Панель навигации инициализирована');
 }
