@@ -43,7 +43,6 @@ function saveQuestion(question) {
  * Инициализирует модуль ввода вопроса на странице page-question
  */
 function initQuestionModule() {
-    // Если уже инициализирован — выходим
     if (isQuestionModuleInitialized) {
         console.log('📝 Модуль вопроса уже инициализирован');
         return true;
@@ -54,21 +53,31 @@ function initQuestionModule() {
     const questionInput = document.getElementById('question-input');
     const getSpreadBtn = document.getElementById('get-spread-btn');
     
-    // Если элементы не найдены — страница ввода вопроса не активна
     if (!questionInput || !getSpreadBtn) {
-        console.log('📝 Модуль вопроса: элементы не найдены (страница ввода вопроса не активна)');
+        console.log('📝 Модуль вопроса: элементы не найдены');
         return false;
     }
     
     console.log('📝 Модуль вопроса: элементы найдены, инициализация');
     
-    // Загружаем сохранённый вопрос из localStorage
+    // Загружаем сохранённый вопрос
     loadSavedQuestion();
     
     // Навешиваем обработчики
     if (!window._questionHandlersAttached) {
         questionInput.addEventListener('input', onQuestionInput);
         getSpreadBtn.addEventListener('click', onGetSpread);
+        
+        // Обработчик нажатия клавиши Enter
+        questionInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                if (!getSpreadBtn.disabled && currentQuestion && currentQuestion.trim() !== '') {
+                    onGetSpread();
+                }
+            }
+        });
+        
         window._questionHandlersAttached = true;
     }
     
