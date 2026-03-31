@@ -625,13 +625,9 @@ function onSpreadComplete() {
     // Сохраняем расклад в localStorage
     saveCompleteSpread();
     
-    // Переходим на страницу результата
+    // Переходим на страницу результата (данные уже в localStorage)
     if (typeof window.goToResultPage === 'function') {
-        const spreadData = {
-            part1: selectedCardsPart1,
-            part2: selectedCardsPart2
-        };
-        window.goToResultPage(spreadData);
+        window.goToResultPage();
     } else {
         console.error('Ошибка: функция goToResultPage не найдена');
     }
@@ -837,6 +833,81 @@ function alignDeckHeight() {
     }
 }
 
+/**
+ * Восстанавливает сохранённый расклад на страницу результата
+ * @returns {boolean} - успешно ли восстановлен расклад
+ */
+function restoreResultSpread() {
+    const savedSpread = localStorage.getItem('tarot_last_complete_spread');
+    if (!savedSpread) {
+        console.warn('⚠️ Нет сохранённого расклада');
+        return false;
+    }
+    
+    try {
+        const spreadData = JSON.parse(savedSpread);
+        if (!spreadData.part1 || !spreadData.part2) return false;
+        
+        console.log('🔄 Восстанавливаем расклад на странице результата...');
+        
+        // Получаем контейнеры
+        const part1Grid = document.getElementById('result-part1-grid');
+        const part2Grid = document.getElementById('result-part2-grid');
+        const partOneDesc = document.getElementById('result-partOneDescription');
+        const partTwoDesc = document.getElementById('result-partTwoDescription');
+        const questionSpan = document.getElementById('result-displayed-question');
+        
+        if (!part1Grid || !part2Grid) {
+            console.error('❌ Сетки для карт не найдены');
+            return false;
+        }
+        
+        // Отображаем вопрос
+        if (questionSpan && spreadData.question) {
+            questionSpan.textContent = spreadData.question;
+            console.log('📝 Вопрос восстановлен:', spreadData.question);
+        } else {
+            // Чтобы понять, почему вопрос не отображается
+            console.log('🔍 questionSpan:', questionSpan);
+            console.log('🔍 spreadData.question:', spreadData.question);
+        }
+        
+        // Отображаем описания
+        if (partOneDesc && typeof PART_ONE_DESCRIPTION !== 'undefined') {
+            partOneDesc.textContent = PART_ONE_DESCRIPTION;
+            console.log('✅ Описание части 1 добавлено');
+        }
+        
+        if (partTwoDesc && typeof PART_TWO_DESCRIPTION !== 'undefined') {
+            partTwoDesc.textContent = PART_TWO_DESCRIPTION;
+            console.log('✅ Описание части 2 добавлено');
+        }
+        
+        // Очищаем сетки
+        part1Grid.innerHTML = '';
+        part2Grid.innerHTML = '';
+        
+        // Восстанавливаем карты первой части
+        spreadData.part1.forEach((card, index) => {
+            const cardElement = createCardElementForSpread(card, 'part1', index);
+            part1Grid.appendChild(cardElement);
+        });
+        
+        // Восстанавливаем карты второй части
+        spreadData.part2.forEach((card, index) => {
+            const cardElement = createCardElementForSpread(card, 'part2', index);
+            part2Grid.appendChild(cardElement);
+        });
+        
+        console.log(`✅ Восстановлено ${spreadData.part1.length} + ${spreadData.part2.length} карт`);
+        return true;
+        
+    } catch (e) {
+        console.warn('Ошибка восстановления расклада:', e);
+        return false;
+    }
+}
+
 // ============================================
 // ЭКСПОРТ ФУНКЦИЙ ДЛЯ ДРУГИХ МОДУЛЕЙ
 // ============================================
@@ -848,3 +919,4 @@ window.getPart2PositionTitle = getPart2PositionTitle;
 window.restoreSpreadFromStorage = restoreSpreadFromStorage;
 window.resetDeckModule = resetDeckModule;
 window.alignDeckHeight = alignDeckHeight;
+window.restoreResultSpread = restoreResultSpread;

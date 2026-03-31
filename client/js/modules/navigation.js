@@ -113,7 +113,6 @@ function switchToPage(pageId) {
     
     // 3. Специфическая инициализация в зависимости от страницы
     if (pageId === 'page-question') {
-        // Страница ввода вопроса — инициализируем модуль вопроса
         requestAnimationFrame(() => {
             if (typeof window.initQuestionModule === 'function') {
                 console.log('🔄 Инициализация модуля вопроса на странице ввода вопроса');
@@ -125,13 +124,12 @@ function switchToPage(pageId) {
     }
     
     if (pageId === 'page-select') {
-        // Страница выбора карт — отображаем вопрос
         requestAnimationFrame(() => {
             if (typeof window.displayQuestionOnSelectPage === 'function') {
                 console.log('📝 Отображаем вопрос на странице выбора карт');
                 window.displayQuestionOnSelectPage();
             } else {
-                console.warn('Функция displayQuestionOnSelectPage не найдена'); // Это не критично, просто вопрос не отобразится, но навигация будет работать.
+                console.warn('Функция displayQuestionOnSelectPage не найдена');
             }
 
             // Инициализируем колоду
@@ -139,7 +137,41 @@ function switchToPage(pageId) {
                 console.log('🃟 Инициализируем колоду на странице выбора карт');
                 window.initDeckModule();
             } else {
-                console.warn('Функция initDeckModule не найдена'); // Это не критично, просто колода не инициализируется, но навигация будет работать.
+                console.warn('Функция initDeckModule не найдена');
+            }
+        });
+    }
+    
+    if (pageId === 'page-result') {
+        requestAnimationFrame(() => {
+            if (typeof window.restoreResultSpread === 'function') {
+                console.log('🔄 Восстанавливаем расклад на странице результата');
+                window.restoreResultSpread();
+            } else {
+                console.warn('⚠️ restoreResultSpread не найдена');
+            }
+            
+            // Добавляем обработчик для кнопки «Новый вопрос»
+            const newQuestionBtn = document.getElementById('new-question-from-result-btn');
+            if (newQuestionBtn && !window._resultNewQuestionHandlerAttached) {
+                newQuestionBtn.addEventListener('click', () => {
+                    console.log('✏️ Новый вопрос — сброс расклада');
+                    
+                    // Очищаем localStorage
+                    localStorage.removeItem('tarot_last_complete_spread');
+                    localStorage.removeItem('tarot_last_question');
+                    
+                    // Сбрасываем модуль колод
+                    if (typeof window.resetDeckModule === 'function') {
+                        window.resetDeckModule();
+                    }
+                    
+                    // Переходим на страницу ввода вопроса
+                    if (typeof window.switchToPage === 'function') {
+                        window.switchToPage('page-question');
+                    }
+                });
+                window._resultNewQuestionHandlerAttached = true;
             }
         });
     }
@@ -175,13 +207,8 @@ function goToSelectPage(question) {
  * Переход на страницу готового расклада
  * @param {Object} spreadData - данные расклада (part1, part2)
  */
-function goToResultPage(spreadData) {
-    // Сохраняем расклад в localStorage
-    if (spreadData) {
-        localStorage.setItem('tarot_last_complete_spread', JSON.stringify(spreadData));
-    }
-    
-    // Переключаемся на страницу результата
+function goToResultPage() {
+    // Данные уже сохранены в localStorage, просто переключаем страницу
     switchToPage('page-result');
 }
 
