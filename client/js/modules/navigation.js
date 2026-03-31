@@ -113,6 +113,30 @@ function switchToPage(pageId) {
     
     // 3. Специфическая инициализация в зависимости от страницы
     if (pageId === 'page-question') {
+        // ========== НОВАЯ ПРОВЕРКА ==========
+        // Если есть сохранённый расклад — перенаправляем на результат
+        const savedSpread = localStorage.getItem('tarot_last_complete_spread');
+        if (savedSpread) {
+            console.log('🔄 Есть сохранённый расклад, перенаправляем на страницу результата');
+            // Сначала показываем страницу результата
+            const resultPage = document.getElementById('page-result');
+            if (resultPage) {
+                // Скрываем страницу вопроса
+                if (targetPage) targetPage.classList.remove('active-page');
+                // Показываем страницу результата
+                resultPage.classList.add('active-page');
+                // Восстанавливаем расклад
+                if (typeof window.restoreResultSpread === 'function') {
+                    window.restoreResultSpread();
+                }
+                // Обновляем навигационные кнопки
+                createNavButtons();
+            }
+            return;
+        }
+        // ================================
+        
+        // Страница ввода вопроса — инициализируем модуль вопроса
         requestAnimationFrame(() => {
             if (typeof window.initQuestionModule === 'function') {
                 console.log('🔄 Инициализация модуля вопроса на странице ввода вопроса');
