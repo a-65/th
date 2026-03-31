@@ -4,9 +4,9 @@
 
 /* Сбрасывает отступы и padding у всех элементов */
 * {
-    margin: 0; /* Убирает внешние отступы */
-    padding: 0; /* Убирает внутренние отступы */
-    box-sizing: border-box; /* Включает padding и border в расчёт ширины элемента */
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 /* ============================================
@@ -15,89 +15,82 @@
 
 /* Основные стили страницы */
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Основной шрифт страницы */
-    background: #0a0a1a; /* Тёмный фон-основа, на который лягут звёзды */
-    min-height: 100vh; /* Минимальная высота = высоте окна браузера */
-    width: 100%; /* Ширина 100% от окна браузера */
-    max-width: 100%; /* Предотвращаем горизонтальную прокрутку */
-    overflow-x: hidden; /* Запрещаем горизонтальную прокрутку */
-    margin: 0; /* Убирает отступы по умолчанию */
-    padding: 20px; /* Внутренние отступы, чтобы контент не прилипал к краям */
-    text-align: center; /* Центрирование текста по умолчанию */
-    color: #ffffff; /* Основной цвет текста — белый */
-    position: relative; /* Для позиционирования звёзд (псевдоэлемент будет относительно body) */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #0a0a1a;
+    min-height: 100vh;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    margin: 0;
+    padding: 20px;
+    text-align: center;
+    color: #ffffff;
+    position: relative;
 }
 
 /* Звёздное небо — фоновый декоративный элемент */
 body::before {
-    content: ''; /* Обязательное свойство для псевдоэлемента */
-    position: fixed; /* Фиксируем относительно окна браузера (не прокручивается) */
-    top: 0; /* Прижимаем к верхнему краю */
-    left: 0; /* Прижимаем к левому краю */
-    width: 100%; /* Растягиваем на всю ширину окна */
-    height: 100%; /* Растягиваем на всю высоту окна */
-    pointer-events: none; /* Звёзды не мешают кликать по кнопкам и ссылкам */
-    
-    /* Создаём 12 звёзд с разными размерами и позициями */
-    background-image: radial-gradient(2px 2px at 20px 30px, #ffd700, rgba(0,0,0,0)), /* Звезда 1: размер 2px, позиция (20px, 30px) */
-                      radial-gradient(1px 1px at 80px 150px, #ffd700, rgba(0,0,0,0)), /* Звезда 2: размер 1px, позиция (80px, 150px) */
-                      radial-gradient(1px 1px at 160px 70px, #ffd700, rgba(0,0,0,0)), /* Звезда 3: размер 1px, позиция (160px, 70px) */
-                      radial-gradient(3px 3px at 300px 500px, #ffd700, rgba(0,0,0,0)), /* Звезда 4: размер 3px, позиция (300px, 500px) */
-                      radial-gradient(1px 1px at 450px 250px, #ffd700, rgba(0,0,0,0)), /* Звезда 5: размер 1px, позиция (450px, 250px) */
-                      radial-gradient(2px 2px at 600px 400px, #ffd700, rgba(0,0,0,0)), /* Звезда 6: размер 2px, позиция (600px, 400px) */
-                      radial-gradient(1px 1px at 750px 80px, #ffd700, rgba(0,0,0,0)), /* Звезда 7: размер 1px, позиция (750px, 80px) */
-                      radial-gradient(3px 3px at 900px 550px, #ffd700, rgba(0,0,0,0)), /* Звезда 8: размер 3px, позиция (900px, 550px) */
-                      radial-gradient(1px 1px at 1100px 200px, #ffd700, rgba(0,0,0,0)), /* Звезда 9: размер 1px, позиция (1100px, 200px) */
-                      radial-gradient(2px 2px at 1300px 450px, #ffd700, rgba(0,0,0,0)), /* Звезда 10: размер 2px, позиция (1300px, 450px) */
-                      radial-gradient(1px 1px at 1450px 100px, #ffd700, rgba(0,0,0,0)), /* Звезда 11: размер 1px, позиция (1450px, 100px) */
-                      radial-gradient(3px 3px at 1700px 300px, #ffd700, rgba(0,0,0,0)); /* Звезда 12: размер 3px, позиция (1700px, 300px) */
-    
-    background-repeat: no-repeat; /* Запрещаем повторение градиентов */
-    opacity: 0.6; /* Делаем звёзды полупрозрачными, чтобы не перегружать фон */
-    z-index: -1; /* Отправляем звёзды на самый нижний слой (позади всего контента) */
-    animation: twinkle 3s infinite alternate; /* Добавляем мерцание (цикл 3 секунды, чередование тускло-ярко) */
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    background-image: radial-gradient(2px 2px at 20px 30px, #ffd700, rgba(0,0,0,0)),
+                      radial-gradient(1px 1px at 80px 150px, #ffd700, rgba(0,0,0,0)),
+                      radial-gradient(1px 1px at 160px 70px, #ffd700, rgba(0,0,0,0)),
+                      radial-gradient(3px 3px at 300px 500px, #ffd700, rgba(0,0,0,0)),
+                      radial-gradient(1px 1px at 450px 250px, #ffd700, rgba(0,0,0,0)),
+                      radial-gradient(2px 2px at 600px 400px, #ffd700, rgba(0,0,0,0)),
+                      radial-gradient(1px 1px at 750px 80px, #ffd700, rgba(0,0,0,0)),
+                      radial-gradient(3px 3px at 900px 550px, #ffd700, rgba(0,0,0,0)),
+                      radial-gradient(1px 1px at 1100px 200px, #ffd700, rgba(0,0,0,0)),
+                      radial-gradient(2px 2px at 1300px 450px, #ffd700, rgba(0,0,0,0)),
+                      radial-gradient(1px 1px at 1450px 100px, #ffd700, rgba(0,0,0,0)),
+                      radial-gradient(3px 3px at 1700px 300px, #ffd700, rgba(0,0,0,0));
+    background-repeat: no-repeat;
+    opacity: 0.6;
+    z-index: -1;
+    animation: twinkle 3s infinite alternate;
 }
 
 /* ============================================
    3. ТИПОГРАФИКА (заголовки, параграфы, ссылки)
    ============================================ */
 
-/* Стили для заголовков первого уровня (главные заголовки страниц) */
 h1 {
-    color: #D4AF37; /* Золотой цвет для главных заголовков */
-    text-align: center; /* Центрирование текста */
-    margin-bottom: 20px; /* Отступ снизу 20px */
-    font-family: 'Playfair Display', Georgia, serif; /* Элегантный шрифт с засечками */
-    font-weight: 600; /* Полужирное начертание */
-    letter-spacing: 1px; /* Небольшой межбуквенный интервал для благородства */
-    animation: textReveal 0.4s ease-out; /* Плавное появление текста */
+    color: #D4AF37;
+    text-align: center;
+    margin-bottom: 20px;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 600;
+    letter-spacing: 1px;
+    animation: textReveal 0.4s ease-out;
 }
 
-/* Стили для заголовков второго уровня (подзаголовки) */
 h2 {
-    color: #C5B4E3; /* Лавандовый цвет для подзаголовков */
-    text-align: center; /* Центрирование текста */
-    margin-bottom: 20px; /* Отступ снизу 20px */
-    font-family: 'Playfair Display', Georgia, serif; /* Тот же шрифт для гармонии */
-    font-weight: 500; /* Среднее начертание */
-    font-size: 1.5rem; /* Размер шрифта 1.5 rem (24px по умолчанию) */
+    color: #C5B4E3;
+    text-align: center;
+    margin-bottom: 20px;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 500;
+    font-size: 1.5rem;
 }
 
-/* Стили для заголовков третьего уровня (секции внутри страниц) */
 h3 {
-    color: #D4AF37; /* Золотой цвет для заголовков третьего уровня */
-    border-bottom: 2px solid #D4AF37; /* Золотистая нижняя граница */
-    padding-bottom: 10px; /* Отступ снизу 10px (расстояние от текста до границы) */
-    margin-top: 0; /* Убирает верхний внешний отступ */
-    font-family: 'Playfair Display', Georgia, serif; /* Элегантный шрифт для заголовков */
-    font-weight: 500; /* Среднее начертание */
+    color: #D4AF37;
+    border-bottom: 2px solid #D4AF37;
+    padding-bottom: 10px;
+    margin-top: 0;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 500;
 }
 
-/* Стили для обычных параграфов */
 p {
-    line-height: 1.6; /* Межстрочный интервал 1.6 (160% от размера шрифта) — улучшает читаемость */
-    margin-bottom: 15px; /* Отступ снизу 15px между абзацами */
-    color: #f0f0f0; /* Светло-серый цвет для комфортного чтения на тёмном фоне */
+    line-height: 1.6;
+    margin-bottom: 15px;
+    color: #f0f0f0;
 }
 
 /* ============================================
@@ -106,189 +99,173 @@ p {
 
 /* 4.1 Кнопки — общие стили для всех кнопок */
 button {
-    background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%); /* Золотой градиент от светлого к тёмному */
-    color: #1A0B2E; /* Тёмно-фиолетовый текст для контраста с золотом */
-    border: none; /* Убираем стандартную рамку */
-    padding: 10px 24px; /* Внутренние отступы: сверху/снизу 10px, слева/справа 24px */
-    margin: 5px; /* Внешние отступы 5px со всех сторон */
-    border-radius: 40px; /* Сильно скруглённые края (капсульная форма) */
-    font-weight: bold; /* Жирное начертание текста */
-    font-size: 0.95rem; /* Размер шрифта чуть меньше стандартного */
-    cursor: pointer; /* Курсор меняется на указатель (руку) при наведении */
-    transition: all 0.3s ease; /* Плавная анимация всех свойств (длительность 0.3 секунды) */
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); /* Лёгкая тень для объёма */
+    background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%);
+    color: #1A0B2E;
+    border: none;
+    padding: 10px 24px;
+    margin: 5px;
+    border-radius: 40px;
+    font-weight: bold;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* Эффекты при наведении курсора на кнопку */
 button:hover {
-    background: linear-gradient(135deg, #E5B83C 0%, #C97E0A 100%); /* Более яркий золотой градиент при наведении */
-    transform: translateY(-2px); /* Лёгкий подъём кнопки вверх на 2px (эффект парения) */
-    box-shadow: 0 6px 16px rgba(212, 175, 55, 0.4); /* Увеличенная тень с золотым свечением */
+    background: linear-gradient(135deg, #E5B83C 0%, #C97E0A 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(212, 175, 55, 0.4);
 }
 
-/* Эффект при нажатии на кнопку (активное состояние) */
 button:active {
-    transform: translateY(1px); /* Кнопка слегка опускается при нажатии (эффект вдавливания) */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Уменьшенная тень */
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* Эффект пульсации для первой кнопки на странице (привлекает внимание) */
 button:first-of-type {
-    animation: gentlePulse 1.5s ease-out 0.5s; /* Запускаем анимацию пульсации с задержкой 0.5 секунды */
+    animation: gentlePulse 1.5s ease-out 0.5s;
 }
 
-/* Эффект фокуса для доступности (при навигации с клавиатуры) */
 button:focus-visible {
-    outline: none; /* Убираем стандартный outline */
-    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.5), 0 0 0 6px rgba(212, 175, 55, 0.2); /* Двойное золотое свечение */
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.5), 0 0 0 6px rgba(212, 175, 55, 0.2);
 }
 
 /* 4.2 Карточки — изображения карт Таро */
 .card-image {
-    width: 200px; /* Фиксированная ширина изображения карты 200px */
-    height: auto; /* Высота автоматическая (сохраняет пропорции) */
-    border-radius: 12px; /* Скругляет углы на 12px (чуть больше для элегантности) */
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3); /* Более глубокая тень для объёма */
-    border: 2px solid #D4AF37; /* Золотая рамка толщиной 2px */
-    transition: all 0.3s ease; /* Плавная анимация всех свойств */
-    background: #2E1A47; /* Тёмный фон на время загрузки */
+    width: 200px;
+    height: auto;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    border: 2px solid #D4AF37;
+    transition: all 0.3s ease;
+    background: #2E1A47;
 }
 
-/* Стиль для перевёрнутых карт */
 .card-image.reversed {
-    transform: rotate(180deg); /* Поворачивает карту на 180 градусов для перевернутого положения */
+    transform: rotate(180deg);
 }
 
 /* 4.3 Карточки расклада — трёхчастная структура */
-/* Стили для карточек расклада (общая оболочка) */
 .card-position {
-    display: flex; /* Включает flexbox для вертикального расположения */
-    flex-direction: column; /* Располагает элементы вертикально в колонку */
-    text-align: left; /* Выравнивает текст по левому краю */
-    background: rgba(46, 26, 71, 0.85); /* Полупрозрачный тёмный фон (эффект стекла) */
-    backdrop-filter: blur(10px); /* Размытие фона позади карточки (эффект стекла) */
-    border-radius: 16px; /* Скругляет углы карточки на 16px */
-    padding: 0; /* Убирает внутренние отступы (отступы задаются внутри) */
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3); /* Глубокая тень для объёма */
-    height: 550px; /* Фиксированная высота для одинакового размера всех карт */
-    overflow: hidden; /* Скрывает всё, что выходит за границы */
-    transition: all 0.3s ease; /* Плавная анимация всех свойств */
-    border: 1px solid rgba(212, 175, 55, 0.3); /* Тонкая золотая граница с прозрачностью */
-    animation: cardAppear 0.4s ease-out forwards; /* Плавное появление карточек */
-    opacity: 0; /* Начальное состояние для анимации (прозрачная) */
-    min-width: 0; /* Позволяет карточке сжиматься */
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    background: rgba(46, 26, 71, 0.85);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 0;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    height: 550px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    animation: cardAppear 0.4s ease-out forwards;
+    opacity: 0;
+    min-width: 0;
 }
 
-/* Эффекты при наведении на карточку */
 .card-position:hover {
-    transform: translateY(-8px); /* Карточка поднимается выше (8px вместо 5px) */
-    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.4); /* Увеличенная тень */
-    border-color: rgba(212, 175, 55, 0.8); /* Золотая граница становится ярче */
-    background: rgba(46, 26, 71, 0.95); /* Фон становится менее прозрачным */
+    transform: translateY(-8px);
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.4);
+    border-color: rgba(212, 175, 55, 0.8);
+    background: rgba(46, 26, 71, 0.95);
 }
 
-/* Верхняя часть карточки — описание позиции */
 .card-position-top {
-    background: linear-gradient(135deg, #2E1A47 0%, #1A0B2E 100%); /* Тёмный градиент */
-    color: #D4AF37; /* Золотой цвет текста */
-    padding: 12px 8px; /* Внутренние отступы: сверху/снизу 12px, слева/справа 8px */
-    min-height: 100px; /* Минимальная высота 100px */
-    max-height: 100px; /* Максимальная высота 100px (фиксированная) */
-    overflow-y: auto; /* Вертикальная прокрутка, если текст не помещается */
-    flex-shrink: 0; /* Запрещает сжатие блока при недостатке места */
-    border-radius: 16px 16px 0 0; /* Скругляет только верхние углы */
-    box-sizing: border-box; /* Включает padding и border в расчёт ширины/высоты */
+    background: linear-gradient(135deg, #2E1A47 0%, #1A0B2E 100%);
+    color: #D4AF37;
+    padding: 12px 8px;
+    min-height: 100px;
+    max-height: 100px;
+    overflow-y: auto;
+    flex-shrink: 0;
+    border-radius: 16px 16px 0 0;
+    box-sizing: border-box;
 }
 
-/* Текст внутри верхней части карточки */
 .card-position-top p {
-    margin: 0; /* Убирает внешние отступы */
-    font-size: 0.9rem; /* Размер шрифта 0.9rem */
-    font-weight: bold; /* Жирное начертание */
-    line-height: 1.4; /* Межстрочный интервал 1.4 */
-    color: #D4AF37; /* Золотой цвет текста */
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: bold;
+    line-height: 1.4;
+    color: #D4AF37;
 }
 
-/* Средняя часть карточки — изображение карты */
 .card-position-middle {
-    flex: 1; /* Занимает всё доступное пространство между верхом и низом */
-    display: flex; /* Flexbox для центрирования */
-    align-items: center; /* Центрирует картинку по вертикали */
-    justify-content: center; /* Центрирует картинку по горизонтали */
-    padding: 15px; /* Внутренние отступы 15px */
-    background: transparent; /* Прозрачный фон (показывается родительский фон) */
-    min-height: 0; /* Важно для корректной работы flex-ребёнка с overflow */
-    overflow: hidden; /* Скрывает всё, что выходит за границы */
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+    background: transparent;
+    min-height: 0;
+    overflow: hidden;
     box-sizing: border-box;
 }
 
-/* Изображение внутри средней части карточки */
 .card-position-middle .card-image {
-    width: auto; /* Автоматическая ширина (не растягивается принудительно) */
-    max-width: 100%; /* Не шире родительского контейнера */
-    height: auto; /* Автоматическая высота */
-    max-height: 100%; /* Не выше родительского контейнера */
-    margin: 0; /* Убирает внешние отступы */
-    display: block; /* Блочный элемент */
-    border: 2px solid #D4AF37; /* Золотая рамка */
-    border-radius: 12px; /* Скруглённые углы */
-    transition: all 0.3s; /* Плавная анимация всех свойств */
-    object-fit: contain; /* Вписывает картинку в контейнер без обрезания, сохраняя пропорции */
-    flex-shrink: 0; /* Запрещает сжатие изображения */
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    max-height: 100%;
+    margin: 0;
+    display: block;
+    border: 2px solid #D4AF37;
+    border-radius: 12px;
+    transition: all 0.3s;
+    object-fit: contain;
+    flex-shrink: 0;
 }
 
-/* Нижняя часть карточки — описание значения карты */
 .card-position-bottom {
-    background: rgba(26, 11, 46, 0.9); /* Тёмный полупрозрачный фон */
-    padding: 12px 8px; /* Внутренние отступы */
-    min-height: 120px; /* Минимальная высота 120px */
-    max-height: 120px; /* Максимальная высота 120px (фиксированная) */
-    overflow-y: auto; /* Вертикальная прокрутка, если текст не помещается */
-    flex-shrink: 0; /* Запрещает сжатие блока */
-    border-top: 1px solid rgba(212, 175, 55, 0.3); /* Тонкая золотая граница сверху (разделитель) */
-    border-radius: 0 0 16px 16px; /* Скругляет только нижние углы */
+    background: rgba(26, 11, 46, 0.9);
+    padding: 12px 8px;
+    min-height: 120px;
+    max-height: 120px;
+    overflow-y: auto;
+    flex-shrink: 0;
+    border-top: 1px solid rgba(212, 175, 55, 0.3);
+    border-radius: 0 0 16px 16px;
     box-sizing: border-box;
 }
 
-/* Текст описания карты */
 .card-description {
-    font-size: 0.8rem; /* Размер шрифта 0.8rem */
-    color: #E0E0E0; /* Светло-серый цвет текста */
-    text-align: left; /* Выравнивание по левому краю */
-    line-height: 1.4; /* Межстрочный интервал */
-    margin: 0; /* Убирает внешние отступы */
-    padding: 0; /* Убирает внутренние отступы */
-    background: transparent; /* Прозрачный фон (наследует фон родителя) */
+    font-size: 0.8rem;
+    color: #E0E0E0;
+    text-align: left;
+    line-height: 1.4;
+    margin: 0;
+    padding: 0;
+    background: transparent;
 }
 
-/* 4.4 Скроллбары — стилизация для WebKit-браузеров (Chrome, Safari, Edge) */
+/* 4.4 Скроллбары — стилизация для WebKit-браузеров */
 .card-position-top::-webkit-scrollbar,
 .card-position-bottom::-webkit-scrollbar,
 .page-content::-webkit-scrollbar {
-    width: 6px; /* Ширина скроллбара 6px */
+    width: 6px;
 }
 
-/* Дорожка скроллбара (фон, по которому движется ползунок) */
 .card-position-top::-webkit-scrollbar-track,
 .card-position-bottom::-webkit-scrollbar-track,
 .page-content::-webkit-scrollbar-track {
-    background: rgba(212, 175, 55, 0.1); /* Полупрозрачный золотой фон дорожки */
-    border-radius: 6px; /* Скругление углов дорожки */
+    background: rgba(212, 175, 55, 0.1);
+    border-radius: 6px;
 }
 
-/* Ползунок скроллбара */
 .card-position-top::-webkit-scrollbar-thumb,
 .card-position-bottom::-webkit-scrollbar-thumb,
 .page-content::-webkit-scrollbar-thumb {
-    background: #D4AF37; /* Золотой ползунок */
-    border-radius: 6px; /* Скругление углов ползунка */
+    background: #D4AF37;
+    border-radius: 6px;
 }
 
-/* Ползунок при наведении */
 .card-position-top::-webkit-scrollbar-thumb:hover,
 .card-position-bottom::-webkit-scrollbar-thumb:hover,
 .page-content::-webkit-scrollbar-thumb:hover {
-    background: #E5B83C; /* Более яркий золотой при наведении */
+    background: #E5B83C;
 }
 
 /* ============================================
@@ -296,425 +273,379 @@ button:focus-visible {
    ============================================ */
 
 /* 5.1 Общие стили для всех страниц */
-
-/* Главный контейнер всех страниц */
 #app {
-    width: 100%; /* Ширина 100% от родителя (body) */
-    box-sizing: border-box; /* Включаем padding в расчёт ширины */
-    max-width: 1400px; /* Максимальная ширина контейнера (не растягивается шире) */
-    margin: 0 auto; /* Автоматические отступы слева/справа для центрирования */
-    padding: 20px; /* Внутренние отступы */
-    position: relative; /* Для позиционирования дочерних элементов */
-    z-index: 1; /* Поднимаем над звёздами (псевдоэлемент body имеет z-index: -1) */
+    width: 100%;
+    box-sizing: border-box;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+    position: relative;
+    z-index: 1;
 }
 
-/* Общие стили для всех страниц */
 .page {
-    display: none; /* Все страницы скрыты по умолчанию */
-    animation: fadeIn 0.4s ease-out; /* Плавное появление при активации */
+    display: none;
+    animation: fadeIn 0.4s ease-out;
 }
 
-/* Активная страница (видимая) */
 .page.active-page {
-    display: block; /* Показываем только активную страницу */
+    display: block;
 }
 
-/* Контент внутри страницы */
 .page-content {
-    background: rgba(46, 26, 71, 0.7); /* Полупрозрачный тёмный фон (эффект стекла) */
-    backdrop-filter: blur(8px); /* Размытие фона позади элемента (эффект стекла) */
-    border-radius: 24px; /* Скруглённые углы */
-    padding: 30px; /* Внутренние отступы */
-    margin: 20px 0; /* Внешние отступы: сверху/снизу 20px, слева/справа 0 */
-    text-align: left; /* Выравнивание текста по левому краю */
-    line-height: 1.7; /* Увеличенный межстрочный интервал для читаемости */
-    color: #f0f0f0; /* Светлый цвет текста */
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2); /* Тень для глубины */
-    border: 1px solid rgba(212, 175, 55, 0.2); /* Тонкая золотая граница */
-    animation: textReveal 0.4s ease-out; /* Плавное появление текста */
+    background: rgba(46, 26, 71, 0.7);
+    backdrop-filter: blur(8px);
+    border-radius: 24px;
+    padding: 30px;
+    margin: 20px 0;
+    text-align: left;
+    line-height: 1.7;
+    color: #f0f0f0;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    animation: textReveal 0.4s ease-out;
 }
 
-/* Контент, который может быть длинным (прокручиваемый) */
 .page-content.scrollable {
-    max-height: 550px; /* Максимальная высота 550px */
-    overflow-y: auto; /* Вертикальная прокрутка при превышении высоты */
+    max-height: 550px;
+    overflow-y: auto;
 }
 
-/* Заголовки внутри страниц */
 .page h1 {
-    color: #D4AF37; /* Золотой цвет */
-    text-align: center; /* Центрирование */
-    margin-bottom: 25px; /* Отступ снизу 25px */
-    font-family: 'Playfair Display', Georgia, serif; /* Элегантный шрифт */
-    font-size: 2.2rem; /* Увеличенный размер */
-    letter-spacing: 2px; /* Межбуквенный интервал 2px */
+    color: #D4AF37;
+    text-align: center;
+    margin-bottom: 25px;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 2.2rem;
+    letter-spacing: 2px;
 }
 
-/* ============================================
-   СТИЛИ ДЛЯ ПОЛЯ ВВОДА ВОПРОСА (страница расклада)
-   ============================================ */
-
-/* Контейнер для поля ввода вопроса */
+/* 5.2 Страница ввода вопроса и отображения вопроса */
 .question-container {
-    background: rgba(46, 26, 71, 0.7); /* Полупрозрачный тёмный фон */
-    backdrop-filter: blur(8px); /* Размытие фона (эффект стекла) */
-    border-radius: 24px; /* Скруглённые углы */
-    padding: 25px; /* Внутренние отступы */
-    margin: 20px 0; /* Внешние отступы */
-    border: 1px solid rgba(212, 175, 55, 0.3); /* Тонкая золотая граница */
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2); /* Тень для глубины */
+    background: rgba(46, 26, 71, 0.7);
+    backdrop-filter: blur(8px);
+    border-radius: 24px;
+    padding: 25px;
+    margin: 20px 0;
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 }
 
-/* Метка (заголовок) поля ввода */
 .question-label {
-    display: block; /* Блочный элемент (занимает всю ширину) */
-    font-family: 'Playfair Display', Georgia, serif; /* Элегантный шрифт */
-    font-size: 1.2rem; /* Размер шрифта 1.2rem */
-    font-weight: 500; /* Среднее начертание */
-    color: #D4AF37; /* Золотой цвет текста */
-    margin-bottom: 15px; /* Отступ снизу 15px */
-    text-align: center; /* Центрирование текста */
-    letter-spacing: 1px; /* Межбуквенный интервал 1px */
+    display: block;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: #D4AF37;
+    margin-bottom: 15px;
+    text-align: center;
+    letter-spacing: 1px;
 }
 
-/* Иконка в метке (эмодзи) */
 .label-icon {
-    margin-right: 8px; /* Отступ справа 8px */
-    font-size: 1.2rem; /* Размер шрифта 1.2rem */
+    margin-right: 8px;
+    font-size: 1.2rem;
 }
 
-/* Обёртка для textarea (нужна для позиционирования декоративных элементов) */
 .input-wrapper {
-    position: relative; /* Для позиционирования псевдоэлементов внутри */
-    margin-bottom: 20px; /* Отступ снизу 20px */
+    position: relative;
+    margin-bottom: 20px;
 }
 
-/* Стилизация текстового поля */
 .question-input {
-    width: 100%; /* Ширина 100% от родителя */
-    background: rgba(26, 11, 46, 0.8); /* Полупрозрачный тёмный фон */
-    border: 2px solid rgba(212, 175, 55, 0.5); /* Золотая рамка с прозрачностью */
-    border-radius: 16px; /* Скруглённые углы */
-    padding: 15px 18px; /* Внутренние отступы */
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Основной шрифт */
-    font-size: 1rem; /* Размер шрифта 1rem */
-    line-height: 1.5; /* Межстрочный интервал 1.5 */
-    color: #f0f0f0; /* Светлый цвет текста */
-    resize: vertical; /* Разрешаем изменение высоты (только вертикально) */
-    transition: all 0.3s ease; /* Плавная анимация всех свойств */
-    box-sizing: border-box; /* Включаем padding в расчёт ширины */
+    width: 100%;
+    background: rgba(26, 11, 46, 0.8);
+    border: 2px solid rgba(212, 175, 55, 0.5);
+    border-radius: 16px;
+    padding: 15px 18px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #f0f0f0;
+    resize: vertical;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
 }
 
-/* Плейсхолдер (подсказка внутри поля) */
 .question-input::placeholder {
-    color: rgba(192, 180, 212, 0.6); /* Полупрозрачный лавандовый цвет */
-    font-style: italic; /* Курсив для подсказки */
+    color: rgba(192, 180, 212, 0.6);
+    font-style: italic;
 }
 
-/* Фокус на поле ввода (когда пользователь кликнул и печатает) */
 .question-input:focus {
-    outline: none; /* Убираем стандартную обводку */
-    border-color: #D4AF37; /* Яркая золотая рамка */
-    background: rgba(26, 11, 46, 0.95); /* Менее прозрачный фон */
-    box-shadow: 0 0 15px rgba(212, 175, 55, 0.3); /* Золотое свечение */
+    outline: none;
+    border-color: #D4AF37;
+    background: rgba(26, 11, 46, 0.95);
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
 }
 
-/* Эффект свечения под полем (декоративная линия) */
 .input-glow {
-    position: absolute; /* Абсолютное позиционирование относительно .input-wrapper */
-    bottom: -2px; /* Смещение вниз на 2px от нижнего края поля */
-    left: 5%; /* Начало слева на 5% ширины родителя */
-    width: 90%; /* Ширина 90% от родителя */
-    height: 3px; /* Высота 3px */
-    background: linear-gradient(90deg, transparent, #D4AF37, #D4AF37, transparent); /* Золотой градиент, исчезающий по краям */
-    border-radius: 3px; /* Скругление углов */
-    opacity: 0; /* Изначально невидим */
-    transition: opacity 0.3s ease; /* Плавное появление */
-    pointer-events: none; /* Линия не мешает кликам */
+    position: absolute;
+    bottom: -2px;
+    left: 5%;
+    width: 90%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #D4AF37, #D4AF37, transparent);
+    border-radius: 3px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
 }
 
-/* При фокусе на поле показываем свечение */
 .question-input:focus ~ .input-glow {
-    opacity: 1; /* Делаем видимым */
+    opacity: 1;
 }
 
-/* Декоративные уголки для поля ввода */
 .input-corner {
-    position: absolute; /* Абсолютное позиционирование */
-    width: 12px; /* Ширина 12px */
-    height: 12px; /* Высота 12px */
-    pointer-events: none; /* Уголки не мешают кликам */
-    opacity: 0; /* Изначально невидимы */
-    transition: opacity 0.3s ease; /* Плавное появление */
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
-/* Верхний левый уголок */
 .corner-tl {
-    top: -2px; /* Смещение вверх на 2px от верхнего края поля */
-    left: -2px; /* Смещение влево на 2px от левого края поля */
-    border-top: 2px solid #D4AF37; /* Верхняя золотая граница */
-    border-left: 2px solid #D4AF37; /* Левая золотая граница */
+    top: -2px;
+    left: -2px;
+    border-top: 2px solid #D4AF37;
+    border-left: 2px solid #D4AF37;
 }
 
-/* Верхний правый уголок */
 .corner-tr {
-    top: -2px; /* Смещение вверх на 2px */
-    right: -2px; /* Смещение вправо на 2px */
-    border-top: 2px solid #D4AF37; /* Верхняя золотая граница */
-    border-right: 2px solid #D4AF37; /* Правая золотая граница */
+    top: -2px;
+    right: -2px;
+    border-top: 2px solid #D4AF37;
+    border-right: 2px solid #D4AF37;
 }
 
-/* Нижний левый уголок */
 .corner-bl {
-    bottom: -2px; /* Смещение вниз на 2px */
-    left: -2px; /* Смещение влево на 2px */
-    border-bottom: 2px solid #D4AF37; /* Нижняя золотая граница */
-    border-left: 2px solid #D4AF37; /* Левая золотая граница */
+    bottom: -2px;
+    left: -2px;
+    border-bottom: 2px solid #D4AF37;
+    border-left: 2px solid #D4AF37;
 }
 
-/* Нижний правый уголок */
 .corner-br {
-    bottom: -2px; /* Смещение вниз на 2px */
-    right: -2px; /* Смещение вправо на 2px */
-    border-bottom: 2px solid #D4AF37; /* Нижняя золотая граница */
-    border-right: 2px solid #D4AF37; /* Правая золотая граница */
+    bottom: -2px;
+    right: -2px;
+    border-bottom: 2px solid #D4AF37;
+    border-right: 2px solid #D4AF37;
 }
 
-/* При фокусе на поле показываем уголки */
 .question-input:focus ~ .input-corner {
-    opacity: 1; /* Делаем видимыми */
+    opacity: 1;
 }
 
-/* Контейнер для кнопки (центрирование) */
 .question-buttons {
-    display: flex; /* Flexbox для центрирования */
-    justify-content: center; /* Центрирование по горизонтали */
-    margin-top: 10px; /* Отступ сверху 10px */
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
 }
 
-/* Кнопка «Получить расклад» */
 .get-spread-btn {
-    background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%); /* Золотой градиент */
-    color: #1A0B2E; /* Тёмно-фиолетовый текст */
-    border: none; /* Убираем стандартную рамку */
-    padding: 12px 32px; /* Внутренние отступы */
-    font-size: 1.1rem; /* Размер шрифта 1.1rem */
-    font-weight: bold; /* Жирное начертание */
-    border-radius: 40px; /* Сильно скруглённые края (капсула) */
-    cursor: pointer; /* Курсор-указатель */
-    transition: all 0.3s ease; /* Плавная анимация */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); /* Тень */
-    display: inline-flex; /* Для выравнивания иконки и текста */
-    align-items: center; /* Центрирование по вертикали */
-    gap: 8px; /* Расстояние между иконкой и текстом */
+    background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%);
+    color: #1A0B2E;
+    border: none;
+    padding: 12px 32px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border-radius: 40px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
 }
 
-/* Состояние при наведении (если кнопка активна) */
 .get-spread-btn:hover:not(:disabled) {
-    transform: translateY(-2px); /* Подъём кнопки */
-    box-shadow: 0 8px 20px rgba(212, 175, 55, 0.4); /* Увеличенная тень с золотым свечением */
-    background: linear-gradient(135deg, #E5B83C 0%, #C97E0A 100%); /* Более яркий градиент */
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(212, 175, 55, 0.4);
+    background: linear-gradient(135deg, #E5B83C 0%, #C97E0A 100%);
 }
 
-/* Состояние при нажатии (если кнопка активна) */
 .get-spread-btn:active:not(:disabled) {
-    transform: translateY(1px); /* Лёгкое опускание */
+    transform: translateY(1px);
 }
 
-/* Состояние неактивной кнопки (disabled) */
 .get-spread-btn:disabled {
-    opacity: 0.5; /* Полупрозрачная */
-    cursor: not-allowed; /* Курсор "недоступно" */
-    transform: none; /* Отключаем анимации */
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
 }
 
-/* Иконка внутри кнопки */
 .btn-icon {
-    margin-right: 8px; /* Отступ справа 8px */
+    margin-right: 8px;
 }
 
-/* Декоративная линия внизу блока */
 .question-decoration {
-    height: 2px; /* Высота 2px */
-    background: linear-gradient(90deg, transparent, #D4AF37, #D4AF37, transparent); /* Золотой градиент, исчезающий по краям */
-    margin-top: 20px; /* Отступ сверху 20px */
-    width: 60%; /* Ширина 60% от родителя */
-    margin-left: auto; /* Автоматический левый отступ (для центрирования) */
-    margin-right: auto; /* Автоматический правый отступ (для центрирования) */
-    opacity: 0.5; /* Полупрозрачная */
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #D4AF37, #D4AF37, transparent);
+    margin-top: 20px;
+    width: 60%;
+    margin-left: auto;
+    margin-right: auto;
+    opacity: 0.5;
 }
 
-/* 5.3 Контейнер для отображения вопроса */
 .question-display {
-    background: rgba(46, 26, 71, 0.5); /* Полупрозрачный тёмный фон */
-    backdrop-filter: blur(4px); /* Лёгкое размытие фона */
-    border-radius: 16px; /* Скруглённые углы */
-    padding: 15px 20px; /* Внутренние отступы */
-    margin: 20px 0; /* Внешние отступы */
-    border-left: 4px solid #D4AF37; /* Золотая левая граница (акцент) */
-    text-align: left; /* Выравнивание по левому краю */
+    background: rgba(46, 26, 71, 0.5);
+    backdrop-filter: blur(4px);
+    border-radius: 16px;
+    padding: 15px 20px;
+    margin: 20px 0;
+    border-left: 4px solid #D4AF37;
+    text-align: left;
 }
 
 .question-display p {
-    margin: 0; /* Убираем внешние отступы */
-    font-size: 1rem; /* Размер шрифта 1rem */
-    color: #f0f0f0; /* Светлый цвет текста */
+    margin: 0;
+    font-size: 1rem;
+    color: #f0f0f0;
 }
 
 .question-display strong {
-    color: #D4AF37; /* Золотой цвет для слова "Ваш вопрос" */
+    color: #D4AF37;
 }
 
-/* Текст самого вопроса */
 #displayed-question {
-    font-style: italic; /* Курсив для выделения */
-    color: #E0E0E0; /* Светло-серый цвет */
+    font-style: italic;
+    color: #E0E0E0;
 }
 
-/* 5.4 Контейнер для кнопок управления после расклада */
+/* 5.3 Кнопки управления после расклада */
 .spread-controls {
-    display: flex; /* Flexbox для расположения кнопок в ряд */
-    justify-content: center; /* Центрирование по горизонтали */
-    gap: 20px; /* Расстояние между кнопками 20px */
-    margin: 30px 0 20px; /* Отступы: сверху 30px, снизу 20px */
-    flex-wrap: wrap; /* Перенос на новую строку при необходимости */
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin: 30px 0 20px;
+    flex-wrap: wrap;
 }
 
-/* Кнопки управления («Новый вопрос») */
 .control-btn {
-    background: linear-gradient(135deg, #2E1A47 0%, #1A0B2E 100%); /* Тёмный градиент */
-    color: #D4AF37; /* Золотой текст */
-    border: 1px solid rgba(212, 175, 55, 0.5); /* Золотая граница с прозрачностью */
-    padding: 10px 24px; /* Внутренние отступы */
-    font-size: 1rem; /* Размер шрифта 1rem */
-    font-weight: 600; /* Полужирное начертание */
-    border-radius: 40px; /* Скруглённые края (капсула) */
-    cursor: pointer; /* Курсор-указатель */
-    transition: all 0.3s ease; /* Плавная анимация */
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); /* Лёгкая тень */
-    display: inline-flex; /* Для выравнивания иконки и текста */
-    align-items: center; /* Центрирование по вертикали */
-    gap: 8px; /* Расстояние между иконкой и текстом */
+    background: linear-gradient(135deg, #2E1A47 0%, #1A0B2E 100%);
+    color: #D4AF37;
+    border: 1px solid rgba(212, 175, 55, 0.5);
+    padding: 10px 24px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 40px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
 }
 
-/* Состояние при наведении на кнопки управления */
 .control-btn:hover {
-    transform: translateY(-2px); /* Подъём кнопки */
-    border-color: #D4AF37; /* Яркая золотая граница */
-    box-shadow: 0 6px 16px rgba(212, 175, 55, 0.3); /* Золотое свечение */
-    background: linear-gradient(135deg, #3A1F5A 0%, #2A0B3E 100%); /* Более светлый градиент */
+    transform: translateY(-2px);
+    border-color: #D4AF37;
+    box-shadow: 0 6px 16px rgba(212, 175, 55, 0.3);
+    background: linear-gradient(135deg, #3A1F5A 0%, #2A0B3E 100%);
 }
 
-/* Состояние при нажатии на кнопки управления */
 .control-btn:active {
-    transform: translateY(1px); /* Лёгкое опускание */
+    transform: translateY(1px);
 }
 
 /* ============================================
-   6. НАВИГАЦИЯ
+   6. НАВИГАЦИЯ (стандартные кнопки внизу)
    ============================================ */
 
-/* Контейнер для навигационных кнопок */
 .nav-buttons {
-    display: flex; /* Flexbox для расположения в ряд */
-    flex-wrap: wrap; /* Перенос на новую строку при необходимости */
-    justify-content: center; /* Центрирование по горизонтали */
-    gap: 16px; /* Расстояние между кнопками 16px */
-    margin-top: 40px; /* Отступ сверху 40px */
-    margin-bottom: 20px; /* Отступ снизу 20px */
-    padding: 10px; /* Внутренние отступы */
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 40px;
+    margin-bottom: 20px;
+    padding: 10px;
 }
 
-/* Навигационные кнопки */
 .nav-btn {
-    background: linear-gradient(135deg, #2E1A47 0%, #1A0B2E 100%); /* Тёмный градиент */
-    color: #D4AF37; /* Золотой текст */
-    border: 1px solid rgba(212, 175, 55, 0.5); /* Золотая граница с прозрачностью */
-    padding: 12px 24px; /* Внутренние отступы */
-    font-size: 1rem; /* Размер шрифта 1rem */
-    font-weight: 600; /* Полужирное начертание */
-    border-radius: 40px; /* Скруглённые края (капсула) */
-    cursor: pointer; /* Курсор-указатель */
-    transition: all 0.3s ease; /* Плавная анимация */
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); /* Лёгкая тень */
-    display: inline-flex; /* Для выравнивания иконки и текста */
-    align-items: center; /* Центрирование по вертикали */
-    gap: 8px; /* Расстояние между иконкой и текстом */
+    background: linear-gradient(135deg, #2E1A47 0%, #1A0B2E 100%);
+    color: #D4AF37;
+    border: 1px solid rgba(212, 175, 55, 0.5);
+    padding: 12px 24px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 40px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
 }
 
-/* Состояние при наведении на навигационные кнопки */
 .nav-btn:hover {
-    background: linear-gradient(135deg, #3A1F5A 0%, #2A0B3E 100%); /* Более светлый градиент */
-    transform: translateY(-2px); /* Лёгкий подъём */
-    border-color: #D4AF37; /* Яркая золотая граница */
-    box-shadow: 0 6px 16px rgba(212, 175, 55, 0.3); /* Золотое свечение */
+    background: linear-gradient(135deg, #3A1F5A 0%, #2A0B3E 100%);
+    transform: translateY(-2px);
+    border-color: #D4AF37;
+    box-shadow: 0 6px 16px rgba(212, 175, 55, 0.3);
 }
 
-/* Состояние при нажатии на навигационные кнопки */
 .nav-btn:active {
-    transform: translateY(1px); /* Лёгкое опускание */
+    transform: translateY(1px);
 }
 
 /* ============================================
    7. АНИМАЦИИ
    ============================================ */
 
-/* Анимация плавного появления страниц */
 @keyframes fadeIn {
     from {
-        opacity: 0; /* Начало: полностью прозрачная */
-        transform: translateY(10px); /* Смещение вниз на 10px */
+        opacity: 0;
+        transform: translateY(10px);
     }
     to {
-        opacity: 1; /* Конец: полностью видимая */
-        transform: translateY(0); /* На своём месте */
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 
-/* Анимация мерцания звёзд */
 @keyframes twinkle {
     0% {
-        opacity: 0.4; /* Начало: звёзды тусклые */
+        opacity: 0.4;
     }
     100% {
-        opacity: 0.9; /* Конец: звёзды яркие */
+        opacity: 0.9;
     }
 }
 
-/* Анимация появления карточек с эффектом "всплытия" */
 @keyframes cardAppear {
     0% {
-        opacity: 0; /* Полностью прозрачная */
-        transform: translateY(20px); /* Смещена вниз на 20px */
+        opacity: 0;
+        transform: translateY(20px);
     }
     100% {
-        opacity: 1; /* Полностью видимая */
-        transform: translateY(0); /* На своём месте */
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 
-/* Анимация лёгкой пульсации для привлечения внимания (кнопки) */
 @keyframes gentlePulse {
     0% {
-        box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4); /* Начало: лёгкая золотая тень */
+        box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4);
     }
     70% {
-        box-shadow: 0 0 0 8px rgba(212, 175, 55, 0); /* Середина: тень расширяется и становится прозрачной */
+        box-shadow: 0 0 0 8px rgba(212, 175, 55, 0);
     }
     100% {
-        box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); /* Конец: тень исчезает */
+        box-shadow: 0 0 0 0 rgba(212, 175, 55, 0);
     }
 }
 
-/* Анимация плавного появления текста (сдвиг слева) */
 @keyframes textReveal {
     0% {
-        opacity: 0; /* Полностью прозрачный */
-        transform: translateX(-10px); /* Смещение влево на 10px */
+        opacity: 0;
+        transform: translateX(-10px);
     }
     100% {
-        opacity: 1; /* Полностью видимый */
-        transform: translateX(0); /* На своём месте */
+        opacity: 1;
+        transform: translateX(0);
     }
 }
 
@@ -722,134 +653,111 @@ button:focus-visible {
    8. АДАПТИВНОСТЬ (media queries)
    ============================================ */
 
-/* Стили для экранов шириной до 768px (планшеты и телефоны) */
 @media (max-width: 768px) {
-    
-    /* Карточки — меньшая высота для мобильных */
     .card-position {
-        height: 480px; /* Уменьшаем высоту карточки до 480px */
+        height: 480px;
     }
     
-    /* Верхний блок (описание позиции) — уменьшенная высота */
     .card-position-top {
-        min-height: 90px; /* Минимальная высота 90px */
-        max-height: 90px; /* Максимальная высота 90px */
+        min-height: 90px;
+        max-height: 90px;
     }
     
-    /* Текст внутри верхнего блока — чуть меньше */
     .card-position-top p {
-        font-size: 0.8rem; /* Уменьшаем размер шрифта */
+        font-size: 0.8rem;
     }
     
-    /* Нижний блок (описание карты) — уменьшенная высота */
     .card-position-bottom {
-        min-height: 110px; /* Минимальная высота 110px */
-        max-height: 110px; /* Максимальная высота 110px */
+        min-height: 110px;
+        max-height: 110px;
     }
     
-    /* Текст описания карты — чуть меньше */
     .card-description {
-        font-size: 0.75rem; /* Уменьшаем размер шрифта */
+        font-size: 0.75rem;
     }
     
-    /* Контент страниц — уменьшенные отступы */
     .page-content {
-        padding: 20px; /* Меньше отступов на мобильных */
+        padding: 20px;
         margin: 15px 0;
     }
     
-    /* Кнопки навигации — компактнее */
     .nav-btn {
-        padding: 8px 16px; /* Уменьшаем отступы кнопок */
-        font-size: 0.85rem; /* Уменьшаем шрифт */
+        padding: 8px 16px;
+        font-size: 0.85rem;
     }
     
-    /* Заголовки страниц — меньше на мобильных */
     .page h1 {
-        font-size: 1.6rem; /* Уменьшаем размер заголовка */
+        font-size: 1.6rem;
     }
     
     h2 {
-        font-size: 1.3rem; /* Уменьшаем подзаголовок */
+        font-size: 1.3rem;
     }
     
     h3 {
-        font-size: 1.1rem; /* Уменьшаем заголовок третьего уровня */
+        font-size: 1.1rem;
     }
     
-    /* Адаптация поля ввода вопроса */
     .question-container {
-        padding: 20px; /* Уменьшаем внутренние отступы */
+        padding: 20px;
     }
     
     .question-label {
-        font-size: 1rem; /* Уменьшаем шрифт метки */
+        font-size: 1rem;
     }
     
     .question-input {
-        padding: 12px 15px; /* Уменьшаем отступы поля ввода */
-        font-size: 0.9rem; /* Уменьшаем шрифт */
+        padding: 12px 15px;
+        font-size: 0.9rem;
     }
     
     .get-spread-btn {
-        padding: 10px 24px; /* Уменьшаем отступы кнопки */
-        font-size: 1rem; /* Уменьшаем шрифт */
+        padding: 10px 24px;
+        font-size: 1rem;
     }
     
     .control-btn {
-        padding: 8px 20px; /* Уменьшаем отступы кнопок управления */
-        font-size: 0.9rem; /* Уменьшаем шрифт */
+        padding: 8px 20px;
+        font-size: 0.9rem;
     }
     
     .spread-controls {
-        gap: 12px; /* Уменьшаем расстояние между кнопками управления */
+        gap: 12px;
     }
     
-    /* ============================================
-       АДАПТАЦИЯ АУТЕНТИЧНОГО РАСКЛАДА
-       ============================================ */
-    
-    /* Двухколоночный макет меняется на вертикальный:
-       колода внизу (для удобного выбора большим пальцем),
-       расклад сверху */
-     /* Адаптация аутентичного расклада */
+    /* Адаптация аутентичного расклада */
     .spread-layout {
-        flex-direction: column-reverse; /* колода внизу, расклад сверху */
+        flex-direction: column-reverse;
         gap: 20px;
     }
     
-    /* Область колоды — на всю ширину */
     .deck-area {
-        max-width: 100%;        /* Колода на всю ширину */
-        order: 2;               /* Колода снизу */
+        max-width: 100%;
+        order: 2;
     }
     
-    /* Область позиций расклада — сверху */
     .spread-positions {
-        order: 1;               /* Расклад сверху */
-        min-width: auto;        /* Убираем минимальную ширину */
+        order: 1;
+        min-width: auto;
     }
     
-    /* Карты в колоде располагаются горизонтально для удобного скролла */
     .deck-cards {
-        flex-direction: row; /* Горизонтальный список */
-        overflow-x: auto; /* Горизонтальная прокрутка */
-        overflow-y: hidden; /* Отключаем вертикальную прокрутку */
-        max-height: none; /* Снимаем ограничение высоты */
-        padding-bottom: 10px; /* Отступ для скроллбара */
+        flex-direction: row;
+        overflow-x: auto;
+        overflow-y: hidden;
+        max-height: none;
+        padding-bottom: 10px;
     }
     
-    /* Размер карт в колоде на мобильных (уменьшенный) */
     .deck-card {
-        flex-shrink: 0; /* Запрещаем сжатие карт при горизонтальном скролле */
-        width: 90px; /* Уменьшенная ширина */
-        height: 135px; /* Уменьшенная высота */
+        flex-shrink: 0;
+        width: 90px;
+        height: 135px;
     }
     
-    /* Сетка позиций расклада — одна колонка на мобильных */
     .cards-grid,
     .positions-grid {
-        grid-template-columns: 1fr; /* Одна колонка на мобильных */
+        grid-template-columns: 1fr;
         gap: 15px;
     }
 }
@@ -858,10 +766,7 @@ button:focus-visible {
    9. АУТЕНТИЧНЫЙ РАСКЛАД "ПРЫЖОК ХЕКЕТ"
    ============================================ */
 
-/* ============================================
-   9.1. ДВУХКОЛОНОЧНЫЙ МАКЕТ
-   ============================================ */
-
+/* 9.1. ДВУХКОЛОНОЧНЫЙ МАКЕТ */
 .spread-layout {
     display: flex;
     flex-direction: row;
@@ -870,10 +775,9 @@ button:focus-visible {
     flex-wrap: wrap;
     width: 100%;
     box-sizing: border-box;
-    align-items: flex-start; /* выравниваем по верху, не растягиваем */
+    align-items: flex-start;
 }
 
-/* Левая колонка */
 .spread-positions {
     display: flex;
     flex-direction: column;
@@ -881,27 +785,21 @@ button:focus-visible {
     min-width: 500px;
     width: 100%;
     gap: 20px;
-    /* высота определяется содержимым */
 }
 
 #part2-positions {
     flex: 1;
 }
 
-/* Правая колонка — контейнер для колоды */
 .deck-area {
     flex: 1;
     min-width: 200px;
     max-width: 280px;
     display: flex;
     flex-direction: column;
-    /* height задаётся через JavaScript */
 }
 
-/* ============================================
-   9.2. КОНТЕЙНЕР КОЛОДЫ
-   ============================================ */
-
+/* 9.2. КОНТЕЙНЕР КОЛОДЫ */
 .deck-container {
     background: rgba(46, 26, 71, 0.5);
     backdrop-filter: blur(8px);
@@ -911,10 +809,9 @@ button:focus-visible {
     text-align: center;
     display: flex;
     flex-direction: column;
-    overflow: hidden; /* Важно: контейнер не растягивается */
-    height: auto; /* должно быть auto, но JS устанавливает фиксированную высоту */
-    transition: height 0.2s ease-out; /* для плавного изменения высоты */
-
+    overflow: hidden;
+    height: auto;
+    transition: height 0.2s ease-out;
 }
 
 .deck-title {
@@ -926,10 +823,7 @@ button:focus-visible {
     flex-shrink: 0;
 }
 
-/* ============================================
-   9.3. КАРТЫ КОЛОДЫ
-   ============================================ */
-
+/* 9.3. КАРТЫ КОЛОДЫ */
 .deck-cards {
     display: flex;
     flex-direction: column;
@@ -937,7 +831,7 @@ button:focus-visible {
     overflow-y: auto;
     padding: 5px;
     flex: 1;
-    min-height: 0; /* обязательно */
+    min-height: 0;
     margin-bottom: 0;
 }
 
@@ -961,10 +855,7 @@ button:focus-visible {
     box-shadow: 0 8px 20px rgba(212, 175, 55, 0.3);
 }
 
-/* ============================================
-   9.4. НИЖНЯЯ ЧАСТЬ КОЛОДЫ
-   ============================================ */
-
+/* 9.4. НИЖНЯЯ ЧАСТЬ КОЛОДЫ */
 .deck-footer {
     display: flex;
     flex-direction: column;
@@ -1019,10 +910,7 @@ button:focus-visible {
     cursor: not-allowed;
 }
 
-/* ============================================
-   9.5. СТИЛИ ДЛЯ ЧАСТЕЙ РАСКЛАДА
-   ============================================ */
-
+/* 9.5. СТИЛИ ДЛЯ ЧАСТЕЙ РАСКЛАДА */
 .spread-part {
     margin-bottom: 40px;
     padding: 20px;
@@ -1053,10 +941,7 @@ button:focus-visible {
     text-align: left;
 }
 
-/* ============================================
-   9.6. СЕТКА КАРТОЧЕК
-   ============================================ */
-
+/* 9.6. СЕТКА КАРТОЧЕК */
 .cards-grid,
 .positions-grid {
     display: grid;
@@ -1067,10 +952,7 @@ button:focus-visible {
     min-width: 0;
 }
 
-/* ============================================
-   9.7. ПУСТАЯ ПОЗИЦИЯ
-   ============================================ */
-
+/* 9.7. ПУСТАЯ ПОЗИЦИЯ */
 .empty-position {
     background: rgba(46, 26, 71, 0.3);
     border: 2px dashed rgba(212, 175, 55, 0.3);
@@ -1098,10 +980,7 @@ button:focus-visible {
     margin: 0;
 }
 
-/* ============================================
-   9.8. АНИМАЦИИ
-   ============================================ */
-
+/* 9.8. АНИМАЦИИ */
 @keyframes shuffleFlash {
     0% {
         opacity: 0.3;
@@ -1129,7 +1008,140 @@ button:focus-visible {
    10. ВСПОМОГАТЕЛЬНЫЕ КЛАССЫ
    ============================================ */
 
-/* Скрывает элемент (используется для начального состояния) */
 .hidden {
-    display: none !important; /* Скрываем с высшим приоритетом */
+    display: none !important;
+}
+
+/* ============================================
+   11. ВЫЕЗЖАЮЩАЯ ПАНЕЛЬ НАВИГАЦИИ
+   ============================================ */
+
+/* Кнопка открытия меню (бургер) */
+.nav-toggle {
+    position: fixed;
+    left: 20px;
+    top: 20px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2E1A47 0%, #1A0B2E 100%);
+    border: 1px solid rgba(212, 175, 55, 0.5);
+    color: #D4AF37;
+    font-size: 1.8rem;
+    font-weight: normal;
+    cursor: pointer;
+    z-index: 1001;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.nav-toggle:hover {
+    transform: scale(1.05);
+    border-color: #D4AF37;
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+    background: linear-gradient(135deg, #3A1F5A 0%, #2A0B3E 100%);
+}
+
+.nav-toggle:active {
+    transform: scale(0.98);
+}
+
+/* Панель навигации (выезжающая) */
+.nav-buttons {
+    position: fixed;
+    top: 0;
+    left: -280px;
+    width: 260px;
+    height: 100vh;
+    background: rgba(10, 10, 26, 0.95);
+    backdrop-filter: blur(15px);
+    border-right: 1px solid rgba(212, 175, 55, 0.5);
+    padding: 100px 0 20px 0;
+    margin: 0;
+    z-index: 1002;
+    transition: left 0.3s ease-out;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    justify-content: flex-start; /* Кнопки прижимаются к верху */
+    box-shadow: 2px 0 15px rgba(0, 0, 0, 0.3);
+}
+
+.nav-buttons.open {
+    left: 0;
+}
+
+/* Кнопки внутри панели */
+.nav-buttons .nav-btn {
+    background: transparent;
+    color: #C5B4E3;
+    border: none;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    border-radius: 0;
+    padding: 16px 20px;
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 500;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.2s ease;
+    box-shadow: none;
+}
+
+.nav-buttons .nav-btn:hover {
+    background: rgba(212, 175, 55, 0.1);
+    color: #D4AF37;
+    padding-left: 28px;
+    border-bottom-color: rgba(212, 175, 55, 0.4);
+    transform: none;
+    box-shadow: none;
+}
+
+.nav-buttons .nav-btn:active {
+    transform: none;
+}
+
+/* Оверлей (затемнение фона) */
+.nav-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.nav-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Адаптация для мобильных устройств */
+@media (max-width: 768px) {
+    .nav-buttons {
+        width: 100%;
+        left: -100%;
+        padding: 20px 0 20px 0;
+    }
+    
+    .nav-buttons.open {
+        left: 0;
+    }
+    
+    .nav-toggle {
+        width: 40px;
+        height: 40px;
+        font-size: 1.5rem;
+        left: 15px;
+        top: 15px;
+    }
 }
