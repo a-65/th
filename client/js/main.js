@@ -29,6 +29,9 @@ function initApp() {
     if (typeof createNavButtons === 'function') {
         createNavButtons();
     }
+
+    // Инициализируем выезжающую панель
+    initNavPanel();
     
     // Проверяем, есть ли сохранённый расклад
     const savedSpread = localStorage.getItem('tarot_last_complete_spread');
@@ -47,6 +50,69 @@ function initApp() {
     }
     
     console.log('✅ Приложение инициализировано');
+}
+
+/**
+ * Инициализирует выезжающую панель навигации
+ */
+function initNavPanel() {
+    const navToggle = document.getElementById('nav-toggle');
+    const navButtons = document.getElementById('nav-buttons');
+    
+    if (!navToggle || !navButtons) {
+        console.warn('⚠️ Элементы для панели навигации не найдены');
+        return;
+    }
+    
+    // Создаём оверлей, если его нет
+    let overlay = document.querySelector('.nav-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.className = 'nav-overlay';
+        document.body.appendChild(overlay);
+    }
+    
+    /**
+     * Открывает панель навигации
+     */
+    function openNav() {
+        navButtons.classList.add('open');
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden'; // блокируем прокрутку
+    }
+    
+    /**
+     * Закрывает панель навигации
+     */
+    function closeNav() {
+        navButtons.classList.remove('open');
+        overlay.classList.remove('active');
+        document.body.style.overflow = ''; // восстанавливаем прокрутку
+    }
+    
+    // Обработчик клика по кнопке
+    navToggle.addEventListener('click', openNav);
+    
+    // Обработчик клика по оверлею
+    overlay.addEventListener('click', closeNav);
+    
+    // Обработчик клика по кнопкам в панели
+    navButtons.addEventListener('click', (event) => {
+        // Проверяем, что клик был по кнопке или её дочернему элементу
+        const btn = event.target.closest('.nav-btn');
+        if (btn) {
+            closeNav();
+        }
+    });
+    
+    // Обработчик нажатия Escape
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && navButtons.classList.contains('open')) {
+            closeNav();
+        }
+    });
+    
+    console.log('✅ Панель навигации инициализирована');
 }
 
 // Запускаем приложение после загрузки DOM
