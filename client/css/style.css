@@ -913,6 +913,8 @@ button:focus-visible {
     flex-direction: column;
     overflow: hidden; /* Важно: контейнер не растягивается */
     height: auto; /* должно быть auto, но JS устанавливает фиксированную высоту */
+    transition: height 0.2s ease-out; /* для плавного изменения высоты */
+
 }
 
 .deck-title {
