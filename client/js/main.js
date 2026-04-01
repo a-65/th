@@ -52,7 +52,6 @@ function initApp() {
     console.log('✅ Приложение инициализировано');
 }
 
-
 /**
  * Инициализирует выезжающую панель навигации
  */
@@ -145,7 +144,6 @@ function initNavPanel() {
     
     console.log('✅ Панель навигации инициализирована');
 }
-
 
 // Запускаем приложение после загрузки DOM
 document.addEventListener('DOMContentLoaded', initApp);
