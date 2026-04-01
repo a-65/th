@@ -52,6 +52,7 @@ function initApp() {
     console.log('✅ Приложение инициализировано');
 }
 
+
 /**
  * Инициализирует выезжающую панель навигации
  */
@@ -69,36 +70,66 @@ function initNavPanel() {
     if (!overlay) {
         overlay = document.createElement('div');
         overlay.className = 'nav-overlay';
-        document.body.appendChild(overlay);
+        document.body.insertBefore(overlay, document.body.firstChild);
     }
+    
+    // Флаг для блокировки кликов во время анимации
+    let isAnimating = false;
     
     /**
      * Открывает панель навигации
      */
     function openNav() {
+        if (isAnimating) return;
+        isAnimating = true;
+        
         navButtons.classList.add('open');
         overlay.classList.add('active');
-        document.body.style.overflow = 'hidden'; // блокируем прокрутку
+        document.body.style.overflow = 'hidden';
+        
+        setTimeout(() => {
+            isAnimating = false;
+        }, 300);
     }
     
     /**
      * Закрывает панель навигации
      */
     function closeNav() {
+        if (isAnimating) return;
+        isAnimating = true;
+        
         navButtons.classList.remove('open');
         overlay.classList.remove('active');
-        document.body.style.overflow = ''; // восстанавливаем прокрутку
+        document.body.style.overflow = '';
+        
+        setTimeout(() => {
+            isAnimating = false;
+        }, 300);
     }
     
-    // Обработчик клика по кнопке
-    navToggle.addEventListener('click', openNav);
+    /**
+     * Переключает состояние панели навигации
+     */
+    function toggleNav() {
+        if (isAnimating) return;
+        
+        const isOpen = navButtons.classList.contains('open');
+        if (isOpen) {
+            closeNav();
+        } else {
+            openNav();
+        }
+    }
+    
+    // Обработчик клика по кнопке ☰
+    navToggle.addEventListener('click', toggleNav);
     
     // Обработчик клика по оверлею
     overlay.addEventListener('click', closeNav);
     
     // Обработчик клика по кнопкам в панели
     navButtons.addEventListener('click', (event) => {
-        // Проверяем, что клик был по кнопке или её дочернему элементу
         const btn = event.target.closest('.nav-btn');
         if (btn) {
             closeNav();
@@ -114,6 +145,7 @@ function initNavPanel() {
     
     console.log('✅ Панель навигации инициализирована');
 }
+
 
 // Запускаем приложение после загрузки DOM
 document.addEventListener('DOMContentLoaded', initApp);
