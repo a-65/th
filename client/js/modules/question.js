@@ -32,15 +32,77 @@ function getSavedQuestion() {
 }
 
 /**
+ * Нормализует текстовый ввод:
+ * возвращает строку без лишних пробелов по краям,
+ * а для нестроковых значений — пустую строку.
+ *
+ * Важно:
+ * внутренние пробелы и переводы строк мы сохраняем,
+ * чтобы пользователь мог формулировать вопрос в несколько строк.
+ *
+ * @param {unknown} value
+ * @returns {string}
+ */
+function normalizeQuestionInput(value) {
+    if (typeof value !== 'string') {
+        return '';
+    }
+
+    return value.trim();
+}
+
+/**
+ * Проверяет, является ли вопрос пустым.
+ *
+ * @param {unknown} question
+ * @returns {boolean}
+ */
+function isQuestionEmpty(question) {
+    return normalizeQuestionInput(question) === '';
+}
+
+/**
+ * Проверяет, можно ли сейчас отправить вопрос.
+ * Это отдельная функция, чтобы правило не дублировалось
+ * в обработчиках клавиатуры и кнопки.
+ *
+ * @returns {boolean}
+ */
+function canSubmitQuestion() {
+    return !isQuestionEmpty(currentQuestion);
+}
+
+/**
+ * Проверяет, нажал ли пользователь Enter без модификаторов.
+ *
+ * Логика такая:
+ * - Enter — отправить вопрос
+ * - Shift + Enter — новая строка
+ * - Enter с Ctrl / Alt / Meta мы специально не обрабатываем
+ *
+ * @param {KeyboardEvent} event
+ * @returns {boolean}
+ */
+function isQuestionSubmitShortcut(event) {
+    return (
+        event.key === 'Enter' &&
+        !event.shiftKey &&
+        !event.ctrlKey &&
+        !event.altKey &&
+        !event.metaKey
+    );
+}
+
+/**
  * Сохраняет вопрос в localStorage.
  * Пустое значение удаляет ключ из хранилища.
  *
  * @param {string} question
  */
 function saveQuestion(question) {
-    const normalizedQuestion = question.trim();
+    const normalizedQuestion = normalizeQuestionInput(question);
 
-    if (normalizedQuestion === '') {
+    if (isQuestionEmpty(normalizedQuestion)) {
         localStorage.removeItem(QUESTION_STORAGE_KEY);
         return;
     }
@@ -58,7 +120,7 @@ function updateGetButtonState() {
         return;
     }
 
-    getSpreadButton.disabled = isQuestionEmpty(currentQuestion);
+    getSpreadButton.disabled = !canSubmitQuestion();
 }
 
 /**
@@ -71,7 +133,7 @@ function syncQuestionStateFromStorage() {
         return;
     }
 
-    currentQuestion = getSavedQuestion();
+    currentQuestion = normalizeQuestionInput(getSavedQuestion());
     questionInput.value = currentQuestion;
 
     updateGetButtonState();
@@ -103,6 +165,11 @@ function resetQuestionModuleState(options = {}) {
 /**
  * Обработчик ввода текста в поле вопроса.
  *
+ * Важно:
+ * здесь мы сохраняем "сырой" ввод пользователя как есть.
+ * Нормализацию делаем только в момент проверки и сохранения,
+ * чтобы не ломать естественный процесс набора текста.
+ *
  * @param {Event} event
  */
 function onQuestionInput(event) {
@@ -111,26 +178,25 @@ function onQuestionInput(event) {
 }
 
 /**
- * Обработчик нажатия Enter в поле вопроса.
- * Пока сохраняем текущее поведение прототипа:
- * Enter отправляет вопрос, если кнопка активна.
+ * Обработчик нажатия клавиш в поле вопроса.
+ *
+ * Поведение:
+ * - Enter отправляет вопрос
+ * - Shift + Enter создаёт новую строку
+ *
+ * Мы используем keydown, а не keypress, потому что это
+ * более предсказуемо для textarea и современных браузеров.
  *
  * @param {KeyboardEvent} event
  */
-function onQuestionKeyPress(event) {
-    if (event.key !== 'Enter') {
+function onQuestionKeyDown(event) {
+    if (!isQuestionSubmitShortcut(event)) {
         return;
     }
-
-    const getSpreadButton = getGetSpreadButton();
 
     event.preventDefault();
 
-    if (!getSpreadButton || getSpreadButton.disabled) {
-        return;
-    }
-
-    if (isQuestionEmpty(currentQuestion)) {
+    if (!canSubmitQuestion()) {
         return;
     }
 
@@ -141,10 +207,11 @@ function onQuestionKeyPress(event) {
  * Обработчик нажатия на кнопку «Получить расклад».
  */
 function onGetSpread() {
-    const normalizedQuestion = currentQuestion.trim();
+    const normalizedQuestion = normalizeQuestionInput(currentQuestion);
 
-    if (normalizedQuestion === '') {
+    if (isQuestionEmpty(normalizedQuestion)) {
         console.warn('Вопрос не введён');
+        updateGetButtonState();
         return;
     }
 
@@ -173,7 +240,7 @@ function bindQuestionHandlers() {
     }
 
     questionInput.addEventListener('input', onQuestionInput);
-    questionInput.addEventListener('keypress', onQuestionKeyPress);
+    questionInput.addEventListener('keydown', onQuestionKeyDown);
     getSpreadButton.addEventListener('click', onGetSpread);
 
     areQuestionHandlersBound = true;
@@ -183,10 +250,9 @@ function bindQuestionHandlers() {
 /**
  * Инициализирует модуль ввода вопроса на странице page-question.
  *
- * Важно: инициализация теперь делает две разные задачи:
+ * Важно: инициализация делает две разные задачи:
  * 1) один раз навешивает обработчики;
  * 2) каждый раз синхронизирует UI с актуальным состоянием.
- * Это решает баг, когда после «Нового вопроса» поле могло остаться в старом состоянии.
  */
 function initQuestionModule() {
     const questionInput = getQuestionInput();
@@ -210,7 +276,7 @@ function initQuestionModule() {
  * Вызывается при переходе на page-select.
  */
 function displayQuestionOnSelectPage() {
-    const savedQuestion = getSavedQuestion();
+    const savedQuestion = normalizeQuestionInput(getSavedQuestion());
     const questionSpan = document.getElementById('select-displayed-question');
     const refineButton = document.getElementById('refine-question-btn');
 
@@ -228,25 +294,6 @@ function displayQuestionOnSelectPage() {
         refineButton.dataset.bound = 'true';
     }
 }
-
-/**
- * Нормализует текстовый ввод:
- * возвращает строку без лишних пробелов по краям,
- * а для нестроковых значений — пустую строку.
- *
- * @param {unknown} value
- * @returns {string}
- */
-function isQuestionEmpty(question) {
-    if (typeof question !== 'string') {
-        return true;
-    }
-
-    return question.trim() === '';
-}
-        
-
-
 
 window.initQuestionModule = initQuestionModule;
 window.resetQuestionModuleState = resetQuestionModuleState;
