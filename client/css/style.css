@@ -710,6 +710,16 @@ button:focus-visible {
         padding: 12px 15px;
         font-size: 0.9rem;
     }
+
+    /* Стили для подсказки под полем ввода вопроса */
+    .question-input-hint {
+    margin-top: 8px;
+    margin-bottom: 0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    text-align: left;
+    color: rgba(197, 180, 227, 0.9);
+    }
     
     .get-spread-btn {
         padding: 10px 24px;
