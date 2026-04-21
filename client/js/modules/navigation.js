@@ -32,12 +32,19 @@ const allPages = [
 const pagesWithoutGetSpread = ['page-select', 'page-result'];
 
 /**
- * Возвращает ID текущей активной страницы.
+ * Возвращает ID активной страницы.
+ *
+ * Мы берём значение из utils.js.
+ * Если по какой-то причине утилита недоступна,
+ * используем безопасное значение по умолчанию.
+ *
  * @returns {string}
  */
-function getActivePageId() {
-    const activePage = document.querySelector('.page.active-page');
-    return activePage ? activePage.id : 'page-welcome';
+function resolveActivePageId() {
+    if (typeof window.getActivePageId === 'function') {
+        return window.getActivePageId();
+    }
+    return 'page-welcome';
 }
 
 /**
@@ -53,7 +60,7 @@ function createNavButtons() {
 
     navContainer.innerHTML = '';
 
-    const activePageId = getActivePageId();
+    const activePageId = resolveActivePageId();
     const hideGetSpread = pagesWithoutGetSpread.includes(activePageId);
 
     allPages.forEach((page) => {
@@ -229,3 +236,4 @@ function goBackToQuestion() {
 window.goToSelectPage = goToSelectPage;
 window.goToResultPage = goToResultPage;
 window.goBackToQuestion = goBackToQuestion;
+window.getActivePageId = getActivePageId;
