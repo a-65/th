@@ -867,29 +867,6 @@ function restoreCardsToPositions(cards, part) {
     }, 50);
 }
 
-/**
- * Восстанавливает расклад из localStorage (вызывается при загрузке страницы)
- * @returns {boolean} - успешно ли восстановлен расклад
- */
-function restoreSpreadFromStorage() {
-    console.log('🃟 Восстанавливаем расклад из storage...');
-    
-    const resultPart1Grid = document.getElementById('result-part1-grid');
-    const resultPart2Grid = document.getElementById('result-part2-grid');
-    
-    if (resultPart1Grid && resultPart2Grid) {
-        part1Grid = resultPart1Grid;
-        part2Grid = resultPart2Grid;
-        
-        if (restoreSavedSpread()) {
-            console.log('✅ Расклад восстановлен на странице результата');
-            return true;
-        }
-    }
-    
-    return false;
-}
-
 // ============================================
 // ВЫРАВНИВАНИЕ ВЫСОТЫ КОЛОДЫ
 // ============================================
@@ -1015,11 +992,16 @@ function restoreResultSpread() {
 // ЭКСПОРТ ФУНКЦИЙ ДЛЯ ДРУГИХ МОДУЛЕЙ
 // ============================================
 
+/**
+ * Публичный API модуля колод.
+ *
+ * Экспортируем только те функции, которые действительно нужны другим модулям:
+ * - initDeckModule — запуск логики колоды на странице выбора карт;
+ * - resetDeckModule — сброс состояния при новом вопросе;
+ * - alignDeckHeight — выравнивание интерфейса после рендера;
+ * - restoreResultSpread — восстановление расклада на странице результата.
+ */
 window.initDeckModule = initDeckModule;
-window.createEmptySlot = createEmptySlot;
-window.getPart1PositionTitle = getPart1PositionTitle;
-window.getPart2PositionTitle = getPart2PositionTitle;
-window.restoreSpreadFromStorage = restoreSpreadFromStorage;
 window.resetDeckModule = resetDeckModule;
 window.alignDeckHeight = alignDeckHeight;
 window.restoreResultSpread = restoreResultSpread;
