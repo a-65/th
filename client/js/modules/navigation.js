@@ -236,4 +236,3 @@ function goBackToQuestion() {
 window.goToSelectPage = goToSelectPage;
 window.goToResultPage = goToResultPage;
 window.goBackToQuestion = goBackToQuestion;
-window.getActivePageId = getActivePageId;
