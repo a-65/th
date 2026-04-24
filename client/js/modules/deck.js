@@ -1,3 +1,5 @@
+(() => {
+
 // ============================================
 // modules/deck.js — УПРАВЛЕНИЕ КОЛОДАМИ ДЛЯ АУТЕНТИЧНОГО РАСКЛАДА
 // ============================================
@@ -1005,3 +1007,5 @@ window.initDeckModule = initDeckModule;
 window.resetDeckModule = resetDeckModule;
 window.alignDeckHeight = alignDeckHeight;
 window.restoreResultSpread = restoreResultSpread;
+
+})();
