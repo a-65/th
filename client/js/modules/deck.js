@@ -161,10 +161,8 @@ function initDeckModule() {
     // Отображаем первую колоду
     showPart1();
     
-    // Показываем кнопку тасовки и индикатор
-    addDeckControls();
-    
     isSpreadStarted = true;
+
     console.log('✅ Модуль колод инициализирован, можно начинать выбор');
     
     // Выравниваем высоту колоды после отрисовки
@@ -974,27 +972,50 @@ function restoreResultSpread() {
 function resetDeckModule() {
     console.log('🃟 Сброс состояния колод...');
 
-    // Сброс данных
+    // Сброс данных расклада
     selectedCardsPart1 = [];
     selectedCardsPart2 = [];
     currentDeckCards = [];
     currentPart = 'part1';
 
     // Очистка динамического содержимого, но не каркаса
-    if (part1Grid) part1Grid.innerHTML = '';
-    if (part2Grid) part2Grid.innerHTML = '';
-    const cardsContainer = getDeckCardsContainer();
-    if (cardsContainer) cardsContainer.innerHTML = '';
+    if (part1Grid) {
+        part1Grid.innerHTML = '';
+    }
 
-    // Сброс флагов
+    if (part2Grid) {
+        part2Grid.innerHTML = '';
+    }
+
+    const cardsContainer = getDeckCardsContainer();
+    if (cardsContainer) {
+        cardsContainer.innerHTML = '';
+    }
+
+    // Сброс текстов интерфейса к начальному состоянию
+    const titleElement = getDeckTitleElement();
+    if (titleElement) {
+        titleElement.textContent = '🃟 Старшие Арканы';
+    }
+
+    const remainingCount = getRemainingCountElement();
+    if (remainingCount) {
+        remainingCount.textContent = '22';
+    }
+
+    const selectedCount = getSelectedCountElement();
+    if (selectedCount) {
+        selectedCount.textContent = '0 / 5';
+    }
+
+    // Возвращаем кнопку тасовки в активное состояние
+    if (shuffleBtn) {
+        shuffleBtn.disabled = false;
+    }
+
+    // Сброс флагов состояния
     isShuffling = false;
     isSpreadStarted = false;
-
-    // Восстановим тексты счётчиков
-    const remainingCount = getRemainingCountElement();
-    const selectedCount = getSelectedCountElement();
-    if (remainingCount) remainingCount.textContent = '22';
-    if (selectedCount) selectedCount.textContent = '0 / 5';
 
     console.log('✅ Состояние колод сброшено');
 }
