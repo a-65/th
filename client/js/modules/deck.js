@@ -93,6 +93,11 @@ function createShuffleAudio() {
 function initDeckModule() {
     console.log('🃟 Инициализация модуля колод');
 
+    // Привязываемся к уже существующей разметке колоды
+    if (!addDeckControls()) {
+        return false;
+    }
+
     // Инициализируем звук тасовки (один раз)
     if (!shuffleAudio) {
         initShuffleSound();
@@ -168,6 +173,40 @@ function initDeckModule() {
         requestAnimationFrame(() => alignDeckHeight());
     }, 100);
     
+    return true;
+}
+
+/**
+ * Добавляет элементы управления колодой (кнопка тасовки, индикатор)
+ */
+function addDeckControls() {
+    const titleElement = getDeckTitleElement();
+    const cardsContainer = getDeckCardsContainer();
+    const statsDiv = document.getElementById('deck-stats');
+    const shuffleButton = document.getElementById('shuffle-btn');
+    const remainingCount = getRemainingCountElement();
+    const selectedCount = getSelectedCountElement();
+
+    // Проверим, что все элементы существуют в HTML
+    if (!titleElement || !cardsContainer || !statsDiv || !shuffleButton || !remainingCount || !selectedCount) {
+        console.error('Ошибка: элементы управления колодой не найдены в HTML');
+        return false;
+    }
+
+    // Установим начальные значения
+    titleElement.textContent = '🃟 Старшие Арканы';
+    cardsContainer.innerHTML = '';   // очистим контейнер с картами
+    remainingCount.textContent = '22';
+    selectedCount.textContent = '0 / 5';
+
+        // Привяжем обработчик кнопки тасовки
+    shuffleButton.onclick = () => shuffleDeck();
+    shuffleButton.disabled = false;
+
+    // Сохраним ссылки на элементы, которые используются в других местах модуля
+    statsElement = statsDiv;
+    shuffleBtn = shuffleButton;
+
     return true;
 }
 
@@ -264,60 +303,20 @@ function getPart2PositionTitle(index) {
     return titles[index];
 }
 
-/**
- * Добавляет элементы управления колодой (кнопка тасовки, индикатор)
- */
-function addDeckControls() {
-    // Создаём контейнер для управления
-    const controlsDiv = document.createElement('div');
-    controlsDiv.className = 'deck-controls';
-    
-    // Заголовок колоды
-    const titleDiv = document.createElement('div');
-    titleDiv.className = 'deck-title';
-    titleDiv.id = 'deck-title';
-    titleDiv.textContent = '🃟 Старшие Арканы';
-    controlsDiv.appendChild(titleDiv);
-    
-    // Контейнер для карт
-    const cardsDiv = document.createElement('div');
-    cardsDiv.className = 'deck-cards';
-    cardsDiv.id = 'deck-cards';
-    controlsDiv.appendChild(cardsDiv);
-    
-    // Футер (обёртка для статистики и кнопки)
-    const footerDiv = document.createElement('div');
-    footerDiv.className = 'deck-footer';
-    
-    // Индикатор (статистика)
-    const statsDiv = document.createElement('div');
-    statsDiv.className = 'deck-stats';
-    statsDiv.id = 'deck-stats';
-    statsDiv.innerHTML = `
-        <p>📊 Осталось: <span id="remaining-count">22</span> карт</p>
-        <p>✅ Выбрано: <span id="selected-count">0</span> из 5</p>
-    `;
-    footerDiv.appendChild(statsDiv);
-    
-    // Кнопка тасовки
-    const shuffleButton = document.createElement('button');
-    shuffleButton.className = 'shuffle-btn';
-    shuffleButton.id = 'shuffle-btn';
-    shuffleButton.textContent = '🔄 Перетасовать колоду';
-    shuffleButton.onclick = () => shuffleDeck();
-    footerDiv.appendChild(shuffleButton);
-    
-    controlsDiv.appendChild(footerDiv);
-    
-    // Очищаем и добавляем
-    if (deckContainer) {
-        deckContainer.innerHTML = '';
-        deckContainer.appendChild(controlsDiv);
-    }
-    
-    // Сохраняем ссылки
-    statsElement = statsDiv;
-    shuffleBtn = shuffleButton;
+function getDeckTitleElement() {
+    return document.getElementById('deck-title');
+}
+
+function getDeckCardsContainer() {
+    return document.getElementById('deck-cards');
+}
+
+function getRemainingCountElement() {
+    return document.getElementById('remaining-count');
+}
+
+function getSelectedCountElement() {
+    return document.getElementById('selected-count');
 }
 
 /**
@@ -768,27 +767,6 @@ function saveCompleteSpread() {
     console.log('💾 Расклад сохранён в localStorage');
 }
 
-/**
- * Сбрасывает состояние модуля колод (очищает выбор карт)
- */
-function resetDeckModule() {
-    console.log('🃟 Сброс состояния колод...');
-    
-    selectedCardsPart1 = [];
-    selectedCardsPart2 = [];
-    currentDeckCards = [];
-    currentPart = 'part1';
-    
-    if (part1Grid) part1Grid.innerHTML = '';
-    if (part2Grid) part2Grid.innerHTML = '';
-    if (deckContainer) deckContainer.innerHTML = '';
-    
-    isShuffling = false;
-    isSpreadStarted = false;
-    
-    console.log('✅ Состояние колод сброшено');
-}
-
 // ============================================
 // ВОССТАНОВЛЕНИЕ РАСКЛАДА ПРИ ЗАГРУЗКЕ СТРАНИЦЫ
 // ============================================
@@ -988,6 +966,37 @@ function restoreResultSpread() {
         console.warn('Ошибка восстановления расклада:', e);
         return false;
     }
+}
+
+/**
+ * Сбрасывает состояние модуля колод (очищает выбор карт)
+ */
+function resetDeckModule() {
+    console.log('🃟 Сброс состояния колод...');
+
+    // Сброс данных
+    selectedCardsPart1 = [];
+    selectedCardsPart2 = [];
+    currentDeckCards = [];
+    currentPart = 'part1';
+
+    // Очистка динамического содержимого, но не каркаса
+    if (part1Grid) part1Grid.innerHTML = '';
+    if (part2Grid) part2Grid.innerHTML = '';
+    const cardsContainer = getDeckCardsContainer();
+    if (cardsContainer) cardsContainer.innerHTML = '';
+
+    // Сброс флагов
+    isShuffling = false;
+    isSpreadStarted = false;
+
+    // Восстановим тексты счётчиков
+    const remainingCount = getRemainingCountElement();
+    const selectedCount = getSelectedCountElement();
+    if (remainingCount) remainingCount.textContent = '22';
+    if (selectedCount) selectedCount.textContent = '0 / 5';
+
+    console.log('✅ Состояние колод сброшено');
 }
 
 // ============================================
