@@ -36,23 +36,23 @@
     let shuffleBtn = null;                // Кнопка тасовки
     let deckTitleElement = null;          // Заголовок колоды
     let deckCardsContainer = null;        // Контейнер для карт в колоде
+    let deckStatsElement = null;          // Блок статистики колоды
     let remainingCountElement = null;     // Счётчик оставшихся карт
     let selectedCountElement = null;      // Счётчик выбранных карт
 
     // Дополнительные элементы страницы выбора карт
-    let spreadPositionsElement = null;    // .spread-positions
-    let deckStatsElement = null;          // #deck-stats
-    let part1ContainerElement = null;     // #part1-positions
-    let part2ContainerElement = null;     // #part2-positions
-    let partOneDescriptionElement = null; // #partOneDescription
-    let partTwoDescriptionElement = null; // #partTwoDescription
+    let spreadPositionsElement = null;    // Контейнер для позиций расклада
+    let part1ContainerElement = null;     // Контейнер для первой части позиций
+    let part2ContainerElement = null;     // Контейнер для второй части позиций
+    let partOneDescriptionElement = null; // Описание первой части
+    let partTwoDescriptionElement = null; // Описание второй части
 
-    // Элементы страницы результата
-    let resultPart1Grid = null;
-    let resultPart2Grid = null;
-    let resultPartOneDescription = null;
-    let resultPartTwoDescription = null;
-    let resultQuestionSpan = null;
+    // Элементы страницы результата (кешируются при восстановлении)
+    let resultPart1Grid = null;          // Сетка позиций первой части на странице результата
+    let resultPart2Grid = null;          // Сетка позиций второй части на странице результата
+    let resultPartOneDescription = null; // Описание первой части на странице результата
+    let resultPartTwoDescription = null; // Описание второй части на странице результата
+    let resultQuestionSpan = null;       // Поле вопроса на странице результата
 
     // --------------------------------------------
     // 5. ФЛАГИ СОСТОЯНИЯ
@@ -65,22 +65,21 @@
     // ============================================
 
     /**
-     * Находит все нужные DOM-элементы и сохраняет их в переменные.
-     * Вызывается один раз при инициализации модуля.
+     * Находит все нужные DOM-элементы страницы выбора карт и сохраняет их.
      * @returns {boolean} true, если все элементы найдены
      */
     function bindDeckDomElements() {
         deckContainer = document.getElementById('deck-container');
         part1Grid = document.getElementById('select-part1-grid');
         part2Grid = document.getElementById('select-part2-grid');
+        shuffleBtn = document.getElementById('shuffle-btn');
         deckTitleElement = document.getElementById('deck-title');
         deckCardsContainer = document.getElementById('deck-cards');
-        shuffleBtn = document.getElementById('shuffle-btn');
+        deckStatsElement = document.getElementById('deck-stats');
         remainingCountElement = document.getElementById('remaining-count');
         selectedCountElement = document.getElementById('selected-count');
 
         spreadPositionsElement = document.querySelector('.spread-positions');
-        deckStatsElement = document.getElementById('deck-stats');
         part1ContainerElement = document.getElementById('part1-positions');
         part2ContainerElement = document.getElementById('part2-positions');
         partOneDescriptionElement = document.getElementById('partOneDescription');
@@ -90,13 +89,13 @@
             deckContainer &&
             part1Grid &&
             part2Grid &&
+            shuffleBtn &&
             deckTitleElement &&
             deckCardsContainer &&
-            shuffleBtn &&
+            deckStatsElement &&
             remainingCountElement &&
             selectedCountElement &&
             spreadPositionsElement &&
-            deckStatsElement &&
             part1ContainerElement &&
             part2ContainerElement &&
             partOneDescriptionElement &&
@@ -106,7 +105,6 @@
 
     /**
      * Привязывает DOM-элементы страницы результата.
-     * Вызывается один раз при восстановлении расклада.
      * @returns {boolean} true, если все элементы найдены
      */
     function bindResultDomElements() {
@@ -127,7 +125,7 @@
 
     /**
      * Сбрасывает визуальное состояние колоды к начальному.
-     * Не изменяет данные расклада.
+     * Не изменяет данные расклада (карты, текущую часть).
      */
     function resetDeckUi() {
         if (deckTitleElement) {
@@ -156,22 +154,56 @@
         return part === 'part1' ? part1Grid : part2Grid;
     }
 
+    function getPartContainerByPart(part) {
+        return part === 'part1' ? part1ContainerElement : part2ContainerElement;
+    }
+
+    function getDescriptionElementByPart(part) {
+        return part === 'part1' ? partOneDescriptionElement : partTwoDescriptionElement;
+    }
+
+    function setPartDescription(part, text) {
+        const descriptionElement = getDescriptionElementByPart(part);
+        if (descriptionElement) {
+            descriptionElement.textContent = text;
+        }
+    }
+
+    function showAllPartContainers() {
+        const part1Container = getPartContainerByPart('part1');
+        const part2Container = getPartContainerByPart('part2');
+        if (part1Container) part1Container.style.display = 'block';
+        if (part2Container) part2Container.style.display = 'block';
+    }
+
     function getPositionTitleByPart(part, index) {
         return part === 'part1'
             ? getPart1PositionTitle(index)
             : getPart2PositionTitle(index);
     }
 
-    function getDescriptionElementByPart(part) {
-        return part === 'part1'
-            ? partOneDescriptionElement
-            : partTwoDescriptionElement;
+    function getPositionDescriptionByPart(part, positionIndex) {
+        if (part === 'part1') {
+            if (typeof PART_ONE_POSITIONS !== 'undefined' && PART_ONE_POSITIONS[positionIndex]) {
+                return PART_ONE_POSITIONS[positionIndex];
+            }
+        } else {
+            if (typeof PART_TWO_POSITIONS !== 'undefined' && PART_TWO_POSITIONS[positionIndex]) {
+                return PART_TWO_POSITIONS[positionIndex];
+            }
+        }
+        return getPositionTitleByPart(part, positionIndex);
     }
 
-    function setPartDescription(part, text) {
-        const descElement = getDescriptionElementByPart(part);
-        if (descElement) {
-            descElement.textContent = text;
+    function applyPartDescriptions(logContext = '') {
+        const suffix = logContext ? ` (${logContext})` : '';
+        if (typeof PART_ONE_DESCRIPTION !== 'undefined') {
+            setPartDescription('part1', PART_ONE_DESCRIPTION);
+            console.log(`✅ Добавлено описание первой части${suffix}`);
+        }
+        if (typeof PART_TWO_DESCRIPTION !== 'undefined') {
+            setPartDescription('part2', PART_TWO_DESCRIPTION);
+            console.log(`✅ Добавлено описание второй части${suffix}`);
         }
     }
 
@@ -211,11 +243,10 @@
             initShuffleSound();
         }
 
+        // Пытаемся восстановить сохранённый расклад
         if (restoreSavedSpread()) {
             console.log('✅ Модуль колод: восстановлен сохранённый расклад');
-            setTimeout(() => {
-                requestAnimationFrame(() => alignDeckHeight());
-            }, 100);
+            setTimeout(() => requestAnimationFrame(() => alignDeckHeight()), 100);
             return true;
         }
 
@@ -223,31 +254,20 @@
 
         selectedCardsPart1 = [];
         selectedCardsPart2 = [];
+        currentDeckCards = [];
         currentPart = 'part1';
 
         initDecks();
         createEmptyPositions();
-
-        if (part1ContainerElement) part1ContainerElement.style.display = 'block';
-        if (part2ContainerElement) part2ContainerElement.style.display = 'block';
-
-        if (typeof PART_ONE_DESCRIPTION !== 'undefined') {
-            setPartDescription('part1', PART_ONE_DESCRIPTION);
-            console.log('✅ Добавлено описание первой части');
-        }
-        if (typeof PART_TWO_DESCRIPTION !== 'undefined') {
-            setPartDescription('part2', PART_TWO_DESCRIPTION);
-            console.log('✅ Добавлено описание второй части');
-        }
+        showAllPartContainers();
+        applyPartDescriptions();
 
         showPart1();
 
         isSpreadStarted = true;
         console.log('✅ Модуль колод инициализирован, можно начинать выбор');
 
-        setTimeout(() => {
-            requestAnimationFrame(() => alignDeckHeight());
-        }, 100);
+        setTimeout(() => requestAnimationFrame(() => alignDeckHeight()), 100);
 
         return true;
     }
@@ -269,20 +289,15 @@
     }
 
     function createEmptyPositions() {
-        if (part1Grid) {
-            part1Grid.innerHTML = '';
+        ['part1', 'part2'].forEach((part) => {
+            const grid = getGridByPart(part);
+            if (!grid) return;
+            grid.innerHTML = '';
             for (let i = 0; i < 5; i++) {
-                const emptySlot = createEmptySlot(getPositionTitleByPart('part1', i));
-                part1Grid.appendChild(emptySlot);
+                const emptySlot = createEmptySlot(getPositionTitleByPart(part, i));
+                grid.appendChild(emptySlot);
             }
-        }
-        if (part2Grid) {
-            part2Grid.innerHTML = '';
-            for (let i = 0; i < 5; i++) {
-                const emptySlot = createEmptySlot(getPositionTitleByPart('part2', i));
-                part2Grid.appendChild(emptySlot);
-            }
-        }
+        });
     }
 
     function createEmptySlot(title) {
@@ -361,9 +376,7 @@
             deckTitleElement.textContent = '🃟 Остальные карты (56 карт)';
         }
         updateStats();
-        if (shuffleBtn) {
-            shuffleBtn.disabled = false;
-        }
+        if (shuffleBtn) shuffleBtn.disabled = false;
         isShuffling = false;
         console.log('🃟 Показана вторая часть расклада, колода перетасована');
         setTimeout(() => requestAnimationFrame(() => alignDeckHeight()), 150);
@@ -426,24 +439,20 @@
     // ============================================
 
     function selectCard(index) {
-        if (isShuffling) {
-            console.warn('Подождите, колода тасуется');
-            return;
-        }
+        if (isShuffling) return;
         const card = currentDeckCards[index];
-        if (!card || card.isSelected) {
-            console.warn('Карта уже выбрана или не существует');
-            return;
-        }
-        const selectedCount = currentPart === 'part1' ? selectedCardsPart1.length : selectedCardsPart2.length;
-        if (selectedCount >= 5) {
-            console.warn('Уже выбрано 5 карт для этой части');
-            return;
-        }
+        if (!card || card.isSelected) return;
+
+        const selectedCount = currentPart === 'part1'
+            ? selectedCardsPart1.length
+            : selectedCardsPart2.length;
+        if (selectedCount >= 5) return;
+
         if (selectedCount === 0 && shuffleBtn) shuffleBtn.disabled = true;
         console.log(`🃟 Выбрана карта: ${card.name} (${card.isReversed ? 'перевёрнутая' : 'прямая'})`);
         card.isSelected = true;
         currentDeckCards.splice(index, 1);
+
         if (currentPart === 'part1') {
             selectedCardsPart1.push(card);
             addCardToPosition(card, selectedCardsPart1.length - 1, 'part1');
@@ -451,20 +460,26 @@
             selectedCardsPart2.push(card);
             addCardToPosition(card, selectedCardsPart2.length - 1, 'part2');
         }
+
         renderDeck(currentDeckCards);
         requestAnimationFrame(() => alignDeckHeight());
-        const newSelectedCount = currentPart === 'part1' ? selectedCardsPart1.length : selectedCardsPart2.length;
+
+        const newSelectedCount = currentPart === 'part1'
+            ? selectedCardsPart1.length
+            : selectedCardsPart2.length;
         if (newSelectedCount === 5) onPartComplete();
     }
 
     function addCardToPosition(card, positionIndex, part) {
         const grid = getGridByPart(part);
         if (!grid) return;
+
         const cardElement = createCardElementForSpread(card, part, positionIndex);
         const children = grid.children;
         if (children[positionIndex]) {
             grid.replaceChild(cardElement, children[positionIndex]);
         }
+
         requestAnimationFrame(() => {
             alignDeckHeight();
             requestAnimationFrame(() => alignDeckHeight());
@@ -476,11 +491,7 @@
     // ============================================
 
     function createCardElementForSpread(card, part, positionIndex) {
-        const description = (typeof PART_ONE_POSITIONS !== 'undefined' || typeof PART_TWO_POSITIONS !== 'undefined')
-            ? (part === 'part1'
-                ? (PART_ONE_POSITIONS && PART_ONE_POSITIONS[positionIndex]) || getPositionTitleByPart(part, positionIndex)
-                : (PART_TWO_POSITIONS && PART_TWO_POSITIONS[positionIndex]) || getPositionTitleByPart(part, positionIndex))
-            : getPositionTitleByPart(part, positionIndex);
+        const positionDescription = getPositionDescriptionByPart(part, positionIndex);
 
         const cardDiv = document.createElement('div');
         cardDiv.className = 'card-position';
@@ -488,7 +499,7 @@
         const topContainer = document.createElement('div');
         topContainer.className = 'card-position-top';
         const positionP = document.createElement('p');
-        positionP.textContent = description;
+        positionP.textContent = positionDescription;
         topContainer.appendChild(positionP);
 
         const middleContainer = document.createElement('div');
@@ -502,6 +513,7 @@
             this.src = getFallbackCardImagePath();
             this.alt = `Изображение отсутствует: ${card.name}`;
         };
+        
         if (card.isReversed) img.classList.add('reversed');
         middleContainer.appendChild(img);
 
@@ -509,7 +521,8 @@
         bottomContainer.className = 'card-position-bottom';
         const descDiv = document.createElement('div');
         descDiv.className = 'card-description';
-        descDiv.textContent = `${card.name}: ${card.isReversed ? card.reversed : card.upright}`;
+        const cardValue = card.isReversed ? card.reversed : card.upright;
+        descDiv.textContent = `${card.name}: ${cardValue}`;
         bottomContainer.appendChild(descDiv);
 
         cardDiv.appendChild(topContainer);
@@ -548,12 +561,20 @@
         const spreadData = {
             question: currentQuestion,
             timestamp: Date.now(),
-            part1: selectedCardsPart1.map(card => ({ id: card.id, name: card.name, upright: card.upright, reversed: card.reversed, isReversed: card.isReversed })),
-            part2: selectedCardsPart2.map(card => ({ id: card.id, name: card.name, upright: card.upright, reversed: card.reversed, isReversed: card.isReversed }))
+            part1: selectedCardsPart1.map(card => ({
+                id: card.id, name: card.name,
+                upright: card.upright, reversed: card.reversed,
+                isReversed: card.isReversed
+            })),
+            part2: selectedCardsPart2.map(card => ({
+                id: card.id, name: card.name,
+                upright: card.upright, reversed: card.reversed,
+                isReversed: card.isReversed
+            }))
         };
         localStorage.setItem('tarot_last_complete_spread', JSON.stringify(spreadData));
         localStorage.setItem('tarot_last_question', currentQuestion);
-        console.log('💾 Расклад сохранён');
+        console.log('💾 Расклад сохранён в localStorage');
     }
 
     // ============================================
@@ -567,12 +588,19 @@
             const spreadData = JSON.parse(savedSpread);
             if (!spreadData.part1 || !spreadData.part2) return false;
             console.log('🔄 Восстанавливаем сохранённый расклад...');
-            selectedCardsPart1 = spreadData.part1.map(card => ({ ...card, isReversed: card.isReversed || false, isSelected: true }));
-            selectedCardsPart2 = spreadData.part2.map(card => ({ ...card, isReversed: card.isReversed || false, isSelected: true }));
+
+            selectedCardsPart1 = spreadData.part1.map(card => ({
+                ...card, isReversed: card.isReversed || false, isSelected: true
+            }));
+            selectedCardsPart2 = spreadData.part2.map(card => ({
+                ...card, isReversed: card.isReversed || false, isSelected: true
+            }));
+
             restoreCardsToPositions(selectedCardsPart1, 'part1');
             restoreCardsToPositions(selectedCardsPart2, 'part2');
-            if (typeof PART_ONE_DESCRIPTION !== 'undefined') setPartDescription('part1', PART_ONE_DESCRIPTION);
-            if (typeof PART_TWO_DESCRIPTION !== 'undefined') setPartDescription('part2', PART_TWO_DESCRIPTION);
+            showAllPartContainers();
+            applyPartDescriptions('при восстановлении');
+
             console.log('✅ Расклад восстановлен');
             return true;
         } catch (e) {
@@ -597,19 +625,25 @@
     // ============================================
 
     function alignDeckHeight() {
-        if (!deckContainer || !spreadPositionsElement) return;
+        if (!spreadPositionsElement || !deckContainer) return;
         const positionsHeight = spreadPositionsElement.offsetHeight;
         deckContainer.style.height = positionsHeight + 'px';
-        if (deckCardsContainer) {
-            let otherHeight = 0;
-            if (deckTitleElement) otherHeight += deckTitleElement.offsetHeight;
-            if (deckStatsElement) otherHeight += deckStatsElement.offsetHeight;
-            if (shuffleBtn) otherHeight += shuffleBtn.offsetHeight;
-            otherHeight += 95;
-            const cardsMaxHeight = positionsHeight - otherHeight;
-            deckCardsContainer.style.maxHeight = Math.max(cardsMaxHeight, 200) + 'px';
-            deckCardsContainer.style.overflowY = 'auto';
-        }
+
+        if (!deckCardsContainer) return;
+
+        let otherHeight = 0;
+        if (deckTitleElement) otherHeight += deckTitleElement.offsetHeight;
+        if (deckStatsElement) otherHeight += deckStatsElement.offsetHeight;
+        if (shuffleBtn) otherHeight += shuffleBtn.offsetHeight;
+        otherHeight += 95; // отступы и запас
+
+        const cardsMaxHeight = positionsHeight - otherHeight;
+        deckCardsContainer.style.maxHeight = Math.max(cardsMaxHeight, 200) + 'px';
+        deckCardsContainer.style.overflowY = 'auto';
+
+        console.log(`📐 Высота колоды: ${positionsHeight}px`);
+        console.log(`📐 Высота контейнера карт: ${deckCardsContainer.style.maxHeight}`);
+        console.log(`📐 Высота других элементов: ${otherHeight}px`);
     }
 
     // ============================================
@@ -653,7 +687,6 @@
                 const cardElement = createCardElementForSpread(card, 'part1', index);
                 resultPart1Grid.appendChild(cardElement);
             });
-
             spreadData.part2.forEach((card, index) => {
                 const cardElement = createCardElementForSpread(card, 'part2', index);
                 resultPart2Grid.appendChild(cardElement);
@@ -661,7 +694,6 @@
 
             console.log(`✅ Восстановлено ${spreadData.part1.length} + ${spreadData.part2.length} карт`);
             return true;
-
         } catch (e) {
             console.warn('Ошибка восстановления расклада:', e);
             return false;
