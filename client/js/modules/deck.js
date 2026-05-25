@@ -6,9 +6,9 @@
     // --------------------------------------------
     // 1. СОСТОЯНИЕ РАСКЛАДА
     // --------------------------------------------
-    let currentPart = 'part1';           // 'part1' или 'part2' — текущая активная часть
-    let selectedCardsPart1 = [];          // Выбранные карты для первой части (максимум 5)
-    let selectedCardsPart2 = [];          // Выбранные карты для второй части (максимум 5)
+    let currentPart = 'part1';
+    let selectedCardsPart1 = [];
+    let selectedCardsPart2 = [];
     let shuffleAudio = null;
 
     // --------------------------------------------
@@ -18,60 +18,58 @@
     const CARD_IMAGES_BASE_PATH = '../images';
     const CARD_IMAGE_EXTENSION = 'jpg';
     const FALLBACK_CARD_IMAGE_SRC = `${CARD_IMAGES_BASE_PATH}/book_thoth.${CARD_IMAGE_EXTENSION}`;
-    const SHUFFLE_VOLUME = 0.8;          // 80% громкости
+    const SHUFFLE_VOLUME = 0.8;
 
     // --------------------------------------------
     // 3. ДАННЫЕ КОЛОД
     // --------------------------------------------
-    let majorDeck = [];                   // Старшие Арканы (22 карты, id 0-21)
-    let minorDeck = [];                   // Остальные карты (56 карт, id 22-77)
-    let currentDeckCards = [];            // Текущие карты в колоде (для отображения)
+    let majorDeck = [];
+    let minorDeck = [];
+    let currentDeckCards = [];
 
     // --------------------------------------------
-    // 4. КЕШИРУЕМЫЕ DOM-ЭЛЕМЕНТЫ
+    // 4. КЕШИРУЕМЫЕ DOM-ЭЛЕМЕНТЫ СТРАНИЦЫ ВЫБОРА
     // --------------------------------------------
-    let deckContainer = null;             // Контейнер всей колоды
-    let part1Grid = null;                 // Сетка позиций первой части
-    let part2Grid = null;                 // Сетка позиций второй части
-    let shuffleBtn = null;                // Кнопка тасовки
-    let deckTitleElement = null;          // Заголовок колоды
-    let deckCardsContainer = null;        // Контейнер для карт в колоде
-    let deckStatsElement = null;          // Блок статистики колоды
-    let remainingCountElement = null;     // Счётчик оставшихся карт
-    let selectedCountElement = null;      // Счётчик выбранных карт
+    let deckContainer = null;
+    let part1Grid = null;
+    let part2Grid = null;
+    let shuffleBtn = null;
+    let deckTitleElement = null;
+    let deckCardsContainer = null;
+    let deckStatsElement = null;
+    let remainingCountElement = null;
+    let selectedCountElement = null;
 
-    // Дополнительные элементы страницы выбора карт
-    let spreadPositionsElement = null;    // Контейнер для позиций расклада
-    let part1ContainerElement = null;     // Контейнер для первой части позиций
-    let part2ContainerElement = null;     // Контейнер для второй части позиций
-    let partOneDescriptionElement = null; // Описание первой части
-    let partTwoDescriptionElement = null; // Описание второй части
-
-    // Элементы страницы результата (кешируются при восстановлении)
-    let resultPart1Grid = null;          // Сетка позиций первой части на странице результата
-    let resultPart2Grid = null;          // Сетка позиций второй части на странице результата
-    let resultPartOneDescription = null; // Описание первой части на странице результата
-    let resultPartTwoDescription = null; // Описание второй части на странице результата
-    let resultQuestionSpan = null;       // Поле вопроса на странице результата
+    let spreadPositionsElement = null;
+    let part1ContainerElement = null;
+    let part2ContainerElement = null;
+    let partOneDescriptionElement = null;
+    let partTwoDescriptionElement = null;
 
     // --------------------------------------------
-    // 5. ФЛАГИ СОСТОЯНИЯ
+    // 5. КЕШИРУЕМЫЕ DOM-ЭЛЕМЕНТЫ СТРАНИЦЫ РЕЗУЛЬТАТА
     // --------------------------------------------
-    let isShuffling = false;              // Блокировка во время тасовки
-    let isSpreadStarted = false;          // Начат ли выбор карт
+    let resultPart1Grid = null;
+    let resultPart2Grid = null;
+    let resultPartOneDescriptionElement = null;
+    let resultPartTwoDescriptionElement = null;
+    let resultQuestionElement = null;
+
+    // --------------------------------------------
+    // 6. ФЛАГИ СОСТОЯНИЯ
+    // --------------------------------------------
+    let isShuffling = false;
+    let isSpreadStarted = false;
 
     // ============================================
-    // 6. ПРИВЯЗКА К DOM И СБРОС UI
+    // 7. ПРИВЯЗКА К DOM
     // ============================================
 
-    /**
-     * Находит все нужные DOM-элементы страницы выбора карт и сохраняет их.
-     * @returns {boolean} true, если все элементы найдены
-     */
     function bindDeckDomElements() {
         deckContainer = document.getElementById('deck-container');
         part1Grid = document.getElementById('select-part1-grid');
         part2Grid = document.getElementById('select-part2-grid');
+
         shuffleBtn = document.getElementById('shuffle-btn');
         deckTitleElement = document.getElementById('deck-title');
         deckCardsContainer = document.getElementById('deck-cards');
@@ -103,51 +101,64 @@
         );
     }
 
-    /**
-     * Привязывает DOM-элементы страницы результата.
-     * @returns {boolean} true, если все элементы найдены
-     */
     function bindResultDomElements() {
         resultPart1Grid = document.getElementById('result-part1-grid');
         resultPart2Grid = document.getElementById('result-part2-grid');
-        resultPartOneDescription = document.getElementById('result-partOneDescription');
-        resultPartTwoDescription = document.getElementById('result-partTwoDescription');
-        resultQuestionSpan = document.getElementById('result-displayed-question');
+        resultPartOneDescriptionElement = document.getElementById('result-partOneDescription');
+        resultPartTwoDescriptionElement = document.getElementById('result-partTwoDescription');
+        resultQuestionElement = document.getElementById('result-displayed-question');
 
         return Boolean(
             resultPart1Grid &&
             resultPart2Grid &&
-            resultPartOneDescription &&
-            resultPartTwoDescription &&
-            resultQuestionSpan
+            resultPartOneDescriptionElement &&
+            resultPartTwoDescriptionElement &&
+            resultQuestionElement
         );
     }
 
-    /**
-     * Сбрасывает визуальное состояние колоды к начальному.
-     * Не изменяет данные расклада (карты, текущую часть).
-     */
+    // ============================================
+    // 8. UI HELPERS
+    // ============================================
+
     function resetDeckUi() {
         if (deckTitleElement) {
             deckTitleElement.textContent = '🃟 Старшие Арканы';
         }
+
         if (deckCardsContainer) {
             deckCardsContainer.innerHTML = '';
         }
+
         if (remainingCountElement) {
             remainingCountElement.textContent = '22';
         }
+
         if (selectedCountElement) {
             selectedCountElement.textContent = '0 / 5';
         }
+
         if (shuffleBtn) {
             shuffleBtn.disabled = false;
             shuffleBtn.onclick = () => shuffleDeck();
         }
     }
 
+    function scheduleDeckHeightAlignment(delay = 0) {
+        const run = () => {
+            requestAnimationFrame(() => alignDeckHeight());
+        };
+
+        if (delay > 0) {
+            setTimeout(run, delay);
+            return;
+        }
+
+        run();
+    }
+
     // ============================================
-    // 7. HELPER-ФУНКЦИИ ДЛЯ ЧАСТЕЙ РАСКЛАДА
+    // 9. PART HELPERS
     // ============================================
 
     function getGridByPart(part) {
@@ -162,18 +173,79 @@
         return part === 'part1' ? partOneDescriptionElement : partTwoDescriptionElement;
     }
 
+    function getResultGridByPart(part) {
+        return part === 'part1' ? resultPart1Grid : resultPart2Grid;
+    }
+
+    function getResultDescriptionElementByPart(part) {
+        return part === 'part1'
+            ? resultPartOneDescriptionElement
+            : resultPartTwoDescriptionElement;
+    }
+
     function setPartDescription(part, text) {
         const descriptionElement = getDescriptionElementByPart(part);
-        if (descriptionElement) {
-            descriptionElement.textContent = text;
+
+        if (!descriptionElement) {
+            return;
         }
+
+        descriptionElement.textContent = text;
+    }
+
+    function setResultPartDescription(part, text) {
+        const descriptionElement = getResultDescriptionElementByPart(part);
+
+        if (!descriptionElement) {
+            return;
+        }
+
+        descriptionElement.textContent = text;
+    }
+
+    function setResultQuestion(question) {
+        if (!resultQuestionElement) {
+            return;
+        }
+
+        resultQuestionElement.textContent = question || '';
     }
 
     function showAllPartContainers() {
         const part1Container = getPartContainerByPart('part1');
         const part2Container = getPartContainerByPart('part2');
-        if (part1Container) part1Container.style.display = 'block';
-        if (part2Container) part2Container.style.display = 'block';
+
+        if (part1Container) {
+            part1Container.style.display = 'block';
+        }
+
+        if (part2Container) {
+            part2Container.style.display = 'block';
+        }
+    }
+
+    function getPart1PositionTitle(index) {
+        const titles = [
+            '🔹 Будущее',
+            '🔹 Настоящее',
+            '🔹 Прошлое',
+            '🔹 Содействие',
+            '🔹 Противодействие'
+        ];
+
+        return titles[index];
+    }
+
+    function getPart2PositionTitle(index) {
+        const titles = [
+            '🔹 Дом Целей',
+            '🔹 Дом Мысли',
+            '🔹 Дом Бремени',
+            '🔹 Дом Силы и Поддержки',
+            '🔹 Дом Контроля и Подавления'
+        ];
+
+        return titles[index];
     }
 
     function getPositionTitleByPart(part, index) {
@@ -192,23 +264,36 @@
                 return PART_TWO_POSITIONS[positionIndex];
             }
         }
+
         return getPositionTitleByPart(part, positionIndex);
     }
 
-    function applyPartDescriptions(logContext = '') {
+    function applySelectPartDescriptions(logContext = '') {
         const suffix = logContext ? ` (${logContext})` : '';
+
         if (typeof PART_ONE_DESCRIPTION !== 'undefined') {
             setPartDescription('part1', PART_ONE_DESCRIPTION);
             console.log(`✅ Добавлено описание первой части${suffix}`);
         }
+
         if (typeof PART_TWO_DESCRIPTION !== 'undefined') {
             setPartDescription('part2', PART_TWO_DESCRIPTION);
             console.log(`✅ Добавлено описание второй части${suffix}`);
         }
     }
 
+    function applyResultPartDescriptions() {
+        if (typeof PART_ONE_DESCRIPTION !== 'undefined') {
+            setResultPartDescription('part1', PART_ONE_DESCRIPTION);
+        }
+
+        if (typeof PART_TWO_DESCRIPTION !== 'undefined') {
+            setResultPartDescription('part2', PART_TWO_DESCRIPTION);
+        }
+    }
+
     // ============================================
-    // 8. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ДЛЯ ПУТЕЙ
+    // 10. PATH / AUDIO HELPERS
     // ============================================
 
     function getCardImagePath(cardId) {
@@ -226,73 +311,115 @@
     }
 
     // ============================================
-    // 9. ИНИЦИАЛИЗАЦИЯ МОДУЛЯ
+    // 11. STORAGE HELPERS
     // ============================================
 
-    function initDeckModule() {
-        console.log('🃟 Инициализация модуля колод');
+    function hasValidSpreadData(spreadData) {
+        return Boolean(
+            spreadData &&
+            Array.isArray(spreadData.part1) &&
+            Array.isArray(spreadData.part2)
+        );
+    }
 
-        if (!bindDeckDomElements()) {
-            console.error('Ошибка: не найдены элементы для колод');
-            return false;
+    function readSavedSpreadData() {
+        const savedSpread = localStorage.getItem('tarot_last_complete_spread');
+
+        if (!savedSpread) {
+            return null;
         }
 
-        resetDeckUi();
+        try {
+            const spreadData = JSON.parse(savedSpread);
 
-        if (!shuffleAudio) {
-            initShuffleSound();
+            if (!hasValidSpreadData(spreadData)) {
+                return null;
+            }
+
+            return spreadData;
+        } catch (error) {
+            console.warn('Ошибка чтения сохранённого расклада:', error);
+            return null;
         }
+    }
 
-        // Пытаемся восстановить сохранённый расклад
-        if (restoreSavedSpread()) {
-            console.log('✅ Модуль колод: восстановлен сохранённый расклад');
-            setTimeout(() => requestAnimationFrame(() => alignDeckHeight()), 100);
-            return true;
-        }
+    function hydrateStoredCards(cards) {
+        return cards.map((card) => ({
+            ...card,
+            isReversed: Boolean(card.isReversed),
+            isSelected: true
+        }));
+    }
 
-        console.log('🃟 Создаём новый расклад...');
+    function serializeCards(cards) {
+        return cards.map((card) => ({
+            id: card.id,
+            name: card.name,
+            upright: card.upright,
+            reversed: card.reversed,
+            isReversed: card.isReversed
+        }));
+    }
 
+    // ============================================
+    // 12. STATE HELPERS
+    // ============================================
+
+    function resetDeckState() {
         selectedCardsPart1 = [];
         selectedCardsPart2 = [];
         currentDeckCards = [];
         currentPart = 'part1';
-
-        initDecks();
-        createEmptyPositions();
-        showAllPartContainers();
-        applyPartDescriptions();
-
-        showPart1();
-
-        isSpreadStarted = true;
-        console.log('✅ Модуль колод инициализирован, можно начинать выбор');
-
-        setTimeout(() => requestAnimationFrame(() => alignDeckHeight()), 100);
-
-        return true;
+        isShuffling = false;
+        isSpreadStarted = false;
     }
-
-    // ============================================
-    // 10. РАБОТА С КОЛОДАМИ
-    // ============================================
 
     function initDecks() {
         majorDeck = tarotDeck
-            .filter(card => card.id >= 0 && card.id <= 21)
-            .map(card => ({ ...card, isReversed: false, isSelected: false }));
+            .filter((card) => card.id >= 0 && card.id <= 21)
+            .map((card) => ({
+                ...card,
+                isReversed: false,
+                isSelected: false
+            }));
 
         minorDeck = tarotDeck
-            .filter(card => card.id >= 22 && card.id <= 77)
-            .map(card => ({ ...card, isReversed: false, isSelected: false }));
+            .filter((card) => card.id >= 22 && card.id <= 77)
+            .map((card) => ({
+                ...card,
+                isReversed: false,
+                isSelected: false
+            }));
 
         console.log(`🃟 Колоды созданы: Старшие Арканы — ${majorDeck.length} карт, остальные — ${minorDeck.length} карт`);
+    }
+
+    // ============================================
+    // 13. RENDER HELPERS
+    // ============================================
+
+    function createEmptySlot(title) {
+        const div = document.createElement('div');
+        div.className = 'empty-position';
+        div.setAttribute('data-position', title);
+
+        const p = document.createElement('p');
+        p.textContent = title;
+
+        div.appendChild(p);
+        return div;
     }
 
     function createEmptyPositions() {
         ['part1', 'part2'].forEach((part) => {
             const grid = getGridByPart(part);
-            if (!grid) return;
+
+            if (!grid) {
+                return;
+            }
+
             grid.innerHTML = '';
+
             for (let i = 0; i < 5; i++) {
                 const emptySlot = createEmptySlot(getPositionTitleByPart(part, i));
                 grid.appendChild(emptySlot);
@@ -300,39 +427,13 @@
         });
     }
 
-    function createEmptySlot(title) {
-        const div = document.createElement('div');
-        div.className = 'empty-position';
-        div.setAttribute('data-position', title);
-        const p = document.createElement('p');
-        p.textContent = title;
-        div.appendChild(p);
-        return div;
-    }
-
-    function getPart1PositionTitle(index) {
-        const titles = [
-            '🔹 Будущее', '🔹 Настоящее', '🔹 Прошлое',
-            '🔹 Содействие', '🔹 Противодействие'
-        ];
-        return titles[index];
-    }
-
-    function getPart2PositionTitle(index) {
-        const titles = [
-            '🔹 Дом Целей', '🔹 Дом Мысли', '🔹 Дом Бремени',
-            '🔹 Дом Силы и Поддержки', '🔹 Дом Контроля и Подавления'
-        ];
-        return titles[index];
-    }
-
-    // ============================================
-    // 11. РЕНДЕР И СТАТИСТИКА
-    // ============================================
-
     function renderDeck(cards) {
-        if (!deckCardsContainer) return;
+        if (!deckCardsContainer) {
+            return;
+        }
+
         deckCardsContainer.innerHTML = '';
+
         cards.forEach((card, index) => {
             const cardElement = document.createElement('div');
             cardElement.className = 'deck-card';
@@ -341,154 +442,36 @@
             cardElement.onclick = () => selectCard(index);
             deckCardsContainer.appendChild(cardElement);
         });
+
         updateStats();
     }
 
     function updateStats() {
-        if (!remainingCountElement || !selectedCountElement) return;
+        if (!remainingCountElement || !selectedCountElement) {
+            return;
+        }
+
         remainingCountElement.textContent = currentDeckCards.length;
+
         const selectedCount = currentPart === 'part1'
             ? selectedCardsPart1.length
             : selectedCardsPart2.length;
+
         selectedCountElement.textContent = `${selectedCount} / 5`;
     }
 
-    // ============================================
-    // 12. ПОКАЗ ЧАСТЕЙ РАСКЛАДА
-    // ============================================
-
-    function showPart1() {
-        currentPart = 'part1';
-        currentDeckCards = majorDeck.map(card => ({ ...card, isReversed: false, isSelected: false }));
-        shuffleDeck(true);
-        if (deckTitleElement) {
-            deckTitleElement.textContent = '🃟 Старшие Арканы (22 карты)';
-        }
-        console.log('🃟 Показана первая часть расклада, колода перетасована');
-        setTimeout(() => requestAnimationFrame(() => alignDeckHeight()), 150);
-    }
-
-    function showPart2() {
-        currentPart = 'part2';
-        currentDeckCards = minorDeck.map(card => ({ ...card, isReversed: false, isSelected: false }));
-        shuffleDeck(true);
-        if (deckTitleElement) {
-            deckTitleElement.textContent = '🃟 Остальные карты (56 карт)';
-        }
-        updateStats();
-        if (shuffleBtn) shuffleBtn.disabled = false;
-        isShuffling = false;
-        console.log('🃟 Показана вторая часть расклада, колода перетасована');
-        setTimeout(() => requestAnimationFrame(() => alignDeckHeight()), 150);
-    }
-
-    // ============================================
-    // 13. ТАСОВКА
-    // ============================================
-
-    function shuffleDeck(isInitial = false) {
-        if (isShuffling) {
-            console.warn('Тасовка уже выполняется');
+    function renderCardsToGrid(cards, grid, part) {
+        if (!grid) {
             return;
         }
-        console.log('🃟 Тасуем колоду...');
-        isShuffling = true;
-        if (!isInitial && shuffleBtn) shuffleBtn.disabled = true;
-        if (deckCardsContainer) deckCardsContainer.classList.add('shuffling');
-        playShuffleSound();
-        setTimeout(() => {
-            currentDeckCards = currentDeckCards.map(card => ({ ...card, isReversed: Math.random() < 0.5 }));
-            for (let i = currentDeckCards.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [currentDeckCards[i], currentDeckCards[j]] = [currentDeckCards[j], currentDeckCards[i]];
-            }
-            renderDeck(currentDeckCards);
-            if (deckCardsContainer) deckCardsContainer.classList.remove('shuffling');
-            if (!isInitial && shuffleBtn) shuffleBtn.disabled = false;
-            isShuffling = false;
-            console.log('🃟 Колода перетасована');
-        }, 3000);
-    }
 
-    // ============================================
-    // 14. ЗВУКОВЫЕ ЭФФЕКТЫ
-    // ============================================
+        grid.innerHTML = '';
 
-    function initShuffleSound() {
-        try {
-            shuffleAudio = createShuffleAudio();
-            shuffleAudio.load();
-            console.log('🔊 Звук тасовки предзагружен');
-        } catch (e) {
-            console.warn('⚠️ Ошибка при загрузке звука:', e);
-        }
-    }
-
-    function playShuffleSound() {
-        if (shuffleAudio) {
-            shuffleAudio.currentTime = 0;
-            shuffleAudio.play().catch(e => console.log('🔇', e));
-        } else {
-            const audio = createShuffleAudio();
-            audio.play().catch(e => console.log('🔇', e));
-        }
-    }
-
-    // ============================================
-    // 15. ВЫБОР КАРТ И ПОЗИЦИИ
-    // ============================================
-
-    function selectCard(index) {
-        if (isShuffling) return;
-        const card = currentDeckCards[index];
-        if (!card || card.isSelected) return;
-
-        const selectedCount = currentPart === 'part1'
-            ? selectedCardsPart1.length
-            : selectedCardsPart2.length;
-        if (selectedCount >= 5) return;
-
-        if (selectedCount === 0 && shuffleBtn) shuffleBtn.disabled = true;
-        console.log(`🃟 Выбрана карта: ${card.name} (${card.isReversed ? 'перевёрнутая' : 'прямая'})`);
-        card.isSelected = true;
-        currentDeckCards.splice(index, 1);
-
-        if (currentPart === 'part1') {
-            selectedCardsPart1.push(card);
-            addCardToPosition(card, selectedCardsPart1.length - 1, 'part1');
-        } else {
-            selectedCardsPart2.push(card);
-            addCardToPosition(card, selectedCardsPart2.length - 1, 'part2');
-        }
-
-        renderDeck(currentDeckCards);
-        requestAnimationFrame(() => alignDeckHeight());
-
-        const newSelectedCount = currentPart === 'part1'
-            ? selectedCardsPart1.length
-            : selectedCardsPart2.length;
-        if (newSelectedCount === 5) onPartComplete();
-    }
-
-    function addCardToPosition(card, positionIndex, part) {
-        const grid = getGridByPart(part);
-        if (!grid) return;
-
-        const cardElement = createCardElementForSpread(card, part, positionIndex);
-        const children = grid.children;
-        if (children[positionIndex]) {
-            grid.replaceChild(cardElement, children[positionIndex]);
-        }
-
-        requestAnimationFrame(() => {
-            alignDeckHeight();
-            requestAnimationFrame(() => alignDeckHeight());
+        cards.forEach((card, index) => {
+            const cardElement = createCardElementForSpread(card, part, index);
+            grid.appendChild(cardElement);
         });
     }
-
-    // ============================================
-    // 16. СОЗДАНИЕ ЭЛЕМЕНТА КАРТЫ
-    // ============================================
 
     function createCardElementForSpread(card, part, positionIndex) {
         const positionDescription = getPositionDescriptionByPart(part, positionIndex);
@@ -508,151 +491,232 @@
         img.src = getCardImagePath(card.id);
         img.alt = card.name;
         img.className = 'card-image';
-        img.onerror = function () {
+
+        img.onerror = function() {
             console.warn(`Изображение для карты ${card.id} (${card.name}) не найдено`);
             this.src = getFallbackCardImagePath();
             this.alt = `Изображение отсутствует: ${card.name}`;
         };
-        
-        if (card.isReversed) img.classList.add('reversed');
+
+        if (card.isReversed) {
+            img.classList.add('reversed');
+        }
+
         middleContainer.appendChild(img);
 
         const bottomContainer = document.createElement('div');
         bottomContainer.className = 'card-position-bottom';
         const descDiv = document.createElement('div');
         descDiv.className = 'card-description';
+
         const cardValue = card.isReversed ? card.reversed : card.upright;
         descDiv.textContent = `${card.name}: ${cardValue}`;
+
         bottomContainer.appendChild(descDiv);
 
         cardDiv.appendChild(topContainer);
         cardDiv.appendChild(middleContainer);
         cardDiv.appendChild(bottomContainer);
+
         return cardDiv;
     }
 
     // ============================================
-    // 17. ЗАВЕРШЕНИЕ ЧАСТЕЙ РАСКЛАДА
+    // 14. SELECT PAGE FLOW
     // ============================================
+
+    function startNewSpread() {
+        console.log('🃟 Создаём новый расклад...');
+
+        resetDeckState();
+        initDecks();
+        createEmptyPositions();
+        showAllPartContainers();
+        applySelectPartDescriptions();
+
+        showPart1();
+
+        isSpreadStarted = true;
+        console.log('✅ Модуль колод инициализирован, можно начинать выбор');
+
+        scheduleDeckHeightAlignment(100);
+        return true;
+    }
+
+    function restoreSavedSpreadOnSelectPage(spreadData) {
+        console.log('🔄 Восстанавливаем сохранённый расклад...');
+
+        resetDeckState();
+
+        selectedCardsPart1 = hydrateStoredCards(spreadData.part1);
+        selectedCardsPart2 = hydrateStoredCards(spreadData.part2);
+
+        renderCardsToGrid(selectedCardsPart1, part1Grid, 'part1');
+        renderCardsToGrid(selectedCardsPart2, part2Grid, 'part2');
+        showAllPartContainers();
+        applySelectPartDescriptions('при восстановлении');
+
+        console.log('✅ Расклад восстановлен');
+
+        scheduleDeckHeightAlignment(50);
+        return true;
+    }
+
+    function showPart1() {
+        currentPart = 'part1';
+
+        currentDeckCards = majorDeck.map((card) => ({
+            ...card,
+            isReversed: false,
+            isSelected: false
+        }));
+
+        shuffleDeck(true);
+
+        if (deckTitleElement) {
+            deckTitleElement.textContent = '🃟 Старшие Арканы (22 карты)';
+        }
+
+        console.log('🃟 Показана первая часть расклада, колода перетасована');
+        scheduleDeckHeightAlignment(150);
+    }
+
+    function showPart2() {
+        currentPart = 'part2';
+
+        currentDeckCards = minorDeck.map((card) => ({
+            ...card,
+            isReversed: false,
+            isSelected: false
+        }));
+
+        shuffleDeck(true);
+
+        if (deckTitleElement) {
+            deckTitleElement.textContent = '🃟 Остальные карты (56 карт)';
+        }
+
+        updateStats();
+
+        if (shuffleBtn) {
+            shuffleBtn.disabled = false;
+            console.log('🔓 Кнопка тасовки активирована для второй колоды');
+        }
+
+        isShuffling = false;
+
+        console.log('🃟 Показана вторая часть расклада, колода перетасована');
+        scheduleDeckHeightAlignment(150);
+    }
+
+    function selectCard(index) {
+        if (isShuffling) {
+            return;
+        }
+
+        const card = currentDeckCards[index];
+        if (!card || card.isSelected) {
+            return;
+        }
+
+        const selectedCount = currentPart === 'part1'
+            ? selectedCardsPart1.length
+            : selectedCardsPart2.length;
+
+        if (selectedCount >= 5) {
+            return;
+        }
+
+        if (selectedCount === 0 && shuffleBtn) {
+            shuffleBtn.disabled = true;
+            console.log('🔒 Кнопка тасовки заблокирована (первая карта выбрана)');
+        }
+
+        console.log(`🃟 Выбрана карта: ${card.name} (${card.isReversed ? 'перевёрнутая' : 'прямая'})`);
+
+        card.isSelected = true;
+        currentDeckCards.splice(index, 1);
+
+        if (currentPart === 'part1') {
+            selectedCardsPart1.push(card);
+            addCardToPosition(card, selectedCardsPart1.length - 1, 'part1');
+        } else {
+            selectedCardsPart2.push(card);
+            addCardToPosition(card, selectedCardsPart2.length - 1, 'part2');
+        }
+
+        renderDeck(currentDeckCards);
+        scheduleDeckHeightAlignment();
+
+        const newSelectedCount = currentPart === 'part1'
+            ? selectedCardsPart1.length
+            : selectedCardsPart2.length;
+
+        if (newSelectedCount === 5) {
+            onPartComplete();
+        }
+    }
+
+    function addCardToPosition(card, positionIndex, part) {
+        const grid = getGridByPart(part);
+
+        if (!grid) {
+            return;
+        }
+
+        const cardElement = createCardElementForSpread(card, part, positionIndex);
+        const children = grid.children;
+
+        if (children[positionIndex]) {
+            grid.replaceChild(cardElement, children[positionIndex]);
+        }
+
+        scheduleDeckHeightAlignment();
+    }
 
     function onPartComplete() {
         if (currentPart === 'part1') {
             console.log('✅ Первая часть завершена! Переход ко второй части...');
             showPart2();
-            setTimeout(() => requestAnimationFrame(() => alignDeckHeight()), 100);
-        } else {
-            console.log('✅ Весь расклад завершён!');
-            onSpreadComplete();
+            scheduleDeckHeightAlignment(100);
+            return;
         }
+
+        console.log('✅ Весь расклад завершён!');
+        onSpreadComplete();
     }
 
     function onSpreadComplete() {
         console.log('🎉 Расклад завершён! Переход на страницу результата...');
+
         saveCompleteSpread();
+
         if (typeof window.goToResultPage === 'function') {
             window.goToResultPage();
-        } else {
-            console.error('Ошибка: функция goToResultPage не найдена');
+            return;
         }
-    }
 
-    function saveCompleteSpread() {
-        const currentQuestion = localStorage.getItem('tarot_last_question') || '';
-        const spreadData = {
-            question: currentQuestion,
-            timestamp: Date.now(),
-            part1: selectedCardsPart1.map(card => ({
-                id: card.id, name: card.name,
-                upright: card.upright, reversed: card.reversed,
-                isReversed: card.isReversed
-            })),
-            part2: selectedCardsPart2.map(card => ({
-                id: card.id, name: card.name,
-                upright: card.upright, reversed: card.reversed,
-                isReversed: card.isReversed
-            }))
-        };
-        localStorage.setItem('tarot_last_complete_spread', JSON.stringify(spreadData));
-        localStorage.setItem('tarot_last_question', currentQuestion);
-        console.log('💾 Расклад сохранён в localStorage');
+        console.error('Ошибка: функция goToResultPage не найдена');
     }
 
     // ============================================
-    // 18. ВОССТАНОВЛЕНИЕ РАСКЛАДА
+    // 15. RESULT PAGE FLOW
     // ============================================
 
-    function restoreSavedSpread() {
-        const savedSpread = localStorage.getItem('tarot_last_complete_spread');
-        if (!savedSpread) return false;
-        try {
-            const spreadData = JSON.parse(savedSpread);
-            if (!spreadData.part1 || !spreadData.part2) return false;
-            console.log('🔄 Восстанавливаем сохранённый расклад...');
+    function renderResultSpread(spreadData) {
+        setResultQuestion(spreadData.question);
+        applyResultPartDescriptions();
 
-            selectedCardsPart1 = spreadData.part1.map(card => ({
-                ...card, isReversed: card.isReversed || false, isSelected: true
-            }));
-            selectedCardsPart2 = spreadData.part2.map(card => ({
-                ...card, isReversed: card.isReversed || false, isSelected: true
-            }));
+        renderCardsToGrid(spreadData.part1, getResultGridByPart('part1'), 'part1');
+        renderCardsToGrid(spreadData.part2, getResultGridByPart('part2'), 'part2');
 
-            restoreCardsToPositions(selectedCardsPart1, 'part1');
-            restoreCardsToPositions(selectedCardsPart2, 'part2');
-            showAllPartContainers();
-            applyPartDescriptions('при восстановлении');
-
-            console.log('✅ Расклад восстановлен');
-            return true;
-        } catch (e) {
-            console.warn('Ошибка восстановления расклада:', e);
-            return false;
-        }
+        console.log(`✅ Восстановлено ${spreadData.part1.length} + ${spreadData.part2.length} карт`);
     }
-
-    function restoreCardsToPositions(cards, part) {
-        const grid = getGridByPart(part);
-        if (!grid) return;
-        grid.innerHTML = '';
-        cards.forEach((card, index) => {
-            const cardElement = createCardElementForSpread(card, part, index);
-            grid.appendChild(cardElement);
-        });
-        setTimeout(() => requestAnimationFrame(() => alignDeckHeight()), 50);
-    }
-
-    // ============================================
-    // 19. ВЫРАВНИВАНИЕ ВЫСОТЫ КОЛОДЫ
-    // ============================================
-
-    function alignDeckHeight() {
-        if (!spreadPositionsElement || !deckContainer) return;
-        const positionsHeight = spreadPositionsElement.offsetHeight;
-        deckContainer.style.height = positionsHeight + 'px';
-
-        if (!deckCardsContainer) return;
-
-        let otherHeight = 0;
-        if (deckTitleElement) otherHeight += deckTitleElement.offsetHeight;
-        if (deckStatsElement) otherHeight += deckStatsElement.offsetHeight;
-        if (shuffleBtn) otherHeight += shuffleBtn.offsetHeight;
-        otherHeight += 95; // отступы и запас
-
-        const cardsMaxHeight = positionsHeight - otherHeight;
-        deckCardsContainer.style.maxHeight = Math.max(cardsMaxHeight, 200) + 'px';
-        deckCardsContainer.style.overflowY = 'auto';
-
-        console.log(`📐 Высота колоды: ${positionsHeight}px`);
-        console.log(`📐 Высота контейнера карт: ${deckCardsContainer.style.maxHeight}`);
-        console.log(`📐 Высота других элементов: ${otherHeight}px`);
-    }
-
-    // ============================================
-    // 20. ВОССТАНОВЛЕНИЕ НА СТРАНИЦЕ РЕЗУЛЬТАТА
-    // ============================================
 
     function restoreResultSpread() {
-        const savedSpread = localStorage.getItem('tarot_last_complete_spread');
-        if (!savedSpread) {
+        const spreadData = readSavedSpreadData();
+
+        if (!spreadData) {
             console.warn('⚠️ Нет сохранённого расклада');
             return false;
         }
@@ -663,68 +727,201 @@
         }
 
         try {
-            const spreadData = JSON.parse(savedSpread);
-            if (!spreadData.part1 || !spreadData.part2) return false;
-
             console.log('🔄 Восстанавливаем расклад на странице результата...');
-
-            if (resultQuestionSpan && spreadData.question) {
-                resultQuestionSpan.textContent = spreadData.question;
-                console.log('📝 Вопрос восстановлен:', spreadData.question);
-            }
-
-            if (typeof PART_ONE_DESCRIPTION !== 'undefined') {
-                resultPartOneDescription.textContent = PART_ONE_DESCRIPTION;
-            }
-            if (typeof PART_TWO_DESCRIPTION !== 'undefined') {
-                resultPartTwoDescription.textContent = PART_TWO_DESCRIPTION;
-            }
-
-            resultPart1Grid.innerHTML = '';
-            resultPart2Grid.innerHTML = '';
-
-            spreadData.part1.forEach((card, index) => {
-                const cardElement = createCardElementForSpread(card, 'part1', index);
-                resultPart1Grid.appendChild(cardElement);
-            });
-            spreadData.part2.forEach((card, index) => {
-                const cardElement = createCardElementForSpread(card, 'part2', index);
-                resultPart2Grid.appendChild(cardElement);
-            });
-
-            console.log(`✅ Восстановлено ${spreadData.part1.length} + ${spreadData.part2.length} карт`);
+            renderResultSpread(spreadData);
             return true;
-        } catch (e) {
-            console.warn('Ошибка восстановления расклада:', e);
+        } catch (error) {
+            console.warn('Ошибка восстановления расклада:', error);
             return false;
         }
     }
 
     // ============================================
-    // 21. СБРОС МОДУЛЯ
+    // 16. СОХРАНЕНИЕ
+    // ============================================
+
+    function saveCompleteSpread() {
+        const currentQuestion = localStorage.getItem('tarot_last_question') || '';
+
+        const spreadData = {
+            question: currentQuestion,
+            timestamp: Date.now(),
+            part1: serializeCards(selectedCardsPart1),
+            part2: serializeCards(selectedCardsPart2)
+        };
+
+        localStorage.setItem('tarot_last_complete_spread', JSON.stringify(spreadData));
+        localStorage.setItem('tarot_last_question', currentQuestion);
+
+        console.log('💾 Расклад сохранён в localStorage');
+    }
+
+    // ============================================
+    // 17. ТАСОВКА И ЗВУК
+    // ============================================
+
+    function initShuffleSound() {
+        try {
+            shuffleAudio = createShuffleAudio();
+            shuffleAudio.load();
+            console.log('🔊 Звук тасовки предзагружен');
+        } catch (error) {
+            console.warn('⚠️ Ошибка при загрузке звука:', error);
+        }
+    }
+
+    function playShuffleSound() {
+        if (shuffleAudio) {
+            shuffleAudio.currentTime = 0;
+            shuffleAudio.play().catch((error) => console.log('🔇', error));
+            return;
+        }
+
+        const audio = createShuffleAudio();
+        audio.play().catch((error) => console.log('🔇', error));
+    }
+
+    function shuffleDeck(isInitial = false) {
+        if (isShuffling) {
+            console.warn('Тасовка уже выполняется');
+            return;
+        }
+
+        console.log('🃟 Тасуем колоду...');
+        isShuffling = true;
+
+        if (!isInitial && shuffleBtn) {
+            shuffleBtn.disabled = true;
+        }
+
+        if (deckCardsContainer) {
+            deckCardsContainer.classList.add('shuffling');
+        }
+
+        playShuffleSound();
+
+        setTimeout(() => {
+            currentDeckCards = currentDeckCards.map((card) => ({
+                ...card,
+                isReversed: Math.random() < 0.5
+            }));
+
+            for (let i = currentDeckCards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [currentDeckCards[i], currentDeckCards[j]] = [currentDeckCards[j], currentDeckCards[i]];
+            }
+
+            renderDeck(currentDeckCards);
+
+            if (deckCardsContainer) {
+                deckCardsContainer.classList.remove('shuffling');
+            }
+
+            if (!isInitial && shuffleBtn) {
+                shuffleBtn.disabled = false;
+            }
+
+            isShuffling = false;
+            console.log('🃟 Колода перетасована');
+        }, 3000);
+    }
+
+    // ============================================
+    // 18. ВЫРАВНИВАНИЕ ВЫСОТЫ КОЛОДЫ
+    // ============================================
+
+    function alignDeckHeight() {
+        if (!spreadPositionsElement || !deckContainer) {
+            return;
+        }
+
+        const positionsHeight = spreadPositionsElement.offsetHeight;
+        deckContainer.style.height = `${positionsHeight}px`;
+
+        if (!deckCardsContainer) {
+            return;
+        }
+
+        let otherHeight = 0;
+
+        if (deckTitleElement) {
+            otherHeight += deckTitleElement.offsetHeight;
+        }
+
+        if (deckStatsElement) {
+            otherHeight += deckStatsElement.offsetHeight;
+        }
+
+        if (shuffleBtn) {
+            otherHeight += shuffleBtn.offsetHeight;
+        }
+
+        otherHeight += 95;
+
+        const cardsMaxHeight = positionsHeight - otherHeight;
+        deckCardsContainer.style.maxHeight = `${Math.max(cardsMaxHeight, 200)}px`;
+        deckCardsContainer.style.overflowY = 'auto';
+
+        console.log(`📐 Высота колоды: ${positionsHeight}px`);
+        console.log(`📐 Высота контейнера карт: ${deckCardsContainer.style.maxHeight}`);
+        console.log(`📐 Высота других элементов: ${otherHeight}px`);
+    }
+
+    // ============================================
+    // 19. ИНИЦИАЛИЗАЦИЯ МОДУЛЯ
+    // ============================================
+
+    function initDeckModule() {
+        console.log('🃟 Инициализация модуля колод');
+
+        if (!bindDeckDomElements()) {
+            console.error('Ошибка: не найдены элементы для колод');
+            return false;
+        }
+
+        resetDeckUi();
+
+        if (!shuffleAudio) {
+            initShuffleSound();
+        }
+
+        const spreadData = readSavedSpreadData();
+        if (spreadData) {
+            console.log('✅ Модуль колод: найден сохранённый расклад');
+            return restoreSavedSpreadOnSelectPage(spreadData);
+        }
+
+        return startNewSpread();
+    }
+
+    // ============================================
+    // 20. СБРОС МОДУЛЯ
     // ============================================
 
     function resetDeckModule() {
         console.log('🃟 Сброс состояния колод...');
-        selectedCardsPart1 = [];
-        selectedCardsPart2 = [];
-        currentDeckCards = [];
-        currentPart = 'part1';
-        if (part1Grid) part1Grid.innerHTML = '';
-        if (part2Grid) part2Grid.innerHTML = '';
+
+        resetDeckState();
+
+        if (part1Grid) {
+            part1Grid.innerHTML = '';
+        }
+
+        if (part2Grid) {
+            part2Grid.innerHTML = '';
+        }
+
         resetDeckUi();
-        isShuffling = false;
-        isSpreadStarted = false;
+
         console.log('✅ Состояние колод сброшено');
     }
 
     // ============================================
-    // 22. ЭКСПОРТ ПУБЛИЧНОГО API
+    // 21. ПУБЛИЧНЫЙ API
     // ============================================
 
     window.initDeckModule = initDeckModule;
     window.resetDeckModule = resetDeckModule;
     window.alignDeckHeight = alignDeckHeight;
     window.restoreResultSpread = restoreResultSpread;
-
 })();
