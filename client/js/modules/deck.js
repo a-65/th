@@ -60,6 +60,7 @@
     // --------------------------------------------
     let isShuffling = false;
     let isSpreadStarted = false;
+    let isResultDomBound = false;
 
     // ============================================
     // 7. ПРИВЯЗКА К DOM
@@ -116,6 +117,20 @@
             resultQuestionElement
         );
     }
+
+    function ensureResultDomElementsBound() {
+        if (isResultDomBound) {
+            return true;
+        }
+
+        const isBound = bindResultDomElements();
+
+        if (isBound) {
+            isResultDomBound = true;
+        }
+
+        return isBound;
+    }   
 
     // ============================================
     // 8. UI HELPERS
@@ -562,51 +577,57 @@
         return true;
     }
 
-    function showPart1() {
-        currentPart = 'part1';
-
-        currentDeckCards = majorDeck.map((card) => ({
+    function cloneDeckCards(sourceDeck) {
+        return sourceDeck.map((card) => ({
             ...card,
             isReversed: false,
             isSelected: false
         }));
-
-        shuffleDeck(true);
-
-        if (deckTitleElement) {
-            deckTitleElement.textContent = '🃟 Старшие Арканы (22 карты)';
-        }
-
-        console.log('🃟 Показана первая часть расклада, колода перетасована');
-        scheduleDeckHeightAlignment(150);
     }
 
-    function showPart2() {
-        currentPart = 'part2';
+    function showDeckForPart(part, options) {
+        const {
+            sourceDeck,
+            title,
+            logMessage
+        } = options;
 
-        currentDeckCards = minorDeck.map((card) => ({
-            ...card,
-            isReversed: false,
-            isSelected: false
-        }));
+        currentPart = part;
+        currentDeckCards = cloneDeckCards(sourceDeck);
 
         shuffleDeck(true);
 
         if (deckTitleElement) {
-            deckTitleElement.textContent = '🃟 Остальные карты (56 карт)';
+            deckTitleElement.textContent = title;
         }
 
         updateStats();
 
         if (shuffleBtn) {
             shuffleBtn.disabled = false;
-            console.log('🔓 Кнопка тасовки активирована для второй колоды');
         }
 
-        isShuffling = false;
-
-        console.log('🃟 Показана вторая часть расклада, колода перетасована');
+        console.log(logMessage);
         scheduleDeckHeightAlignment(150);
+    }
+
+
+    function showPart1() {
+        showDeckForPart('part1', {
+            sourceDeck: majorDeck,
+            title: '🃟 Старшие Арканы (22 карты)',
+            logMessage: '🃟 Показана первая часть расклада, колода перетасована'
+        });
+    }
+
+    function showPart2() {
+        showDeckForPart('part2', {
+            sourceDeck: minorDeck,
+            title: '🃟 Остальные карты (56 карт)',
+            logMessage: '🃟 Показана вторая часть расклада, колода перетасована'
+        });
+
+        console.log('🔓 Кнопка тасовки активирована для второй колоды');
     }
 
     function selectCard(index) {
@@ -721,7 +742,7 @@
             return false;
         }
 
-        if (!bindResultDomElements()) {
+        if (!ensureResultDomElementsBound()) {
             console.error('❌ Сетки для карт результата не найдены');
             return false;
         }
@@ -913,6 +934,8 @@
 
         resetDeckUi();
 
+        isResultDomBound = false;
+        
         console.log('✅ Состояние колод сброшено');
     }
 
