@@ -1,170 +1,198 @@
-// ============================================
-// modules/navigation.js — УПРАВЛЕНИЕ НАВИГАЦИЕЙ
-// ============================================
+(() => {
+    // ============================================
+    // modules/navigation.js — УПРАВЛЕНИЕ НАВИГАЦИЕЙ
+    // ============================================
 
-const allPages = [
-    {
-        id: 'page-welcome',
-        buttonText: '«Таро Гранд Эттейла»',
-        buttonIcon: '✨',
-        buttonId: 'nav-to-welcome'
-    },
-    {
-        id: 'page-history',
-        buttonText: 'История «Таро Гранд Эттейла»',
-        buttonIcon: '📜',
-        buttonId: 'nav-to-history'
-    },
-    {
-        id: 'page-rules',
-        buttonText: 'Правила расклада «Прыжок Хекет»',
-        buttonIcon: '🐸',
-        buttonId: 'nav-to-rules'
-    },
-    {
-        id: 'page-question',
-        buttonText: 'Получить расклад «Прыжок Хекет»',
-        buttonIcon: '🔮',
-        buttonId: 'nav-to-question'
-    }
-];
+    const NAVIGATION_PAGE_DEFINITIONS = [
+        {
+            id: 'page-welcome',
+            buttonText: '«Таро Гранд Эттейла»',
+            buttonIcon: '✨',
+            buttonId: 'nav-to-welcome'
+        },
+        {
+            id: 'page-history',
+            buttonText: 'История «Таро Гранд Эттейла»',
+            buttonIcon: '📜',
+            buttonId: 'nav-to-history'
+        },
+        {
+            id: 'page-rules',
+            buttonText: 'Правила расклада «Прыжок Хекет»',
+            buttonIcon: '🐸',
+            buttonId: 'nav-to-rules'
+        },
+        {
+            id: 'page-question',
+            buttonText: 'Получить расклад «Прыжок Хекет»',
+            buttonIcon: '🔮',
+            buttonId: 'nav-to-question'
+        }
+    ];
 
-const pagesWithoutGetSpread = ['page-select', 'page-result'];
+    const PAGE_IDS_WITHOUT_QUESTION_ENTRY_BUTTON = ['page-select', 'page-result'];
 
-/**
- * Возвращает ID активной страницы.
- *
- * Мы берём значение из utils.js.
- * Если по какой-то причине утилита недоступна,
- * используем безопасное значение по умолчанию.
- *
- * @returns {string}
- */
-function resolveActivePageId() {
-    if (typeof window.getActivePageId === 'function') {
-        return window.getActivePageId();
-    }
-    return 'page-welcome';
-}
+    let navigationButtonsContainerElement = null;
+    let resultNewQuestionButtonElement = null;
 
-/**
- * Создаёт кнопки навигации и добавляет их в DOM.
- */
-function createNavButtons() {
-    const navContainer = document.getElementById('nav-buttons');
+    let areNavigationDomElementsBound = false;
+    let areResultPageEventHandlersBound = false;
 
-    if (!navContainer) {
-        console.error('Ошибка: контейнер nav-buttons не найден');
-        return;
+    // ============================================
+    // DOM BINDING
+    // ============================================
+
+    function bindNavigationDomElements() {
+        navigationButtonsContainerElement = document.getElementById('nav-buttons');
+        resultNewQuestionButtonElement = document.getElementById('new-question-from-result-btn');
+
+        areNavigationDomElementsBound = Boolean(navigationButtonsContainerElement);
+        return areNavigationDomElementsBound;
     }
 
-    navContainer.innerHTML = '';
-
-    const activePageId = resolveActivePageId();
-    const hideGetSpread = pagesWithoutGetSpread.includes(activePageId);
-
-    allPages.forEach((page) => {
-        if (page.id === activePageId) {
-            return;
+    function ensureNavigationDomElementsBound() {
+        if (areNavigationDomElementsBound && navigationButtonsContainerElement) {
+            return true;
         }
 
-        if (hideGetSpread && page.id === 'page-question') {
-            return;
+        return bindNavigationDomElements();
+    }
+
+    // ============================================
+    // PAGE HELPERS
+    // ============================================
+
+    function getCurrentActivePageId() {
+        if (typeof window.getActivePageId === 'function') {
+            return window.getActivePageId();
         }
 
-        const button = document.createElement('button');
-        button.className = 'nav-btn';
-        button.id = page.buttonId;
-        button.innerHTML = `${page.buttonIcon} ${page.buttonText}`;
-        button.addEventListener('click', () => switchToPage(page.id));
-
-        navContainer.appendChild(button);
-    });
-}
-
-/**
- * Переход на страницу результата, если в localStorage уже есть сохранённый расклад.
- * @param {HTMLElement} targetPage
- * @returns {boolean}
- */
-function redirectToSavedResultIfNeeded(targetPage) {
-    const savedSpread = localStorage.getItem('tarot_last_complete_spread');
-
-    if (!savedSpread) {
-        return false;
+        return 'page-welcome';
     }
 
-    const resultPage = document.getElementById('page-result');
-
-    if (!resultPage) {
-        console.warn('Страница результата не найдена');
-        return false;
+    function getPageElementById(pageId) {
+        return document.getElementById(pageId);
     }
 
-    targetPage.classList.remove('active-page');
-    resultPage.classList.add('active-page');
-
-    if (typeof window.restoreResultSpread === 'function') {
-        window.restoreResultSpread();
+    function getAllPageElements() {
+        return Array.from(document.querySelectorAll('.page'));
     }
 
-    createNavButtons();
-    return true;
-}
-
-/**
- * Обрабатывает кнопку «Новый вопрос» на странице результата.
- */
-function handleNewQuestionFromResult() {
-    localStorage.removeItem('tarot_last_complete_spread');
-    localStorage.removeItem('tarot_last_question');
-
-    if (typeof window.resetDeckModule === 'function') {
-        window.resetDeckModule();
+    function hideAllPages() {
+        getAllPageElements().forEach((pageElement) => {
+            pageElement.classList.remove('active-page');
+        });
     }
 
-    if (typeof window.resetQuestionModuleState === 'function') {
-        window.resetQuestionModuleState({ clearStorage: true });
+    function activatePageElement(pageElement) {
+        pageElement.classList.add('active-page');
     }
 
-    switchToPage('page-question');
-}
-
-/**
- * Подключает обработчик кнопки «Новый вопрос» один раз.
- */
-function bindNewQuestionButton() {
-    const newQuestionButton = document.getElementById('new-question-from-result-btn');
-
-    if (!newQuestionButton || newQuestionButton.dataset.bound) {
-        return;
+    function shouldHideQuestionEntryNavigationButton(activePageId) {
+        return PAGE_IDS_WITHOUT_QUESTION_ENTRY_BUTTON.includes(activePageId);
     }
 
-    newQuestionButton.addEventListener('click', handleNewQuestionFromResult);
-    newQuestionButton.dataset.bound = 'true';
-}
+    // ============================================
+    // NAVIGATION RENDERING
+    // ============================================
 
-/**
- * Переключает на указанную страницу.
- * @param {string} pageId
- */
-function switchToPage(pageId) {
-    const pageElements = document.querySelectorAll('.page');
-    pageElements.forEach((page) => page.classList.remove('active-page'));
+    function renderNavigationButtons() {
+        if (!ensureNavigationDomElementsBound()) {
+            console.error('Ошибка: контейнер nav-buttons не найден');
+            return false;
+        }
 
-    const targetPage = document.getElementById(pageId);
-    if (!targetPage) {
-        console.error(`Ошибка: страница с id "${pageId}" не найдена`);
-        return;
+        navigationButtonsContainerElement.innerHTML = '';
+
+        const activePageId = getCurrentActivePageId();
+        const shouldHideQuestionEntryButton =
+            shouldHideQuestionEntryNavigationButton(activePageId);
+
+        NAVIGATION_PAGE_DEFINITIONS.forEach((pageDefinition) => {
+            if (pageDefinition.id === activePageId) {
+                return;
+            }
+
+            if (shouldHideQuestionEntryButton && pageDefinition.id === 'page-question') {
+                return;
+            }
+
+            const buttonElement = document.createElement('button');
+            buttonElement.className = 'nav-btn';
+            buttonElement.id = pageDefinition.buttonId;
+            buttonElement.innerHTML = `${pageDefinition.buttonIcon} ${pageDefinition.buttonText}`;
+            buttonElement.addEventListener('click', () => showPageById(pageDefinition.id));
+
+            navigationButtonsContainerElement.appendChild(buttonElement);
+        });
+
+        return true;
     }
 
-    targetPage.classList.add('active-page');
+    // ============================================
+    // PAGE-SPECIFIC ACTIONS
+    // ============================================
 
-    if (pageId === 'page-question') {
-        const redirectedToResult = redirectToSavedResultIfNeeded(targetPage);
+    function tryRedirectQuestionPageToSavedResult(questionPageElement) {
+        const savedSpread = localStorage.getItem('tarot_last_complete_spread');
 
-        if (redirectedToResult) {
-            return;
+        if (!savedSpread) {
+            return false;
+        }
+
+        const resultPageElement = getPageElementById('page-result');
+
+        if (!resultPageElement) {
+            console.warn('Страница результата не найдена');
+            return false;
+        }
+
+        questionPageElement.classList.remove('active-page');
+        activatePageElement(resultPageElement);
+        initializeResultPageView();
+
+        return true;
+    }
+
+    function handleResultPageNewQuestionClick() {
+        localStorage.removeItem('tarot_last_complete_spread');
+        localStorage.removeItem('tarot_last_question');
+
+        if (typeof window.resetDeckModule === 'function') {
+            window.resetDeckModule();
+        }
+
+        if (typeof window.resetQuestionModuleState === 'function') {
+            window.resetQuestionModuleState({ clearStorage: true });
+        }
+
+        showPageById('page-question');
+    }
+
+    function bindResultPageEventHandlers() {
+        if (areResultPageEventHandlersBound) {
+            return true;
+        }
+
+        if (!resultNewQuestionButtonElement) {
+            console.warn('Кнопка "Новый вопрос" на странице результата не найдена');
+            return false;
+        }
+
+        resultNewQuestionButtonElement.addEventListener(
+            'click',
+            handleResultPageNewQuestionClick
+        );
+
+        areResultPageEventHandlersBound = true;
+        return true;
+    }
+
+    function initializeQuestionPageView(questionPageElement) {
+        const wasRedirected = tryRedirectQuestionPageToSavedResult(questionPageElement);
+
+        if (wasRedirected) {
+            return true;
         }
 
         requestAnimationFrame(() => {
@@ -172,9 +200,11 @@ function switchToPage(pageId) {
                 window.initQuestionModule();
             }
         });
+
+        return false;
     }
 
-    if (pageId === 'page-select') {
+    function initializeSelectPageView() {
         requestAnimationFrame(() => {
             if (typeof window.displayQuestionOnSelectPage === 'function') {
                 window.displayQuestionOnSelectPage();
@@ -186,53 +216,93 @@ function switchToPage(pageId) {
         });
     }
 
-    if (pageId === 'page-result') {
+    function initializeResultPageView() {
         requestAnimationFrame(() => {
             if (typeof window.restoreResultSpread === 'function') {
                 window.restoreResultSpread();
             }
 
-            bindNewQuestionButton();
+            bindResultPageEventHandlers();
         });
     }
 
-    createNavButtons();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
+    function runPageInitialization(pageId, targetPageElement) {
+        if (pageId === 'page-question') {
+            return initializeQuestionPageView(targetPageElement);
+        }
 
-/**
- * Переход на страницу выбора карт.
- * @param {string} question
- */
-function goToSelectPage(question) {
-    if (question && question.trim()) {
-        localStorage.setItem('tarot_last_question', question.trim());
+        if (pageId === 'page-select') {
+            initializeSelectPageView();
+            return false;
+        }
+
+        if (pageId === 'page-result') {
+            initializeResultPageView();
+            return false;
+        }
+
+        return false;
     }
 
-    switchToPage('page-select');
-}
+    // ============================================
+    // PAGE SWITCHING
+    // ============================================
 
-/**
- * Переход на страницу готового расклада.
- */
-function goToResultPage() {
-    switchToPage('page-result');
-}
+    function showPageById(pageId) {
+        hideAllPages();
 
-/**
- * Возврат к вводу вопроса для уточнения формулировки.
- * Вопрос сохраняем, а расклад сбрасываем.
- */
-function goBackToQuestion() {
-    localStorage.removeItem('tarot_last_complete_spread');
+        const targetPageElement = getPageElementById(pageId);
+        if (!targetPageElement) {
+            console.error(`Ошибка: страница с id "${pageId}" не найдена`);
+            return false;
+        }
 
-    if (typeof window.resetDeckModule === 'function') {
-        window.resetDeckModule();
+        activatePageElement(targetPageElement);
+        runPageInitialization(pageId, targetPageElement);
+
+        renderNavigationButtons();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        return true;
     }
 
-    switchToPage('page-question');
-}
+    // ============================================
+    // PUBLIC NAVIGATION ACTIONS
+    // ============================================
 
-window.goToSelectPage = goToSelectPage;
-window.goToResultPage = goToResultPage;
-window.goBackToQuestion = goBackToQuestion;
+    function navigateToSelectPage(questionText) {
+        const normalizedQuestionText =
+            typeof questionText === 'string' ? questionText.trim() : '';
+
+        if (normalizedQuestionText) {
+            localStorage.setItem('tarot_last_question', normalizedQuestionText);
+        }
+
+        showPageById('page-select');
+    }
+
+    function navigateToResultPage() {
+        showPageById('page-result');
+    }
+
+    function navigateBackToQuestionPage() {
+        localStorage.removeItem('tarot_last_complete_spread');
+
+        if (typeof window.resetDeckModule === 'function') {
+            window.resetDeckModule();
+        }
+
+        showPageById('page-question');
+    }
+
+    // ============================================
+    // PUBLIC API
+    // ============================================
+
+    // Сохраняем старые публичные имена для совместимости с main.js и другими модулями.
+    window.createNavButtons = renderNavigationButtons;
+    window.switchToPage = showPageById;
+    window.goToSelectPage = navigateToSelectPage;
+    window.goToResultPage = navigateToResultPage;
+    window.goBackToQuestion = navigateBackToQuestionPage;
+})();
