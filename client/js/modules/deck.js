@@ -66,7 +66,7 @@
     // 7. ПРИВЯЗКА К DOM
     // ============================================
 
-    function bindDeckDomElements() {
+    function bindSelectPageDomElements() {
         deckContainer = document.getElementById('deck-container');
         part1Grid = document.getElementById('select-part1-grid');
         part2Grid = document.getElementById('select-part2-grid');
@@ -136,7 +136,7 @@
     // 8. UI HELPERS
     // ============================================
 
-    function resetDeckUi() {
+    function resetSelectPageDeckUi() {
         if (deckTitleElement) {
             deckTitleElement.textContent = '🃟 Старшие Арканы';
         }
@@ -176,15 +176,15 @@
     // 9. PART HELPERS
     // ============================================
 
-    function getGridByPart(part) {
+    function getSelectPageGridByPart(part) {
         return part === 'part1' ? part1Grid : part2Grid;
     }
 
-    function getPartContainerByPart(part) {
+    function getSelectPagePartContainerByPart(part) {
         return part === 'part1' ? part1ContainerElement : part2ContainerElement;
     }
 
-    function getDescriptionElementByPart(part) {
+    function getSelectPageDescriptionElementByPart(part) {
         return part === 'part1' ? partOneDescriptionElement : partTwoDescriptionElement;
     }
 
@@ -198,8 +198,8 @@
             : resultPartTwoDescriptionElement;
     }
 
-    function setPartDescription(part, text) {
-        const descriptionElement = getDescriptionElementByPart(part);
+    function setSelectPagePartDescription(part, text) {
+        const descriptionElement = getSelectPageDescriptionElementByPart(part);
 
         if (!descriptionElement) {
             return;
@@ -226,9 +226,9 @@
         resultQuestionElement.textContent = question || '';
     }
 
-    function showAllPartContainers() {
-        const part1Container = getPartContainerByPart('part1');
-        const part2Container = getPartContainerByPart('part2');
+    function showAllSelectPagePartContainers() {
+        const part1Container = getSelectPagePartContainerByPart('part1');
+        const part2Container = getSelectPagePartContainerByPart('part2');
 
         if (part1Container) {
             part1Container.style.display = 'block';
@@ -283,16 +283,16 @@
         return getPositionTitleByPart(part, positionIndex);
     }
 
-    function applySelectPartDescriptions(logContext = '') {
+    function applySelectPagePartDescriptions(logContext = '') {
         const suffix = logContext ? ` (${logContext})` : '';
 
         if (typeof PART_ONE_DESCRIPTION !== 'undefined') {
-            setPartDescription('part1', PART_ONE_DESCRIPTION);
+            setSelectPagePartDescription('part1', PART_ONE_DESCRIPTION);
             console.log(`✅ Добавлено описание первой части${suffix}`);
         }
 
         if (typeof PART_TWO_DESCRIPTION !== 'undefined') {
-            setPartDescription('part2', PART_TWO_DESCRIPTION);
+            setSelectPagePartDescription('part2', PART_TWO_DESCRIPTION);
             console.log(`✅ Добавлено описание второй части${suffix}`);
         }
     }
@@ -427,7 +427,7 @@
 
     function createEmptyPositions() {
         ['part1', 'part2'].forEach((part) => {
-            const grid = getGridByPart(part);
+            const grid = getSelectPageGridByPart(part);
 
             if (!grid) {
                 return;
@@ -546,8 +546,8 @@
         resetDeckState();
         initDecks();
         createEmptyPositions();
-        showAllPartContainers();
-        applySelectPartDescriptions();
+        showAllSelectPagePartContainers();
+        applySelectPagePartDescriptions();
 
         showPart1();
 
@@ -568,8 +568,8 @@
 
         renderCardsToGrid(selectedCardsPart1, part1Grid, 'part1');
         renderCardsToGrid(selectedCardsPart2, part2Grid, 'part2');
-        showAllPartContainers();
-        applySelectPartDescriptions('при восстановлении');
+        showAllSelectPagePartContainers();
+        applySelectPagePartDescriptions('при восстановлении');
 
         console.log('✅ Расклад восстановлен');
 
@@ -679,7 +679,7 @@
     }
 
     function addCardToPosition(card, positionIndex, part) {
-        const grid = getGridByPart(part);
+        const grid = getSelectPageGridByPart(part);
 
         if (!grid) {
             return;
@@ -895,12 +895,12 @@
     function initDeckModule() {
         console.log('🃟 Инициализация модуля колод');
 
-        if (!bindDeckDomElements()) {
+        if (!bindSelectPageDomElements()) {
             console.error('Ошибка: не найдены элементы для колод');
             return false;
         }
 
-        resetDeckUi();
+        resetSelectPageDeckUi();
 
         if (!shuffleAudio) {
             initShuffleSound();
@@ -932,7 +932,7 @@
             part2Grid.innerHTML = '';
         }
 
-        resetDeckUi();
+        resetSelectPageDeckUi();
 
         isResultDomBound = false;
         
