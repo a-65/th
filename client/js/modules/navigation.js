@@ -33,9 +33,10 @@
     const PAGE_IDS_WITHOUT_QUESTION_ENTRY_BUTTON = ['page-select', 'page-result'];
 
     let navigationButtonsContainerElement = null;
-    let resultNewQuestionButtonElement = null;
+    let resultPageNewQuestionButtonElement = null;
 
     let areNavigationDomElementsBound = false;
+    let areResultPageDomElementsBound = false;
     let areResultPageEventHandlersBound = false;
 
     // ============================================
@@ -44,7 +45,6 @@
 
     function bindNavigationDomElements() {
         navigationButtonsContainerElement = document.getElementById('nav-buttons');
-        resultNewQuestionButtonElement = document.getElementById('new-question-from-result-btn');
 
         areNavigationDomElementsBound = Boolean(navigationButtonsContainerElement);
         return areNavigationDomElementsBound;
@@ -56,6 +56,21 @@
         }
 
         return bindNavigationDomElements();
+    }
+
+    function bindResultPageDomElements() {
+        resultPageNewQuestionButtonElement = document.getElementById('new-question-from-result-btn');
+
+        areResultPageDomElementsBound = Boolean(resultPageNewQuestionButtonElement);
+        return areResultPageDomElementsBound;
+    }
+
+    function ensureResultPageDomElementsBound() {
+        if (areResultPageDomElementsBound && resultPageNewQuestionButtonElement) {
+            return true;
+        }
+
+        return bindResultPageDomElements();
     }
 
     // ============================================
@@ -174,12 +189,12 @@
             return true;
         }
 
-        if (!resultNewQuestionButtonElement) {
+        if (!ensureResultPageDomElementsBound()) {
             console.warn('Кнопка "Новый вопрос" на странице результата не найдена');
             return false;
         }
 
-        resultNewQuestionButtonElement.addEventListener(
+        resultPageNewQuestionButtonElement.addEventListener(
             'click',
             handleResultPageNewQuestionClick
         );
@@ -216,15 +231,17 @@
         });
     }
 
-    function initializeResultPageView() {
-        requestAnimationFrame(() => {
-            if (typeof window.restoreResultSpread === 'function') {
-                window.restoreResultSpread();
-            }
+function initializeResultPageView() {
+    ensureResultPageDomElementsBound();
 
-            bindResultPageEventHandlers();
-        });
-    }
+    requestAnimationFrame(() => {
+        if (typeof window.restoreResultSpread === 'function') {
+            window.restoreResultSpread();
+        }
+
+        bindResultPageEventHandlers();
+    });
+}
 
     function runPageInitialization(pageId, targetPageElement) {
         if (pageId === 'page-question') {
