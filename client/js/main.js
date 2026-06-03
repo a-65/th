@@ -20,11 +20,13 @@
     // DOM BINDING
     // ============================================
 
-    function bindMainDomElements() {
+    function bindStaticContentDomElements() {
         welcomeContentElement = document.getElementById('welcome-content');
         historyContentElement = document.getElementById('history-content');
         rulesContentElement = document.getElementById('rules-content');
+    }
 
+    function bindNavigationPanelDomElements() {
         navigationToggleElement = document.getElementById('nav-toggle');
         navigationButtonsContainerElement = document.getElementById('nav-buttons');
         navigationOverlayElement = document.querySelector('.nav-overlay');
@@ -280,11 +282,12 @@
     function initializeApplication() {
         console.log('🚀 TarotHub: инициализация приложения');
 
-        bindMainDomElements();
-        renderStaticPageContent();
-        renderNavigationUi();
-        initializeNavigationPanel();
-        showInitialApplicationPage();
+    bindStaticContentDomElements();
+    bindNavigationPanelDomElements();
+    renderStaticPageContent();
+    renderNavigationUi();
+    initializeNavigationPanel();
+    showInitialApplicationPage();
 
         console.log('✅ Приложение инициализировано');
     }
