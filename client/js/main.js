@@ -4,6 +4,8 @@
     // ============================================
 
     const NAVIGATION_PANEL_ANIMATION_DURATION_MS = 300;
+    const WELCOME_PAGE_ID = 'page-welcome';
+    const RESULT_PAGE_ID = 'page-result';
 
     let welcomeContentElement = null;
     let historyContentElement = null;
@@ -85,6 +87,31 @@
     }
 
     // ============================================
+    // NAVIGATION PANEL STATE HELPERS
+    // ============================================
+
+    function isNavigationPanelDomReady() {
+        return Boolean(navigationToggleElement && navigationButtonsContainerElement);
+    }
+
+    function isNavigationPanelOpen() {
+        return Boolean(
+            navigationButtonsContainerElement &&
+            navigationButtonsContainerElement.classList.contains('open')
+        );
+    }
+
+    function canChangeNavigationPanelState() {
+        return !isNavigationPanelAnimating && Boolean(navigationButtonsContainerElement);
+    }
+
+    function finishNavigationPanelAnimationAfterDelay() {
+        setTimeout(() => {
+            isNavigationPanelAnimating = false;
+        }, NAVIGATION_PANEL_ANIMATION_DURATION_MS);
+    }
+
+    // ============================================
     // NAVIGATION PANEL HELPERS
     // ============================================
 
@@ -111,7 +138,7 @@
     }
 
     function openNavigationPanel() {
-        if (isNavigationPanelAnimating || !navigationButtonsContainerElement) {
+        if (!canChangeNavigationPanelState()) {
             return;
         }
 
@@ -126,13 +153,11 @@
         overlayElement.classList.add('active');
         setBodyScrollLocked(true);
 
-        setTimeout(() => {
-            isNavigationPanelAnimating = false;
-        }, NAVIGATION_PANEL_ANIMATION_DURATION_MS);
+        finishNavigationPanelAnimationAfterDelay();
     }
 
     function closeNavigationPanel() {
-        if (isNavigationPanelAnimating || !navigationButtonsContainerElement) {
+        if (!canChangeNavigationPanelState()) {
             return;
         }
 
@@ -147,19 +172,15 @@
         overlayElement.classList.remove('active');
         setBodyScrollLocked(false);
 
-        setTimeout(() => {
-            isNavigationPanelAnimating = false;
-        }, NAVIGATION_PANEL_ANIMATION_DURATION_MS);
+        finishNavigationPanelAnimationAfterDelay();
     }
 
     function toggleNavigationPanel() {
-        if (isNavigationPanelAnimating || !navigationButtonsContainerElement) {
+        if (!canChangeNavigationPanelState()) {
             return;
         }
 
-        const isPanelOpen = navigationButtonsContainerElement.classList.contains('open');
-
-        if (isPanelOpen) {
+        if (isNavigationPanelOpen()) {
             closeNavigationPanel();
             return;
         }
@@ -185,12 +206,8 @@
 
     function handleDocumentKeyDown(event) {
         const isEscapePressed = event.key === 'Escape';
-        const isPanelOpen = Boolean(
-            navigationButtonsContainerElement &&
-            navigationButtonsContainerElement.classList.contains('open')
-        );
 
-        if (isEscapePressed && isPanelOpen) {
+        if (isEscapePressed && isNavigationPanelOpen()) {
             closeNavigationPanel();
         }
     }
@@ -200,7 +217,7 @@
             return true;
         }
 
-        if (!navigationToggleElement || !navigationButtonsContainerElement) {
+        if (!isNavigationPanelDomReady()) {
             console.warn('⚠️ Элементы для панели навигации не найдены');
             return false;
         }
@@ -224,7 +241,7 @@
     }
 
     function initializeNavigationPanel() {
-        if (!navigationToggleElement || !navigationButtonsContainerElement) {
+        if (!isNavigationPanelDomReady()) {
             console.warn('⚠️ Элементы для панели навигации не найдены');
             return false;
         }
@@ -258,20 +275,29 @@
         return Boolean(localStorage.getItem('tarot_last_complete_spread'));
     }
 
+    function getInitialApplicationPageId() {
+        return hasSavedSpreadInStorage() ? RESULT_PAGE_ID : WELCOME_PAGE_ID;
+    }
+
+    function logInitialApplicationPageSelection(pageId) {
+        if (pageId === RESULT_PAGE_ID) {
+            console.log('🔄 Найден сохранённый расклад, переходим на страницу результата');
+            return;
+        }
+
+        console.log('🏠 Нет сохранённого расклада, показываем страницу приветствия');
+    }
+
     function showInitialApplicationPage() {
         if (typeof window.switchToPage !== 'function') {
             console.warn('⚠️ Функция switchToPage недоступна');
             return false;
         }
 
-        if (hasSavedSpreadInStorage()) {
-            console.log('🔄 Найден сохранённый расклад, переходим на страницу результата');
-            window.switchToPage('page-result');
-            return true;
-        }
+        const initialPageId = getInitialApplicationPageId();
+        logInitialApplicationPageSelection(initialPageId);
+        window.switchToPage(initialPageId);
 
-        console.log('🏠 Нет сохранённого расклада, показываем страницу приветствия');
-        window.switchToPage('page-welcome');
         return true;
     }
 
@@ -282,12 +308,12 @@
     function initializeApplication() {
         console.log('🚀 TarotHub: инициализация приложения');
 
-    bindStaticContentDomElements();
-    bindNavigationPanelDomElements();
-    renderStaticPageContent();
-    renderNavigationUi();
-    initializeNavigationPanel();
-    showInitialApplicationPage();
+        bindStaticContentDomElements();
+        bindNavigationPanelDomElements();
+        renderStaticPageContent();
+        renderNavigationUi();
+        initializeNavigationPanel();
+        showInitialApplicationPage();
 
         console.log('✅ Приложение инициализировано');
     }
