@@ -95,14 +95,15 @@
     }
 
     function isNavigationPanelOpen() {
-        return Boolean(
-            navigationButtonsContainerElement &&
-            navigationButtonsContainerElement.classList.contains('open')
-        );
+        if (!isNavigationPanelDomReady()) {
+            return false;
+        }
+
+        return navigationButtonsContainerElement.classList.contains('open');
     }
 
     function canChangeNavigationPanelState() {
-        return !isNavigationPanelAnimating && Boolean(navigationButtonsContainerElement);
+        return !isNavigationPanelAnimating && isNavigationPanelDomReady();
     }
 
     function finishNavigationPanelAnimationAfterDelay() {
