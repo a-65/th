@@ -253,8 +253,8 @@
 
         saveQuestionToStorage(currentQuestionText);
 
-        if (typeof window.goToSelectPage === 'function') {
-            window.goToSelectPage(currentQuestionText);
+        if (typeof window.navigateToSelectPage === 'function') {
+            window.navigateToSelectPage(currentQuestionText);
             return;
         }
 
@@ -303,12 +303,12 @@
      * Обрабатывает нажатие кнопки уточнения вопроса.
      */
     function handleRefineQuestionButtonClick() {
-        if (typeof window.goBackToQuestion === 'function') {
-            window.goBackToQuestion();
+        if (typeof window.navigateBackToQuestionPage === 'function') {
+            window.navigateBackToQuestionPage();
             return;
         }
 
-        console.error('Ошибка: функция goBackToQuestion не найдена');
+        console.error('Ошибка: функция navigateBackToQuestionPage не найдена');
     }
 
     // ============================================

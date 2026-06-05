@@ -173,12 +173,12 @@
         localStorage.removeItem('tarot_last_complete_spread');
         localStorage.removeItem('tarot_last_question');
 
-        if (typeof window.resetDeckModule === 'function') {
-            window.resetDeckModule();
+        if (typeof window.resetDeckSelectionState === 'function') {
+            window.resetDeckSelectionState();
         }
 
-        if (typeof window.resetQuestionModuleState === 'function') {
-            window.resetQuestionModuleState({ clearStorage: true });
+        if (typeof window.resetQuestionPageState === 'function') {
+            window.resetQuestionPageState({ clearStorage: true });
         }
 
         showPageById('page-question');
@@ -211,8 +211,8 @@
         }
 
         requestAnimationFrame(() => {
-            if (typeof window.initQuestionModule === 'function') {
-                window.initQuestionModule();
+            if (typeof window.initializeQuestionPage === 'function') {
+                window.initializeQuestionPage();
             }
         });
 
@@ -221,12 +221,12 @@
 
     function initializeSelectPageView() {
         requestAnimationFrame(() => {
-            if (typeof window.displayQuestionOnSelectPage === 'function') {
-                window.displayQuestionOnSelectPage();
+            if (typeof window.renderQuestionOnSelectPage === 'function') {
+                window.renderQuestionOnSelectPage();
             }
 
-            if (typeof window.initDeckModule === 'function') {
-                window.initDeckModule();
+            if (typeof window.initializeDeckSelectionPage === 'function') {
+                window.initializeDeckSelectionPage();
             }
         });
     }
@@ -235,8 +235,8 @@ function initializeResultPageView() {
     ensureResultPageDomElementsBound();
 
     requestAnimationFrame(() => {
-        if (typeof window.restoreResultSpread === 'function') {
-            window.restoreResultSpread();
+        if (typeof window.restoreSpreadOnResultPage === 'function') {
+            window.restoreSpreadOnResultPage();
         }
 
         bindResultPageEventHandlers();
@@ -305,8 +305,8 @@ function initializeResultPageView() {
     function navigateBackToQuestionPage() {
         localStorage.removeItem('tarot_last_complete_spread');
 
-        if (typeof window.resetDeckModule === 'function') {
-            window.resetDeckModule();
+        if (typeof window.resetDeckSelectionState === 'function') {
+            window.resetDeckSelectionState();
         }
 
         showPageById('page-question');

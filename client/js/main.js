@@ -263,12 +263,12 @@
     // ============================================
 
     function renderNavigationUi() {
-        if (typeof window.createNavButtons === 'function') {
-            window.createNavButtons();
+        if (typeof window.renderNavigationButtons === 'function') {
+            window.renderNavigationButtons();
             return true;
         }
 
-        console.warn('⚠️ Функция createNavButtons недоступна');
+        console.warn('⚠️ Функция renderNavigationButtons недоступна');
         return false;
     }
 
@@ -290,14 +290,14 @@
     }
 
     function showInitialApplicationPage() {
-        if (typeof window.switchToPage !== 'function') {
-            console.warn('⚠️ Функция switchToPage недоступна');
+        if (typeof window.showPageById !== 'function') {
+            console.warn('⚠️ Функция showPageById недоступна');
             return false;
         }
 
         const initialPageId = getInitialApplicationPageId();
         logInitialApplicationPageSelection(initialPageId);
-        window.switchToPage(initialPageId);
+        window.showPageById(initialPageId);
 
         return true;
     }
