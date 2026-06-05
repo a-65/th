@@ -943,8 +943,16 @@
     // 21. ПУБЛИЧНЫЙ API
     // ============================================
 
-    window.initDeckModule = initDeckModule;
-    window.resetDeckModule = resetDeckModule;
-    window.alignDeckHeight = alignDeckHeight;
-    window.restoreResultSpread = restoreResultSpread;
+    // Новый предпочтительный публичный API.
+    window.initializeDeckSelectionPage = initDeckModule;
+    window.resetDeckSelectionState = resetDeckModule;
+    window.alignDeckLayoutHeight = alignDeckHeight;
+    window.restoreSpreadOnResultPage = restoreResultSpread;
+
+    // Временные алиасы для обратной совместимости.
+    // Будут удалены после перевода всех вызовов на новые имена.
+    window.initDeckModule = window.initializeDeckSelectionPage;
+    window.resetDeckModule = window.resetDeckSelectionState;
+    window.alignDeckHeight = window.alignDeckLayoutHeight;
+    window.restoreResultSpread = window.restoreSpreadOnResultPage;
 })();

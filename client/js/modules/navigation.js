@@ -316,10 +316,18 @@ function initializeResultPageView() {
     // PUBLIC API
     // ============================================
 
-    // Сохраняем старые публичные имена для совместимости с main.js и другими модулями.
-    window.createNavButtons = renderNavigationButtons;
-    window.switchToPage = showPageById;
-    window.goToSelectPage = navigateToSelectPage;
-    window.goToResultPage = navigateToResultPage;
-    window.goBackToQuestion = navigateBackToQuestionPage;
+    // Новый предпочтительный публичный API.
+    window.renderNavigationButtons = renderNavigationButtons;
+    window.showPageById = showPageById;
+    window.navigateToSelectPage = navigateToSelectPage;
+    window.navigateToResultPage = navigateToResultPage;
+    window.navigateBackToQuestionPage = navigateBackToQuestionPage;
+
+    // Временные алиасы для обратной совместимости.
+    // Будут удалены после перевода всех вызовов на новые имена.
+    window.createNavButtons = window.renderNavigationButtons;
+    window.switchToPage = window.showPageById;
+    window.goToSelectPage = window.navigateToSelectPage;
+    window.goToResultPage = window.navigateToResultPage;
+    window.goBackToQuestion = window.navigateBackToQuestionPage;
 })();
