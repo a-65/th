@@ -231,16 +231,16 @@
         });
     }
 
-function initializeResultPageView() {
-    ensureResultPageDomElementsBound();
+    function initializeResultPageView() {
+        ensureResultPageDomElementsBound();
 
-    requestAnimationFrame(() => {
-        if (typeof window.restoreSpreadOnResultPage === 'function') {
-            window.restoreSpreadOnResultPage();
-        }
+        requestAnimationFrame(() => {
+            if (typeof window.restoreSpreadOnResultPage === 'function') {
+                window.restoreSpreadOnResultPage();
+            }
 
-        bindResultPageEventHandlers();
-    });
+            bindResultPageEventHandlers();
+        });
 }
 
     function runPageInitialization(pageId, targetPageElement) {

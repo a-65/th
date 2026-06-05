@@ -258,7 +258,7 @@
             return;
         }
 
-        console.error('Ошибка: функция goToSelectPage не найдена');
+        console.error('Ошибка: функция navigateToSelectPage не найдена');
     }
 
     // ============================================
