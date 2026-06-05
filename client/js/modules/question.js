@@ -396,14 +396,7 @@
     // PUBLIC API
     // ============================================
 
-    // Новый предпочтительный публичный API.
     window.initializeQuestionPage = initializeQuestionModule;
     window.resetQuestionPageState = resetQuestionState;
     window.renderQuestionOnSelectPage = renderQuestionOnSelectPage;
-
-    // Временные алиасы для обратной совместимости.
-    // Будут удалены после перевода всех вызовов на новые имена.
-    window.initQuestionModule = window.initializeQuestionPage;
-    window.resetQuestionModuleState = window.resetQuestionPageState;
-    window.displayQuestionOnSelectPage = window.renderQuestionOnSelectPage;
 })();
