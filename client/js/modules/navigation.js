@@ -241,7 +241,7 @@
 
             bindResultPageEventHandlers();
         });
-}
+    }
 
     function runPageInitialization(pageId, targetPageElement) {
         if (pageId === 'page-question') {
@@ -316,18 +316,9 @@
     // PUBLIC API
     // ============================================
 
-    // Новый предпочтительный публичный API.
     window.renderNavigationButtons = renderNavigationButtons;
     window.showPageById = showPageById;
     window.navigateToSelectPage = navigateToSelectPage;
     window.navigateToResultPage = navigateToResultPage;
     window.navigateBackToQuestionPage = navigateBackToQuestionPage;
-
-    // Временные алиасы для обратной совместимости.
-    // Будут удалены после перевода всех вызовов на новые имена.
-    window.createNavButtons = window.renderNavigationButtons;
-    window.switchToPage = window.showPageById;
-    window.goToSelectPage = window.navigateToSelectPage;
-    window.goToResultPage = window.navigateToResultPage;
-    window.goBackToQuestion = window.navigateBackToQuestionPage;
 })();
