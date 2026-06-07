@@ -712,12 +712,12 @@
 
         saveCompleteSpread();
 
-        if (typeof window.goToResultPage === 'function') {
-            window.goToResultPage();
+        if (typeof window.navigateToResultPage === 'function') {
+            window.navigateToResultPage();
             return;
         }
 
-        console.error('Ошибка: функция goToResultPage не найдена');
+        console.error('Ошибка: функция navigateToResultPage не найдена');
     }
 
     // ============================================
