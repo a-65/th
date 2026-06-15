@@ -155,25 +155,32 @@ const HEQET_TEXT = APP_PAGE_CONTENT.heqetSpread.descriptionBlocks;
 /**
  * Описания позиций первой части расклада (ситуация)
  */
-const PART_ONE_DESCRIPTION = `Первая часть расклада анализирует ситуацию в контексте вопроса Вопрошающего, выявляя её причины и возможные последствия. Также рассматриваются силы или обстоятельства, способствующие или препятствующие благоприятному развитию событий.`;
-
 const PART_ONE_FIRST_CARD_DESCRIPTION = `🔹 Мордочка: Первая карта «Будущее». Какие последствия принесёт ситуация?`;
 const PART_ONE_SECOND_CARD_DESCRIPTION = `🔹 Голова: Вторая карта «Настоящее». Какова ситуация в данный момент?`;
 const PART_ONE_THIRD_CARD_DESCRIPTION = `🔹 Спина: Третья карта «Прошлое». Каковы причины сложившейся ситуации?`;
 const PART_ONE_FOURTH_CARD_DESCRIPTION = `🔹 Задние лапки: Четвёртая карта «Содействие». Какие силы или обстоятельства способствуют благоприятному развитию?`;
 const PART_ONE_FIFTH_CARD_DESCRIPTION = `🔹 Передние лапки: Пятая карта «Противодействие». Какие силы или обстоятельства препятствуют благоприятному развитию?`;
 
+const HEQET_SPREAD_DATA = {
+    partOne: {
+        description: `Первая часть расклада анализирует ситуацию в контексте вопроса Вопрошающего, выявляя её причины и возможные последствия. Также рассматриваются силы или обстоятельства, способствующие или препятствующие благоприятному развитию событий.`,
+
+        positions: [
+            PART_ONE_FIRST_CARD_DESCRIPTION,
+            PART_ONE_SECOND_CARD_DESCRIPTION,
+            PART_ONE_THIRD_CARD_DESCRIPTION,
+            PART_ONE_FOURTH_CARD_DESCRIPTION,
+            PART_ONE_FIFTH_CARD_DESCRIPTION
+        ]
+    }
+};
+
 /**
- * PART_ONE_POSITIONS — массив описаний позиций для первой части
- * Используется в функции displayCards() для отображения подписей под картами
+ * Временные алиасы для обратной совместимости.
+ * Пока остальной код продолжает использовать старые имена первой части.
  */
-const PART_ONE_POSITIONS = [
-    PART_ONE_FIRST_CARD_DESCRIPTION,
-    PART_ONE_SECOND_CARD_DESCRIPTION,
-    PART_ONE_THIRD_CARD_DESCRIPTION,
-    PART_ONE_FOURTH_CARD_DESCRIPTION,
-    PART_ONE_FIFTH_CARD_DESCRIPTION
-];
+const PART_ONE_DESCRIPTION = HEQET_SPREAD_DATA.partOne.description;
+const PART_ONE_POSITIONS = HEQET_SPREAD_DATA.partOne.positions;
 
 
 /**
