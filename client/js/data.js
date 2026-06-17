@@ -161,6 +161,15 @@ const PART_ONE_THIRD_CARD_DESCRIPTION = `🔹 Спина: Третья карт�
 const PART_ONE_FOURTH_CARD_DESCRIPTION = `🔹 Задние лапки: Четвёртая карта «Содействие». Какие силы или обстоятельства способствуют благоприятному развитию?`;
 const PART_ONE_FIFTH_CARD_DESCRIPTION = `🔹 Передние лапки: Пятая карта «Противодействие». Какие силы или обстоятельства препятствуют благоприятному развитию?`;
 
+/**
+ * Описания позиций второй части расклада (вопрошающий)
+ */
+const PART_TWO_FIRST_CARD_DESCRIPTION = `🔹 Мордочка: Первая карта «Дом Целей». К чему стремится Вопрошающий? Какие силы или обстоятельства ведут Вопрошающего к цели?`;
+const PART_TWO_SECOND_CARD_DESCRIPTION = `🔹 Голова: Вторая карта «Дом Мысли». Каково эмоциональное и ментальное состояние Вопрошающего?`;
+const PART_TWO_THIRD_CARD_DESCRIPTION = `🔹 Спина: Третья карта «Дом Бремени». Что вызывает беспокойство у Вопрошающего?`;
+const PART_TWO_FOURTH_CARD_DESCRIPTION = `🔹 Задние лапки: Четвёртая карта «Дом Силы и Поддержки». Описывает сильные стороны личности Вопрошающего и его союзников, способствующих благоприятному развитию событий.`;
+const PART_TWO_FIFTH_CARD_DESCRIPTION = `🔹 Передние лапки: Пятая карта «Дом Контроля и Подавления». Выявляет слабые стороны личности Вопрошающего и его противников, препятствующих благоприятному развитию событий.`;
+
 const HEQET_SPREAD_DATA = {
     partOne: {
         description: `Первая часть расклада анализирует ситуацию в контексте вопроса Вопрошающего, выявляя её причины и возможные последствия. Также рассматриваются силы или обстоятельства, способствующие или препятствующие благоприятному развитию событий.`,
@@ -172,6 +181,17 @@ const HEQET_SPREAD_DATA = {
             PART_ONE_FOURTH_CARD_DESCRIPTION,
             PART_ONE_FIFTH_CARD_DESCRIPTION
         ]
+    },
+    partTwo: {
+        description: `Вторая часть расклада характеризует самого Вопрошающего в контексте сложившейся ситуации. Она раскрывает его эмоциональное состояние, мысли и стремления. Также рассматриваются сильные и слабые стороны его личности, союзники и противники, способные повлиять на благоприятное развитие событий.`,
+
+        positions: [
+            PART_TWO_FIRST_CARD_DESCRIPTION,
+            PART_TWO_SECOND_CARD_DESCRIPTION,
+            PART_TWO_THIRD_CARD_DESCRIPTION,
+            PART_TWO_FOURTH_CARD_DESCRIPTION,
+            PART_TWO_FIFTH_CARD_DESCRIPTION
+        ]
     }
 };
 
@@ -181,27 +201,5 @@ const HEQET_SPREAD_DATA = {
  */
 const PART_ONE_DESCRIPTION = HEQET_SPREAD_DATA.partOne.description;
 const PART_ONE_POSITIONS = HEQET_SPREAD_DATA.partOne.positions;
-
-
-/**
- * Описания позиций второй части расклада (вопрошающий)
- */
-const PART_TWO_DESCRIPTION = `Вторая часть расклада характеризует самого Вопрошающего в контексте сложившейся ситуации. Она раскрывает его эмоциональное состояние, мысли и стремления. Также рассматриваются сильные и слабые стороны его личности, союзники и противники, способные повлиять на благоприятное развитие событий.`;
-
-const PART_TWO_FIRST_CARD_DESCRIPTION = `🔹 Мордочка: Первая карта «Дом Целей». К чему стремится Вопрошающий? Какие силы или обстоятельства ведут Вопрошающего к цели?`;
-const PART_TWO_SECOND_CARD_DESCRIPTION = `🔹 Голова: Вторая карта «Дом Мысли». Каково эмоциональное и ментальное состояние Вопрошающего?`;
-const PART_TWO_THIRD_CARD_DESCRIPTION = `🔹 Спина: Третья карта «Дом Бремени». Что вызывает беспокойство у Вопрошающего?`;
-const PART_TWO_FOURTH_CARD_DESCRIPTION = `🔹 Задние лапки: Четвёртая карта «Дом Силы и Поддержки». Описывает сильные стороны личности Вопрошающего и его союзников, способствующих благоприятному развитию событий.`;
-const PART_TWO_FIFTH_CARD_DESCRIPTION = `🔹 Передние лапки: Пятая карта «Дом Контроля и Подавления». Выявляет слабые стороны личности Вопрошающего и его противников, препятствующих благоприятному развитию событий.`;
-
-/**
- * PART_TWO_POSITIONS — массив описаний позиций для второй части
- * Используется в функции displayCards() для отображения подписей под картами
- */
-const PART_TWO_POSITIONS = [
-    PART_TWO_FIRST_CARD_DESCRIPTION,
-    PART_TWO_SECOND_CARD_DESCRIPTION,
-    PART_TWO_THIRD_CARD_DESCRIPTION,
-    PART_TWO_FOURTH_CARD_DESCRIPTION,
-    PART_TWO_FIFTH_CARD_DESCRIPTION
-];
+const PART_TWO_DESCRIPTION = HEQET_SPREAD_DATA.partTwo.description;
+const PART_TWO_POSITIONS = HEQET_SPREAD_DATA.partTwo.positions;
