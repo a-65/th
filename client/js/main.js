@@ -56,12 +56,37 @@
             .join('');
     }
 
+
+    function getWelcomeIntroText() {
+        if (
+            typeof APP_PAGE_CONTENT !== 'undefined' &&
+            APP_PAGE_CONTENT.welcome &&
+            typeof APP_PAGE_CONTENT.welcome.introText === 'string'
+        ) {
+            return APP_PAGE_CONTENT.welcome.introText;
+        }
+
+        if (typeof INTRO_TEXT === 'string') {
+            return INTRO_TEXT;
+        }
+
+        return '';
+    }
+
+
     function renderWelcomePageContent() {
-        if (!welcomeContentElement || typeof INTRO_TEXT === 'undefined') {
+        if (!welcomeContentElement) {
             return;
         }
 
-        welcomeContentElement.innerHTML = renderTextWithLineBreaks(INTRO_TEXT);
+        const welcomeIntroText = getWelcomeIntroText();
+
+        if (!welcomeIntroText) {
+            welcomeContentElement.innerHTML = '';
+            return;
+        }
+
+        welcomeContentElement.innerHTML = renderTextWithLineBreaks(welcomeIntroText);
     }
 
     function renderHistoryPageContent() {
