@@ -73,6 +73,22 @@
         return '';
     }
 
+    function getHistoryParagraphs() {
+        if (
+            typeof APP_PAGE_CONTENT !== 'undefined' &&
+            APP_PAGE_CONTENT.history &&
+            Array.isArray(APP_PAGE_CONTENT.history.paragraphs)
+        ) {
+            return APP_PAGE_CONTENT.history.paragraphs;
+        }
+
+        if (Array.isArray(HISTORY_TEXT)) {
+            return HISTORY_TEXT;
+        }
+
+        return [];
+    }
+
 
     function renderWelcomePageContent() {
         if (!welcomeContentElement) {
@@ -90,11 +106,18 @@
     }
 
     function renderHistoryPageContent() {
-        if (!historyContentElement || typeof HISTORY_TEXT === 'undefined') {
+        if (!historyContentElement) {
             return;
         }
 
-        historyContentElement.innerHTML = renderParagraphArrayAsHtml(HISTORY_TEXT);
+        const historyParagraphs = getHistoryParagraphs();
+
+        if (!historyParagraphs.length) {
+            historyContentElement.innerHTML = '';
+            return;
+        }
+
+        historyContentElement.innerHTML = renderParagraphArrayAsHtml(historyParagraphs);
     }
 
     function renderRulesPageContent() {
