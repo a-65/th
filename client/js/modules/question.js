@@ -1,182 +1,402 @@
-// ============================================
-// modules/question.js — ЛОГИКА ВВОДА ВОПРОСА
-// ============================================
+(() => {
+    // ============================================
+    // modules/question.js — ЛОГИКА ВВОДА ВОПРОСА
+    // ============================================
 
-/**
- * Состояние модуля вопроса
- */
-let currentQuestion = '';           // Текущий вопрос
-let isQuestionModuleInitialized = false; // Флаг инициализации
+    const QUESTION_STORAGE_KEY = 'tarot_last_question';
 
-// ============================================
-// ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
-// ============================================
+    let currentQuestionText = '';
+    let areQuestionPageHandlersBound = false;
+    let isSelectPageHandlerBound = false;
 
-/**
- * Обновляет состояние кнопки «Получить расклад»
- * Активна только если есть текст вопроса
- */
-function updateGetButtonState() {
-    const btn = document.getElementById('get-spread-btn');
-    if (btn) {
-        btn.disabled = !currentQuestion || currentQuestion.trim() === '';
+    // --------------------------------------------
+    // КЕШИРУЕМЫЕ DOM-ЭЛЕМЕНТЫ СТРАНИЦЫ ВОПРОСА
+    // --------------------------------------------
+    let questionTextareaElement = null;
+    let submitSpreadButtonElement = null;
+
+    // --------------------------------------------
+    // КЕШИРУЕМЫЕ DOM-ЭЛЕМЕНТЫ СТРАНИЦЫ ВЫБОРА КАРТ
+    // --------------------------------------------
+    let selectedPageQuestionTextElement = null;
+    let refineQuestionButtonElement = null;
+
+    // ============================================
+    // STORAGE HELPERS
+    // ============================================
+
+    /**
+     * Возвращает сохранённый вопрос из localStorage.
+     * @returns {string}
+     */
+    function readSavedQuestionFromStorage() {
+        return localStorage.getItem(QUESTION_STORAGE_KEY) || '';
     }
-}
 
-/**
- * Сохраняет текущий вопрос в localStorage
- * @param {string} question - текст вопроса
- */
-function saveQuestion(question) {
-    if (question && question.trim()) {
-        localStorage.setItem('tarot_last_question', question.trim());
-    } else {
-        localStorage.removeItem('tarot_last_question');
+    /**
+     * Удаляет сохранённый вопрос из localStorage.
+     */
+    function clearSavedQuestionFromStorage() {
+        localStorage.removeItem(QUESTION_STORAGE_KEY);
     }
-}
 
-// ============================================
-// ИНИЦИАЛИЗАЦИЯ
-// ============================================
+    /**
+     * Сохраняет вопрос в localStorage.
+     * Пустое значение удаляет ключ из хранилища.
+     *
+     * @param {string} questionText
+     */
+    function saveQuestionToStorage(questionText) {
+        const normalizedQuestionText = normalizeQuestionText(questionText);
 
-/**
- * Инициализирует модуль ввода вопроса на странице page-question
- */
-function initQuestionModule() {
-    if (isQuestionModuleInitialized) {
-        console.log('📝 Модуль вопроса уже инициализирован');
+        if (isQuestionTextEmpty(normalizedQuestionText)) {
+            clearSavedQuestionFromStorage();
+            return;
+        }
+
+        localStorage.setItem(QUESTION_STORAGE_KEY, normalizedQuestionText);
+    }
+
+    // ============================================
+    // TEXT HELPERS
+    // ============================================
+
+    /**
+     * Нормализует текст вопроса:
+     * убирает пробелы по краям строки,
+     * но сохраняет внутренние пробелы и переводы строк.
+     *
+     * @param {unknown} value
+     * @returns {string}
+     */
+    function normalizeQuestionText(value) {
+        if (typeof value !== 'string') {
+            return '';
+        }
+
+        return value.trim();
+    }
+
+    /**
+     * Проверяет, пустой ли вопрос.
+     *
+     * @param {unknown} questionText
+     * @returns {boolean}
+     */
+    function isQuestionTextEmpty(questionText) {
+        return normalizeQuestionText(questionText) === '';
+    }
+
+    /**
+     * Проверяет, можно ли сейчас отправить вопрос.
+     *
+     * @returns {boolean}
+     */
+    function canSubmitCurrentQuestion() {
+        return !isQuestionTextEmpty(currentQuestionText);
+    }
+
+    /**
+     * Проверяет, нажал ли пользователь Enter без модификаторов.
+     *
+     * @param {KeyboardEvent} event
+     * @returns {boolean}
+     */
+    function isSubmitShortcutPressed(event) {
+        return (
+            event.key === 'Enter' &&
+            !event.shiftKey &&
+            !event.ctrlKey &&
+            !event.altKey &&
+            !event.metaKey
+        );
+    }
+
+    // ============================================
+    // DOM BINDING
+    // ============================================
+
+    /**
+     * Привязывает DOM-элементы страницы вопроса.
+     *
+     * @returns {boolean}
+     */
+    function bindQuestionPageDomElements() {
+        questionTextareaElement = document.getElementById('question-input');
+        submitSpreadButtonElement = document.getElementById('get-spread-btn');
+
+        return Boolean(questionTextareaElement && submitSpreadButtonElement);
+    }
+
+    /**
+     * Гарантирует, что DOM страницы вопроса доступен.
+     *
+     * @returns {boolean}
+     */
+    function ensureQuestionPageDomElementsBound() {
+        if (questionTextareaElement && submitSpreadButtonElement) {
+            return true;
+        }
+
+        return bindQuestionPageDomElements();
+    }
+
+    /**
+     * Привязывает DOM-элементы страницы выбора карт.
+     *
+     * @returns {boolean}
+     */
+    function bindSelectPageDomElements() {
+        selectedPageQuestionTextElement = document.getElementById('select-displayed-question');
+        refineQuestionButtonElement = document.getElementById('refine-question-btn');
+
+        return Boolean(selectedPageQuestionTextElement && refineQuestionButtonElement);
+    }
+
+    /**
+     * Гарантирует, что DOM страницы выбора карт доступен.
+     *
+     * @returns {boolean}
+     */
+    function ensureSelectPageDomElementsBound() {
+        if (selectedPageQuestionTextElement && refineQuestionButtonElement) {
+            return true;
+        }
+
+        return bindSelectPageDomElements();
+    }
+
+    // ============================================
+    // UI HELPERS
+    // ============================================
+
+    /**
+     * Синхронизирует состояние кнопки отправки.
+     */
+    function syncSubmitButtonState() {
+        if (!submitSpreadButtonElement) {
+            return;
+        }
+
+        submitSpreadButtonElement.disabled = !canSubmitCurrentQuestion();
+    }
+
+    /**
+     * Синхронизирует состояние question-page со storage.
+     */
+    function syncQuestionPageWithStorage() {
+        if (!questionTextareaElement) {
+            return;
+        }
+
+        currentQuestionText = normalizeQuestionText(readSavedQuestionFromStorage());
+        questionTextareaElement.value = currentQuestionText;
+
+        syncSubmitButtonState();
+    }
+
+    /**
+     * Отрисовывает вопрос на странице выбора карт.
+     */
+    function renderSavedQuestionOnSelectPage() {
+        if (!selectedPageQuestionTextElement) {
+            return;
+        }
+
+        selectedPageQuestionTextElement.textContent = normalizeQuestionText(
+            readSavedQuestionFromStorage()
+        );
+    }
+
+    // ============================================
+    // ACTIONS
+    // ============================================
+
+    /**
+     * Полностью сбрасывает состояние модуля вопроса.
+     *
+     * @param {{ clearStorage?: boolean }} options
+     */
+    function resetQuestionState(options = {}) {
+        const { clearStorage = false } = options;
+
+        currentQuestionText = '';
+
+        if (clearStorage) {
+            clearSavedQuestionFromStorage();
+        }
+
+        if (questionTextareaElement) {
+            questionTextareaElement.value = '';
+        }
+
+        syncSubmitButtonState();
+    }
+
+    /**
+     * Отправляет вопрос и запускает переход к раскладу.
+     */
+    function submitQuestion() {
+        const normalizedQuestionText = normalizeQuestionText(currentQuestionText);
+
+        if (isQuestionTextEmpty(normalizedQuestionText)) {
+            console.warn('Вопрос не введён');
+            syncSubmitButtonState();
+            return;
+        }
+
+        currentQuestionText = normalizedQuestionText;
+
+        if (questionTextareaElement) {
+            questionTextareaElement.value = currentQuestionText;
+        }
+
+        saveQuestionToStorage(currentQuestionText);
+
+        if (typeof window.navigateToSelectPage === 'function') {
+            window.navigateToSelectPage(currentQuestionText);
+            return;
+        }
+
+        console.error('Ошибка: функция navigateToSelectPage не найдена');
+    }
+
+    // ============================================
+    // EVENT HANDLERS
+    // ============================================
+
+    /**
+     * Обрабатывает ввод текста в textarea вопроса.
+     *
+     * @param {Event} event
+     */
+    function handleQuestionTextareaInput(event) {
+        const nextQuestionText =
+            event.target && typeof event.target.value === 'string'
+                ? event.target.value
+                : '';
+
+        currentQuestionText = nextQuestionText;
+        syncSubmitButtonState();
+    }
+
+    /**
+     * Обрабатывает нажатия клавиш в textarea вопроса.
+     *
+     * @param {KeyboardEvent} event
+     */
+    function handleQuestionTextareaKeyDown(event) {
+        if (!isSubmitShortcutPressed(event)) {
+            return;
+        }
+
+        event.preventDefault();
+
+        if (!canSubmitCurrentQuestion()) {
+            return;
+        }
+
+        submitQuestion();
+    }
+
+    /**
+     * Обрабатывает нажатие кнопки уточнения вопроса.
+     */
+    function handleRefineQuestionButtonClick() {
+        if (typeof window.navigateBackToQuestionPage === 'function') {
+            window.navigateBackToQuestionPage();
+            return;
+        }
+
+        console.error('Ошибка: функция navigateBackToQuestionPage не найдена');
+    }
+
+    // ============================================
+    // EVENT BINDING
+    // ============================================
+
+    /**
+     * Навешивает обработчики страницы вопроса один раз.
+     *
+     * @returns {boolean}
+     */
+    function bindQuestionPageEventHandlers() {
+        if (!questionTextareaElement || !submitSpreadButtonElement) {
+            console.warn('Модуль вопроса: элементы страницы вопроса не найдены');
+            return false;
+        }
+
+        questionTextareaElement.addEventListener('input', handleQuestionTextareaInput);
+        questionTextareaElement.addEventListener('keydown', handleQuestionTextareaKeyDown);
+        submitSpreadButtonElement.addEventListener('click', submitQuestion);
+
+        areQuestionPageHandlersBound = true;
         return true;
     }
-    
-    console.log('📝 Инициализация модуля вопроса');
-    
-    const questionInput = document.getElementById('question-input');
-    const getSpreadBtn = document.getElementById('get-spread-btn');
-    
-    if (!questionInput || !getSpreadBtn) {
-        console.log('📝 Модуль вопроса: элементы не найдены');
-        return false;
-    }
-    
-    console.log('📝 Модуль вопроса: элементы найдены, инициализация');
-    
-    // Загружаем сохранённый вопрос
-    loadSavedQuestion();
-    
-    // Навешиваем обработчики
-    if (!window._questionHandlersAttached) {
-        questionInput.addEventListener('input', onQuestionInput);
-        getSpreadBtn.addEventListener('click', onGetSpread);
-        
-        // Обработчик нажатия клавиши Enter
-        questionInput.addEventListener('keypress', (event) => {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                if (!getSpreadBtn.disabled && currentQuestion && currentQuestion.trim() !== '') {
-                    onGetSpread();
-                }
-            }
-        });
-        
-        window._questionHandlersAttached = true;
-    }
-    
-    isQuestionModuleInitialized = true;
-    return true;
-}
 
-// ============================================
-// ОБРАБОТЧИКИ СОБЫТИЙ
-// ============================================
-
-/**
- * Обработчик ввода текста в поле вопроса
- * @param {Event} event - событие input
- */
-function onQuestionInput(event) {
-    currentQuestion = event.target.value;
-    updateGetButtonState();
-}
-
-/**
- * Обработчик нажатия на кнопку «Получить расклад»
- */
-function onGetSpread() {
-    if (!currentQuestion || currentQuestion.trim() === '') {
-        console.warn('Вопрос не введён');
-        return;
-    }
-    
-    console.log('📝 Получен вопрос:', currentQuestion);
-    
-    // Сохраняем вопрос
-    saveQuestion(currentQuestion);
-    
-    // Переходим на страницу выбора карт
-    if (typeof window.goToSelectPage === 'function') {
-        window.goToSelectPage(currentQuestion);
-    } else {
-        console.error('Ошибка: функция goToSelectPage не найдена');
-    }
-}
-
-// ============================================
-// РАБОТА С LOCALSTORAGE
-// ============================================
-
-/**
- * Загружает сохранённый вопрос из localStorage
- */
-function loadSavedQuestion() {
-    const saved = localStorage.getItem('tarot_last_question');
-    
-    if (saved && saved.trim()) {
-        const questionInput = document.getElementById('question-input');
-        if (questionInput) {
-            questionInput.value = saved;
-            currentQuestion = saved;
-            updateGetButtonState();
-            console.log('💾 Восстановлен сохранённый вопрос:', saved);
+    /**
+     * Навешивает обработчик страницы выбора карт один раз.
+     *
+     * @returns {boolean}
+     */
+    function bindSelectPageEventHandlers() {
+        if (!refineQuestionButtonElement) {
+            console.warn('Модуль вопроса: кнопка уточнения вопроса не найдена');
+            return false;
         }
+
+        refineQuestionButtonElement.addEventListener('click', handleRefineQuestionButtonClick);
+        isSelectPageHandlerBound = true;
+        return true;
     }
-}
 
-// ============================================
-// ОТОБРАЖЕНИЕ ВОПРОСА НА СТРАНИЦЕ ВЫБОРА КАРТ
-// ============================================
+    // ============================================
+    // MODULE API
+    // ============================================
 
-/**
- * Отображает вопрос на странице выбора карт
- * Вызывается при переходе на page-select
- */
-function displayQuestionOnSelectPage() {
-    const savedQuestion = localStorage.getItem('tarot_last_question');
-    const questionSpan = document.getElementById('select-displayed-question');
-    const refineBtn = document.getElementById('refine-question-btn');
-    
-    if (savedQuestion && questionSpan) {
-        questionSpan.textContent = savedQuestion;
-        console.log('📝 Вопрос отображён на странице выбора карт:', savedQuestion);
+    /**
+     * Инициализирует модуль question page.
+     *
+     * @returns {boolean}
+     */
+    function initializeQuestionModule() {
+        if (!ensureQuestionPageDomElementsBound()) {
+            console.warn('Модуль вопроса: элементы страницы вопроса не найдены');
+            return false;
+        }
+
+        if (!areQuestionPageHandlersBound) {
+            bindQuestionPageEventHandlers();
+        }
+
+        syncQuestionPageWithStorage();
+        return true;
     }
-    
-    // Навешиваем обработчик на кнопку "Уточнить вопрос"
-    if (refineBtn && !window._refineHandlerAttached) {
-        refineBtn.addEventListener('click', () => {
-            console.log('✏️ Уточнить вопрос — возврат к форме');
-            if (typeof window.goBackToQuestion === 'function') {
-                window.goBackToQuestion();
-            }
-        });
-        window._refineHandlerAttached = true;
+
+    /**
+     * Обновляет select page отображением сохранённого вопроса.
+     *
+     * @returns {boolean}
+     */
+    function renderQuestionOnSelectPage() {
+        if (!ensureSelectPageDomElementsBound()) {
+            console.warn('Модуль вопроса: элементы страницы выбора карт не найдены');
+            return false;
+        }
+
+        if (!isSelectPageHandlerBound) {
+            bindSelectPageEventHandlers();
+        }
+
+        renderSavedQuestionOnSelectPage();
+        return true;
     }
-}
 
-// ============================================
-// ЭКСПОРТ ФУНКЦИЙ ДЛЯ ДРУГИХ МОДУЛЕЙ
-// ============================================
+    // ============================================
+    // PUBLIC API
+    // ============================================
 
-// Экспортируем функцию инициализации для navigation.js
-window.initQuestionModule = initQuestionModule;
-
-// Экспортируем функцию отображения вопроса для navigation.js
-window.displayQuestionOnSelectPage = displayQuestionOnSelectPage;
+    window.initializeQuestionPage = initializeQuestionModule;
+    window.resetQuestionPageState = resetQuestionState;
+    window.renderQuestionOnSelectPage = renderQuestionOnSelectPage;
+})();

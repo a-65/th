@@ -1,149 +1,382 @@
-// ============================================
-// main.js — ТОЧКА ВХОДА ПРИЛОЖЕНИЯ
-// ============================================
+(() => {
+    // ============================================
+    // main.js — ТОЧКА ВХОДА ПРИЛОЖЕНИЯ
+    // ============================================
 
-/**
- * Инициализация приложения
- * Вызывается после загрузки DOM
- */
-function initApp() {
-    console.log('🚀 TarotHub: инициализация приложения');
-    
-    // Заполняем страницы контентом из data.js
-    const welcomeContent = document.getElementById('welcome-content');
-    if (welcomeContent && typeof INTRO_TEXT !== 'undefined') {
-        welcomeContent.innerHTML = INTRO_TEXT.replace(/\n/g, '<br>');
-    }
-    
-    const historyContent = document.getElementById('history-content');
-    if (historyContent && typeof HISTORY_TEXT !== 'undefined') {
-        historyContent.innerHTML = HISTORY_TEXT.map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
-    }
-    
-    const rulesContent = document.getElementById('rules-content');
-    if (rulesContent && typeof HEQET_TEXT !== 'undefined') {
-        rulesContent.innerHTML = HEQET_TEXT.map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
-    }
-    
-    // Создаём кнопки навигации
-    if (typeof createNavButtons === 'function') {
-        createNavButtons();
+    const NAVIGATION_PANEL_ANIMATION_DURATION_MS = 300;
+    const WELCOME_PAGE_ID = 'page-welcome';
+    const RESULT_PAGE_ID = 'page-result';
+
+    let welcomeContentElement = null;
+    let historyContentElement = null;
+    let rulesContentElement = null;
+
+    let navigationToggleElement = null;
+    let navigationButtonsContainerElement = null;
+    let navigationOverlayElement = null;
+
+    let isNavigationPanelAnimating = false;
+    let areNavigationPanelEventHandlersBound = false;
+
+    // ============================================
+    // DOM BINDING
+    // ============================================
+
+    function bindStaticContentDomElements() {
+        welcomeContentElement = document.getElementById('welcome-content');
+        historyContentElement = document.getElementById('history-content');
+        rulesContentElement = document.getElementById('rules-content');
     }
 
-    // Инициализируем выезжающую панель
-    initNavPanel();
-    
-    // Проверяем, есть ли сохранённый расклад
-    const savedSpread = localStorage.getItem('tarot_last_complete_spread');
-    if (savedSpread) {
-        // Если есть сохранённый расклад — переходим на страницу результата
-        console.log('🔄 Найден сохранённый расклад, переходим на страницу результата');
-        if (typeof window.switchToPage === 'function') {
-            window.switchToPage('page-result');
+    function bindNavigationPanelDomElements() {
+        navigationToggleElement = document.getElementById('nav-toggle');
+        navigationButtonsContainerElement = document.getElementById('nav-buttons');
+        navigationOverlayElement = document.querySelector('.nav-overlay');
+    }
+
+    // ============================================
+    // CONTENT RENDERING
+    // ============================================
+
+    function renderTextWithLineBreaks(text) {
+        if (typeof text !== 'string') {
+            return '';
         }
-    } else {
-        // Если нет — показываем страницу приветствия
+
+        return text.replace(/\n/g, '<br>');
+    }
+
+    function renderParagraphArrayAsHtml(paragraphs) {
+        if (!Array.isArray(paragraphs)) {
+            return '';
+        }
+
+        return paragraphs
+            .map((paragraph) => `<p>${renderTextWithLineBreaks(paragraph)}</p>`)
+            .join('');
+    }
+
+
+    function getWelcomeIntroText() {
+        if (
+            typeof APP_PAGE_CONTENT !== 'undefined' &&
+            APP_PAGE_CONTENT.welcome &&
+            typeof APP_PAGE_CONTENT.welcome.introText === 'string'
+        ) {
+            return APP_PAGE_CONTENT.welcome.introText;
+        }
+
+        return '';
+    }
+
+    function getHistoryParagraphs() {
+        if (
+            typeof APP_PAGE_CONTENT !== 'undefined' &&
+            APP_PAGE_CONTENT.history &&
+            Array.isArray(APP_PAGE_CONTENT.history.paragraphs)
+        ) {
+            return APP_PAGE_CONTENT.history.paragraphs;
+        }
+
+        return [];
+    }
+
+    function getHeqetDescriptionBlocks() {
+        if (
+            typeof APP_PAGE_CONTENT !== 'undefined' &&
+            APP_PAGE_CONTENT.heqetSpread &&
+            Array.isArray(APP_PAGE_CONTENT.heqetSpread.descriptionBlocks)
+        ) {
+            return APP_PAGE_CONTENT.heqetSpread.descriptionBlocks;
+        }
+
+        return [];
+    }
+
+    function renderWelcomePageContent() {
+        if (!welcomeContentElement) {
+            return;
+        }
+
+        const welcomeIntroText = getWelcomeIntroText();
+
+        if (!welcomeIntroText) {
+            welcomeContentElement.innerHTML = '';
+            return;
+        }
+
+        welcomeContentElement.innerHTML = renderTextWithLineBreaks(welcomeIntroText);
+    }
+
+    function renderHistoryPageContent() {
+        if (!historyContentElement) {
+            return;
+        }
+
+        const historyParagraphs = getHistoryParagraphs();
+
+        if (!historyParagraphs.length) {
+            historyContentElement.innerHTML = '';
+            return;
+        }
+
+        historyContentElement.innerHTML = renderParagraphArrayAsHtml(historyParagraphs);
+    }
+
+    function renderRulesPageContent() {
+        if (!rulesContentElement) {
+            return;
+        }
+
+        const heqetDescriptionBlocks = getHeqetDescriptionBlocks();
+
+        if (!heqetDescriptionBlocks.length) {
+            rulesContentElement.innerHTML = '';
+            return;
+        }
+
+        rulesContentElement.innerHTML =
+            renderParagraphArrayAsHtml(heqetDescriptionBlocks);
+    }
+
+    function renderStaticPageContent() {
+        renderWelcomePageContent();
+        renderHistoryPageContent();
+        renderRulesPageContent();
+    }
+
+    // ============================================
+    // NAVIGATION PANEL STATE HELPERS
+    // ============================================
+
+    function isNavigationPanelDomReady() {
+        return Boolean(navigationToggleElement && navigationButtonsContainerElement);
+    }
+
+    function isNavigationPanelOpen() {
+        if (!isNavigationPanelDomReady()) {
+            return false;
+        }
+
+        return navigationButtonsContainerElement.classList.contains('open');
+    }
+
+    function canChangeNavigationPanelState() {
+        return !isNavigationPanelAnimating && isNavigationPanelDomReady();
+    }
+
+    function finishNavigationPanelAnimationAfterDelay() {
+        setTimeout(() => {
+            isNavigationPanelAnimating = false;
+        }, NAVIGATION_PANEL_ANIMATION_DURATION_MS);
+    }
+
+    // ============================================
+    // NAVIGATION PANEL HELPERS
+    // ============================================
+
+    function ensureNavigationOverlayElement() {
+        if (navigationOverlayElement) {
+            return navigationOverlayElement;
+        }
+
+        const existingOverlayElement = document.querySelector('.nav-overlay');
+        if (existingOverlayElement) {
+            navigationOverlayElement = existingOverlayElement;
+            return navigationOverlayElement;
+        }
+
+        navigationOverlayElement = document.createElement('div');
+        navigationOverlayElement.className = 'nav-overlay';
+        document.body.insertBefore(navigationOverlayElement, document.body.firstChild);
+
+        return navigationOverlayElement;
+    }
+
+    function setBodyScrollLocked(isLocked) {
+        document.body.style.overflow = isLocked ? 'hidden' : '';
+    }
+
+    function openNavigationPanel() {
+        if (!canChangeNavigationPanelState()) {
+            return;
+        }
+
+        const overlayElement = ensureNavigationOverlayElement();
+        if (!overlayElement) {
+            return;
+        }
+
+        isNavigationPanelAnimating = true;
+
+        navigationButtonsContainerElement.classList.add('open');
+        overlayElement.classList.add('active');
+        setBodyScrollLocked(true);
+
+        finishNavigationPanelAnimationAfterDelay();
+    }
+
+    function closeNavigationPanel() {
+        if (!canChangeNavigationPanelState()) {
+            return;
+        }
+
+        const overlayElement = ensureNavigationOverlayElement();
+        if (!overlayElement) {
+            return;
+        }
+
+        isNavigationPanelAnimating = true;
+
+        navigationButtonsContainerElement.classList.remove('open');
+        overlayElement.classList.remove('active');
+        setBodyScrollLocked(false);
+
+        finishNavigationPanelAnimationAfterDelay();
+    }
+
+    function toggleNavigationPanel() {
+        if (!canChangeNavigationPanelState()) {
+            return;
+        }
+
+        if (isNavigationPanelOpen()) {
+            closeNavigationPanel();
+            return;
+        }
+
+        openNavigationPanel();
+    }
+
+    function handleNavigationToggleClick() {
+        toggleNavigationPanel();
+    }
+
+    function handleNavigationOverlayClick() {
+        closeNavigationPanel();
+    }
+
+    function handleNavigationButtonsContainerClick(event) {
+        const navigationButton = event.target.closest('.nav-btn');
+
+        if (navigationButton) {
+            closeNavigationPanel();
+        }
+    }
+
+    function handleDocumentKeyDown(event) {
+        const isEscapePressed = event.key === 'Escape';
+
+        if (isEscapePressed && isNavigationPanelOpen()) {
+            closeNavigationPanel();
+        }
+    }
+
+    function bindNavigationPanelEventHandlers() {
+        if (areNavigationPanelEventHandlersBound) {
+            return true;
+        }
+
+        if (!isNavigationPanelDomReady()) {
+            console.warn('⚠️ Элементы для панели навигации не найдены');
+            return false;
+        }
+
+        const overlayElement = ensureNavigationOverlayElement();
+        if (!overlayElement) {
+            console.warn('⚠️ Не удалось создать overlay для панели навигации');
+            return false;
+        }
+
+        navigationToggleElement.addEventListener('click', handleNavigationToggleClick);
+        overlayElement.addEventListener('click', handleNavigationOverlayClick);
+        navigationButtonsContainerElement.addEventListener(
+            'click',
+            handleNavigationButtonsContainerClick
+        );
+        document.addEventListener('keydown', handleDocumentKeyDown);
+
+        areNavigationPanelEventHandlersBound = true;
+        return true;
+    }
+
+    function initializeNavigationPanel() {
+        if (!isNavigationPanelDomReady()) {
+            console.warn('⚠️ Элементы для панели навигации не найдены');
+            return false;
+        }
+
+        ensureNavigationOverlayElement();
+
+        const isBound = bindNavigationPanelEventHandlers();
+
+        if (isBound) {
+            console.log('✅ Панель навигации инициализирована');
+        }
+
+        return isBound;
+    }
+
+    // ============================================
+    // APPLICATION STARTUP HELPERS
+    // ============================================
+
+    function renderNavigationUi() {
+        if (typeof window.renderNavigationButtons === 'function') {
+            window.renderNavigationButtons();
+            return true;
+        }
+
+        console.warn('⚠️ Функция renderNavigationButtons недоступна');
+        return false;
+    }
+
+    function hasSavedSpreadInStorage() {
+        return Boolean(localStorage.getItem('tarot_last_complete_spread'));
+    }
+
+    function getInitialApplicationPageId() {
+        return hasSavedSpreadInStorage() ? RESULT_PAGE_ID : WELCOME_PAGE_ID;
+    }
+
+    function logInitialApplicationPageSelection(pageId) {
+        if (pageId === RESULT_PAGE_ID) {
+            console.log('🔄 Найден сохранённый расклад, переходим на страницу результата');
+            return;
+        }
+
         console.log('🏠 Нет сохранённого расклада, показываем страницу приветствия');
-        if (typeof window.switchToPage === 'function') {
-            window.switchToPage('page-welcome');
-        }
     }
-    
-    console.log('✅ Приложение инициализировано');
-}
 
-/**
- * Инициализирует выезжающую панель навигации
- */
-function initNavPanel() {
-    const navToggle = document.getElementById('nav-toggle');
-    const navButtons = document.getElementById('nav-buttons');
-    
-    if (!navToggle || !navButtons) {
-        console.warn('⚠️ Элементы для панели навигации не найдены');
-        return;
-    }
-    
-    // Создаём оверлей, если его нет
-    let overlay = document.querySelector('.nav-overlay');
-    if (!overlay) {
-        overlay = document.createElement('div');
-        overlay.className = 'nav-overlay';
-        document.body.insertBefore(overlay, document.body.firstChild);
-    }
-    
-    // Флаг для блокировки кликов во время анимации
-    let isAnimating = false;
-    
-    /**
-     * Открывает панель навигации
-     */
-    function openNav() {
-        if (isAnimating) return;
-        isAnimating = true;
-        
-        navButtons.classList.add('open');
-        overlay.classList.add('active');
-        document.body.style.overflow = 'hidden';
-        
-        setTimeout(() => {
-            isAnimating = false;
-        }, 300);
-    }
-    
-    /**
-     * Закрывает панель навигации
-     */
-    function closeNav() {
-        if (isAnimating) return;
-        isAnimating = true;
-        
-        navButtons.classList.remove('open');
-        overlay.classList.remove('active');
-        document.body.style.overflow = '';
-        
-        setTimeout(() => {
-            isAnimating = false;
-        }, 300);
-    }
-    
-    /**
-     * Переключает состояние панели навигации
-     */
-    function toggleNav() {
-        if (isAnimating) return;
-        
-        const isOpen = navButtons.classList.contains('open');
-        if (isOpen) {
-            closeNav();
-        } else {
-            openNav();
+    function showInitialApplicationPage() {
+        if (typeof window.showPageById !== 'function') {
+            console.warn('⚠️ Функция showPageById недоступна');
+            return false;
         }
-    }
-    
-    // Обработчик клика по кнопке ☰
-    navToggle.addEventListener('click', toggleNav);
-    
-    // Обработчик клика по оверлею
-    overlay.addEventListener('click', closeNav);
-    
-    // Обработчик клика по кнопкам в панели
-    navButtons.addEventListener('click', (event) => {
-        const btn = event.target.closest('.nav-btn');
-        if (btn) {
-            closeNav();
-        }
-    });
-    
-    // Обработчик нажатия Escape
-    document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape' && navButtons.classList.contains('open')) {
-            closeNav();
-        }
-    });
-    
-    console.log('✅ Панель навигации инициализирована');
-}
 
-// Запускаем приложение после загрузки DOM
-document.addEventListener('DOMContentLoaded', initApp);
+        const initialPageId = getInitialApplicationPageId();
+        logInitialApplicationPageSelection(initialPageId);
+        window.showPageById(initialPageId);
+
+        return true;
+    }
+
+    // ============================================
+    // APPLICATION BOOTSTRAP
+    // ============================================
+
+    function initializeApplication() {
+        console.log('🚀 TarotHub: инициализация приложения');
+
+        bindStaticContentDomElements();
+        bindNavigationPanelDomElements();
+        renderStaticPageContent();
+        renderNavigationUi();
+        initializeNavigationPanel();
+        showInitialApplicationPage();
+
+        console.log('✅ Приложение инициализировано');
+    }
+
+    document.addEventListener('DOMContentLoaded', initializeApplication);
+})();

@@ -38,7 +38,7 @@
              ============================================ -->
         <div id="page-welcome" class="page active-page">
             <h1>✨ Добро пожаловать в TarotHub ✨</h1>
-            <!-- Контент загружается из data.js (INTRO_TEXT) -->
+            <!-- Контент загружается из APP_PAGE_CONTENT.welcome -->
             <div class="page-content" id="welcome-content"></div>
         </div>
 
@@ -78,8 +78,12 @@
                         id="question-input" 
                         class="question-input" 
                         rows="3"
+                        aria-describedby="question-input-hint"
                         placeholder="Например: Что меня ждёт в карьере? Как сложатся отношения? Какой урок мне нужно усвоить?"
                     ></textarea>
+                    <p id="question-input-hint" class="question-input-hint">
+                        Shift + Enter — новая строка, Enter — отправить вопрос
+                    </p>
                     <div class="input-glow"></div>
                     <div class="input-corner corner-tl"></div>
                     <div class="input-corner corner-tr"></div>
@@ -194,7 +198,7 @@
         <!-- ============================================
              НАВИГАЦИЯ
              Контейнер для навигационных кнопок между страницами
-             Кнопки создаются динамически через createNavButtons()
+             Кнопки создаются динамически через renderNavigationButtons()
              ============================================ -->
         <div id="nav-buttons" class="nav-buttons"></div>
         
@@ -206,16 +210,19 @@
          ============================================ -->
     <!-- Массив карт Таро (78 карт) -->
     <script src="js/data/tarotDeck.js"></script>
-    <!-- Текстовые данные (INTRO_TEXT, HISTORY_TEXT, HEQET_TEXT и др.) -->
+
+    <!-- Структурированные данные страниц и расклада -->
     <script src="js/data.js"></script>
-    <!-- Вспомогательные функции (withLock, getActivePageId) -->
-    <script src="js/modules/utils.js"></script>
+
     <!-- Управление навигацией между страницами -->
     <script src="js/modules/navigation.js"></script>
+
     <!-- Логика вопроса (ввод, сохранение, восстановление) -->
     <script src="js/modules/question.js"></script>
+
     <!-- Логика аутентичного расклада (колоды, выбор карт, тасовка) -->
     <script src="js/modules/deck.js"></script>
+
     <!-- Точка входа приложения -->
     <script src="js/main.js"></script>
 </body>
