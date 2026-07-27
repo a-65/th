@@ -1,5 +1,5 @@
 // ============================================
-// 1. СТРУКТУРИРОВАННЫЙ ПРИВЕТСТВЕННЫЙ ТЕКСТ
+// 1. СТРУКТУРИРОВАННЫЙ КОНТЕНТ СТРАНИЦ
 // ============================================
 
 const APP_PAGE_CONTENT = {
@@ -123,33 +123,9 @@ const APP_PAGE_CONTENT = {
     }
 };
 
-/**
- * Временный алиас для обратной совместимости.
- * Пока остальной код продолжает использовать старое имя INTRO_TEXT.
- */
-const INTRO_TEXT = APP_PAGE_CONTENT.welcome.introText;
-
-/**
- * Временный алиас для обратной совместимости.
- * Пока остальной код продолжает использовать старое имя HISTORY_TEXT.
- */
-const HISTORY_TEXT = APP_PAGE_CONTENT.history.paragraphs;
-
-/**
- * Временный алиас для обратной совместимости.
- * Пока остальной код продолжает использовать старое имя TAROTH_TEXT.
- */
-const TAROTH_TEXT = APP_PAGE_CONTENT.learning.tarothText;
-
-/**
- * Временный алиас для обратной совместимости.
- * Пока остальной код продолжает использовать старое имя HEQET_TEXT.
- */
-const HEQET_TEXT = APP_PAGE_CONTENT.heqetSpread.descriptionBlocks;
-
 
 // ============================================
-// 5. ДАННЫЕ ДЛЯ РАСКЛАДА «ПРЫЖОК ХЕКЕТ»
+// 2. ДАННЫЕ ДЛЯ РАСКЛАДА «ПРЫЖОК ХЕКЕТ»
 // ============================================
 
 /**
@@ -194,12 +170,3 @@ const HEQET_SPREAD_DATA = {
         ]
     }
 };
-
-/**
- * Временные алиасы для обратной совместимости.
- * Пока остальной код продолжает использовать старые имена первой части.
- */
-const PART_ONE_DESCRIPTION = HEQET_SPREAD_DATA.partOne.description;
-const PART_ONE_POSITIONS = HEQET_SPREAD_DATA.partOne.positions;
-const PART_TWO_DESCRIPTION = HEQET_SPREAD_DATA.partTwo.description;
-const PART_TWO_POSITIONS = HEQET_SPREAD_DATA.partTwo.positions;

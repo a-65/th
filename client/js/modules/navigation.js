@@ -78,11 +78,12 @@
     // ============================================
 
     function getCurrentActivePageId() {
-        if (typeof window.getActivePageId === 'function') {
-            return window.getActivePageId();
-        }
+        const activePageElement =
+            document.querySelector('.page.active-page');
 
-        return 'page-welcome';
+        return activePageElement
+            ? activePageElement.id
+            : 'page-welcome';
     }
 
     function getPageElementById(pageId) {

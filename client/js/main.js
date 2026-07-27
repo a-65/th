@@ -66,10 +66,6 @@
             return APP_PAGE_CONTENT.welcome.introText;
         }
 
-        if (typeof INTRO_TEXT === 'string') {
-            return INTRO_TEXT;
-        }
-
         return '';
     }
 
@@ -82,13 +78,20 @@
             return APP_PAGE_CONTENT.history.paragraphs;
         }
 
-        if (Array.isArray(HISTORY_TEXT)) {
-            return HISTORY_TEXT;
+        return [];
+    }
+
+    function getHeqetDescriptionBlocks() {
+        if (
+            typeof APP_PAGE_CONTENT !== 'undefined' &&
+            APP_PAGE_CONTENT.heqetSpread &&
+            Array.isArray(APP_PAGE_CONTENT.heqetSpread.descriptionBlocks)
+        ) {
+            return APP_PAGE_CONTENT.heqetSpread.descriptionBlocks;
         }
 
         return [];
     }
-
 
     function renderWelcomePageContent() {
         if (!welcomeContentElement) {
@@ -121,11 +124,19 @@
     }
 
     function renderRulesPageContent() {
-        if (!rulesContentElement || typeof HEQET_TEXT === 'undefined') {
+        if (!rulesContentElement) {
             return;
         }
 
-        rulesContentElement.innerHTML = renderParagraphArrayAsHtml(HEQET_TEXT);
+        const heqetDescriptionBlocks = getHeqetDescriptionBlocks();
+
+        if (!heqetDescriptionBlocks.length) {
+            rulesContentElement.innerHTML = '';
+            return;
+        }
+
+        rulesContentElement.innerHTML =
+            renderParagraphArrayAsHtml(heqetDescriptionBlocks);
     }
 
     function renderStaticPageContent() {

@@ -269,15 +269,31 @@
             : getPart2PositionTitle(index);
     }
 
-    function getPositionDescriptionByPart(part, positionIndex) {
+    function getSpreadPartData(part) {
+        if (typeof HEQET_SPREAD_DATA === 'undefined') {
+            return null;
+        }
+
         if (part === 'part1') {
-            if (typeof PART_ONE_POSITIONS !== 'undefined' && PART_ONE_POSITIONS[positionIndex]) {
-                return PART_ONE_POSITIONS[positionIndex];
-            }
-        } else {
-            if (typeof PART_TWO_POSITIONS !== 'undefined' && PART_TWO_POSITIONS[positionIndex]) {
-                return PART_TWO_POSITIONS[positionIndex];
-            }
+            return HEQET_SPREAD_DATA.partOne || null;
+        }
+
+        if (part === 'part2') {
+            return HEQET_SPREAD_DATA.partTwo || null;
+        }
+
+        return null;
+    }
+
+    function getPositionDescriptionByPart(part, positionIndex) {
+        const spreadPartData = getSpreadPartData(part);
+
+        if (
+            spreadPartData &&
+            Array.isArray(spreadPartData.positions) &&
+            spreadPartData.positions[positionIndex]
+        ) {
+            return spreadPartData.positions[positionIndex];
         }
 
         return getPositionTitleByPart(part, positionIndex);
@@ -286,24 +302,28 @@
     function applySelectPagePartDescriptions(logContext = '') {
         const suffix = logContext ? ` (${logContext})` : '';
 
-        if (typeof PART_ONE_DESCRIPTION !== 'undefined') {
-            setSelectPagePartDescription('part1', PART_ONE_DESCRIPTION);
+        const part1Data = getSpreadPartData('part1');
+        if (part1Data && typeof part1Data.description === 'string') {
+            setSelectPagePartDescription('part1', part1Data.description);
             console.log(`✅ Добавлено описание первой части${suffix}`);
         }
 
-        if (typeof PART_TWO_DESCRIPTION !== 'undefined') {
-            setSelectPagePartDescription('part2', PART_TWO_DESCRIPTION);
+        const part2Data = getSpreadPartData('part2');
+        if (part2Data && typeof part2Data.description === 'string') {
+            setSelectPagePartDescription('part2', part2Data.description);
             console.log(`✅ Добавлено описание второй части${suffix}`);
         }
     }
 
     function applyResultPartDescriptions() {
-        if (typeof PART_ONE_DESCRIPTION !== 'undefined') {
-            setResultPartDescription('part1', PART_ONE_DESCRIPTION);
+        const part1Data = getSpreadPartData('part1');
+        if (part1Data && typeof part1Data.description === 'string') {
+            setResultPartDescription('part1', part1Data.description);
         }
 
-        if (typeof PART_TWO_DESCRIPTION !== 'undefined') {
-            setResultPartDescription('part2', PART_TWO_DESCRIPTION);
+        const part2Data = getSpreadPartData('part2');
+        if (part2Data && typeof part2Data.description === 'string') {
+            setResultPartDescription('part2', part2Data.description);
         }
     }
 
